@@ -1,0 +1,51 @@
+#############################################################################################
+#                                     SEARCH GUARD SSL                                      #
+#                                       Configuration                                       #
+#############################################################################################
+
+
+#############################################################################################
+# Transport layer SSL                                                                       #
+#                                                                                           #
+#############################################################################################
+# Enable or disable node-to-node ssl encryption (default: true)
+#searchguard.ssl.transport.node.enabled: false
+# JKS or PKCS12 (default: JKS)
+#searchguard.ssl.transport.node.keystore_type: PKCS12
+# Relative path to the keystore file (this stores the server certificates), must be placed under the config/ dir
+#searchguard.ssl.transport.node.keystore_filepath: keystore_node1.jks
+# Keystore password (default: changeit)
+#searchguard.ssl.transport.node.keystore_password: changeit
+# Do other nodes have to authenticate themself to the cluster (default: true)
+#searchguard.ssl.transport.node.enforce_clientauth: true
+# JKS or PKCS12 (default: JKS)
+#searchguard.ssl.transport.node.truststore_type: PKCS12
+# Relative path to the truststore file (this stores the client certificates), must be placed under the config/ dir
+#searchguard.ssl.transport.node.truststore_filepath: truststore.jks
+# Truststore password (default: changeit)
+#searchguard.ssl.transport.node.truststore_password: changeit
+# Enforce hostname verification (default: true)
+#searchguard.ssl.transport.node.enforce_hostname_verification: true
+# If hostname verification specify if hostname should be resolved (default: true)
+#searchguard.ssl.transport.node.resolve_hostname: true
+
+#############################################################################################
+# HTTP/REST layer SSL                                                                       #
+#                                                                                           #
+#############################################################################################
+# Enable or disable rest layer security - https, (default: false)
+#searchguard.ssl.transport.http.enabled: true
+# JKS or PKCS12 (default: JKS)
+#searchguard.ssl.transport.http.keystore_type: PKCS12
+# Relative path to the keystore file (this stores the server certificates), must be placed under the config/ dir
+#searchguard.ssl.transport.http.keystore_filepath: keystore_https_node1.jks
+# Keystore password (default: changeit)
+#searchguard.ssl.transport.http.keystore_password: changeit
+# Do the clients (typically the browser or the proxy) have to authenticate themself to the http server, default is false
+#searchguard.ssl.transport.http.enforce_clientauth: false
+# JKS or PKCS12 (default: JKS)
+#searchguard.ssl.transport.http.truststore_type: PKCS12
+# Relative path to the truststore file (this stores the client certificates), must be placed under the config/ dir
+#searchguard.ssl.transport.http.truststore_filepath: truststore_https.jks
+# Truststore password (default: changeit)
+#searchguard.ssl.transport.http.truststore_password: changeit
