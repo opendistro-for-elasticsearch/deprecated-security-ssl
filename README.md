@@ -16,7 +16,7 @@ It does not provide authentication and authorization. For that pls refer to [Sea
 * Node-to-node encryption through SSL/TLS (Transport layer)
 * Secure REST layer through HTTPS (SSL/TLS)
 * No external dependencies
-* Works with Kibana 4 and logstash
+* Works with Kibana 4, logstash and beats
 
 ##Pre-Installation
 ###Check Release Integrity
@@ -36,7 +36,7 @@ Prerequisites:
 Build it yourself:
 
 * Install maven 3.1+
-* ``git clone https://github.com/floragunncom/search-guard-ssl.git`
+* ``git clone https://github.com/floragunncom/search-guard-ssl.git``
 * ``cd search-guard-ssl``
 * execute ``mvn package -DskipTests`` 
 
@@ -55,8 +55,8 @@ Configured in elasticsearch's logging.yml. Nothing special. To enable debug just
 
 ###SSL Certificates
 * Refer to [example-pki-scripts](example-pki-scripts) how to generate the certificates. It's strongly recommended to use a root certificate.
- * See also [https://www.digitalocean.com/community/tutorials/java-keytool-essentials-working-with-java-keystores](https://www.digitalocean.com/community/tutorials/java-keytool-essentials-working-with-java-keystores)
- * or [https://tomcat.apache.org/tomcat-8.0-doc/ssl-howto.html]{https://tomcat.apache.org/tomcat-8.0-doc/ssl-howto.html)
+* See also [https://www.digitalocean.com/community/tutorials/java-keytool-essentials-working-with-java-keystores](https://www.digitalocean.com/community/tutorials/java-keytool-essentials-working-with-java-keystores)
+* or [https://tomcat.apache.org/tomcat-8.0-doc/ssl-howto.html]{https://tomcat.apache.org/tomcat-8.0-doc/ssl-howto.html)
 
 ###Update and Upgrade
 TBD
