@@ -56,7 +56,7 @@ Configured in elasticsearch's logging.yml. Nothing special. To enable debug just
 ###SSL Certificates
 * Refer to [example-pki-scripts](example-pki-scripts) how to generate the certificates. It's strongly recommended to use a root certificate.
 * See also [https://www.digitalocean.com/community/tutorials/java-keytool-essentials-working-with-java-keystores](https://www.digitalocean.com/community/tutorials/java-keytool-essentials-working-with-java-keystores)
-* or [https://tomcat.apache.org/tomcat-8.0-doc/ssl-howto.html]{https://tomcat.apache.org/tomcat-8.0-doc/ssl-howto.html)
+* or [https://tomcat.apache.org/tomcat-8.0-doc/ssl-howto.html](https://tomcat.apache.org/tomcat-8.0-doc/ssl-howto.html)
 
 ###Update and Upgrade
 TBD
