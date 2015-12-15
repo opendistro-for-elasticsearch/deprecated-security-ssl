@@ -31,3 +31,10 @@ securekey.key
 /target/
 .DS_Store
 data/
+example-pki-scripts/**/*.jks
+example-pki-scripts/**/*.pem
+example-pki-scripts/**/db/
+example-pki-scripts/**/*.csr
+example-pki-scripts/**/*.crt
+example-pki-scripts/**/*.key
+

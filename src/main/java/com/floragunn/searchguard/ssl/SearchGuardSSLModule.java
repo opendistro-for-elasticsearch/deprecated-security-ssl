@@ -18,11 +18,20 @@
 package com.floragunn.searchguard.ssl;
 
 import org.elasticsearch.common.inject.AbstractModule;
+import org.elasticsearch.common.settings.Settings;
 
 public final class SearchGuardSSLModule extends AbstractModule {
+
+    private final SearchGuardKeyStore sgks;
+
+    public SearchGuardSSLModule(final Settings settings) {
+        super();
+        this.sgks = new SearchGuardKeyStore(settings);
+    }
 
     @Override
     protected void configure() {
         bind(SearchGuardSSLSettingsFilter.class).asEagerSingleton();
+        bind(SearchGuardKeyStore.class).toInstance(sgks);
     }
 }

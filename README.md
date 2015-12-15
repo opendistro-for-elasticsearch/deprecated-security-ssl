@@ -6,16 +6,17 @@ It does not provide authentication and authorization. For that pls refer to [Sea
 
 ![Logo](https://raw.githubusercontent.com/floragunncom/sg-assets/master/logo/sg_logo_small.jpg) 
 
-[![Build Status](https://travis-ci.org/floragunncom/search-guard-ssl.svg?branch=master)](https://travis-ci.org/floragunncom/search-guard-ssl) [![Coverage Status](https://coveralls.io/repos/floragunncom/search-guard-ssl/badge.svg?branch=master)](https://coveralls.io/r/floragunncom/search-guard-ssl?branch=master)
+[![Build Status](https://travis-ci.org/floragunncom/search-guard-ssl.svg?branch=openssl)](https://travis-ci.org/floragunncom/search-guard-ssl) [![Coverage Status](https://coveralls.io/repos/floragunncom/search-guard-ssl/badge.svg?branch=openssl)](https://coveralls.io/r/floragunncom/search-guard-ssl?branch=openssl)
 
 ##Support
 * Community support available via [google groups](https://groups.google.com/forum/#!forum/search-guard)
-* Commercial support through [floragunn UG](http://floragunn.com) available soon
+* Commercial support through [floragunn UG](http://floragunn.com) available Februar 2016
 
 ##Features
 * Node-to-node encryption through SSL/TLS (Transport layer)
 * Secure REST layer through HTTPS (SSL/TLS)
-* No external dependencies
+* Supports JDK SSL and Open SSL
+* Only external dependency is Netty 4 (and Tomcat Native if Open SSL is used)
 * Works with Kibana 4, logstash and beats
 
 ##Pre-Installation
@@ -26,12 +27,13 @@ You **must** verify the integrity of the downloaded files. We provide PGP signat
 ##Installation
 Install it like any other Elasticsearch plugin
 
-``sudo bin/plugin install com.floragunn/search-guard-ssl/2.1.0.0``
+``sudo bin/plugin install com.floragunn/search-guard-ssl/2.1.0.1``
 
 Prerequisites:
 
 * Java 7 or 8 (recommended)
 * Elasticsearch 2.1.0
+* Optional: Tomcat Native and Open SSL
 
 Build it yourself:
 
@@ -45,7 +47,15 @@ Build it yourself:
 
 Search Guard SSL configuration is done in elasticsearch.yml. Please refer to [searchguard-ssl-config-template.yml](searchguard-ssl-config-template.yml) to see the configuration options and their defaults.
 
-Check your configuration by visiting [https://localhost:9200/_searchguard/sslinfo?pretty](https://localhost:9200/_searchguard/sslinfo?pretty) if you have enabled HTTPS.
+Note:
+
+* ``security.manager.enabled`` - Must currently be set to ``false``. This will likely change with Elasticsearch 2.2, see [PR 14108](https://github.com/elastic/elasticsearch/pull/14108)
+
+Check your configuration by visiting [https://localhost:9200/_searchguard/sslinfo?pretty](https://localhost:9200/_searchguard/sslinfo?pretty) if you have enabled HTTPS or [http://localhost:9200/_searchguard/sslinfo?pretty](http://localhost:9200/_searchguard/sslinfo?pretty) if HTTPS is not enabled.
+
+
+
+
 
 ###Logging
 Configured in elasticsearch's logging.yml. Nothing special. To enable debug just add

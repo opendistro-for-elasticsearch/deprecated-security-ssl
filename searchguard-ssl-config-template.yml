@@ -3,6 +3,7 @@
 #                                       Configuration                                       #
 #############################################################################################
 
+security.manager.enabled: false
 
 #############################################################################################
 # Transport layer SSL                                                                       #
@@ -12,22 +13,27 @@
 #searchguard.ssl.transport.node.enabled: false
 # JKS or PKCS12 (default: JKS)
 #searchguard.ssl.transport.node.keystore_type: PKCS12
-# Relative path to the keystore file (this stores the server certificates), must be placed under the config/ dir
+# Relative path to the keystore file (mandatory, this stores the server certificates), must be placed under the config/ dir
 #searchguard.ssl.transport.node.keystore_filepath: keystore_node1.jks
+# Alias name (default: first alias which could be found)
+#searchguard.ssl.transport.node.keystore_alias: my_alias
 # Keystore password (default: changeit)
 #searchguard.ssl.transport.node.keystore_password: changeit
-# Do other nodes have to authenticate themself to the cluster (default: true)
-#searchguard.ssl.transport.node.enforce_clientauth: true
+
 # JKS or PKCS12 (default: JKS)
 #searchguard.ssl.transport.node.truststore_type: PKCS12
-# Relative path to the truststore file (this stores the client certificates), must be placed under the config/ dir
+# Relative path to the truststore file (mandatory, this stores the client/root certificates), must be placed under the config/ dir
 #searchguard.ssl.transport.node.truststore_filepath: truststore.jks
+# Alias name (default: first alias which could be found)
+#searchguard.ssl.transport.node.truststore_alias: my_alias
 # Truststore password (default: changeit)
 #searchguard.ssl.transport.node.truststore_password: changeit
 # Enforce hostname verification (default: true)
 #searchguard.ssl.transport.node.enforce_hostname_verification: true
 # If hostname verification specify if hostname should be resolved (default: true)
 #searchguard.ssl.transport.node.resolve_hostname: true
+# Use native Open SSL instead of JDK SSL if available (default: true)
+#searchguard.ssl.transport.node.enable_openssl_if_available: false
 
 #############################################################################################
 # HTTP/REST layer SSL                                                                       #
@@ -39,6 +45,8 @@
 #searchguard.ssl.transport.http.keystore_type: PKCS12
 # Relative path to the keystore file (this stores the server certificates), must be placed under the config/ dir
 #searchguard.ssl.transport.http.keystore_filepath: keystore_https_node1.jks
+# Alias name (default: first alias which could be found)
+#searchguard.ssl.transport.http.keystore_alias: my_alias
 # Keystore password (default: changeit)
 #searchguard.ssl.transport.http.keystore_password: changeit
 # Do the clients (typically the browser or the proxy) have to authenticate themself to the http server, default is false
@@ -47,5 +55,9 @@
 #searchguard.ssl.transport.http.truststore_type: PKCS12
 # Relative path to the truststore file (this stores the client certificates), must be placed under the config/ dir
 #searchguard.ssl.transport.http.truststore_filepath: truststore_https.jks
+# Alias name (default: first alias which could be found)
+#searchguard.ssl.transport.http.truststore_alias: my_alias
 # Truststore password (default: changeit)
 #searchguard.ssl.transport.http.truststore_password: changeit
+# Use native Open SSL instead of JDK SSL if available (default: true)
+#searchguard.ssl.transport.http.enable_openssl_if_available: false

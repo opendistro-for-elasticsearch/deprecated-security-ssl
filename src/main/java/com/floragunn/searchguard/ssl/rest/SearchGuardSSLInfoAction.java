@@ -18,6 +18,7 @@
 package com.floragunn.searchguard.ssl.rest;
 
 import static org.elasticsearch.rest.RestRequest.Method.GET;
+import io.netty.handler.ssl.OpenSsl;
 
 import org.elasticsearch.client.Client;
 import org.elasticsearch.common.inject.Inject;
@@ -32,11 +33,17 @@ import org.elasticsearch.rest.RestRequest;
 import org.elasticsearch.rest.RestStatus;
 import org.jboss.netty.handler.codec.http.HttpRequest;
 
+import com.floragunn.searchguard.ssl.SearchGuardKeyStore;
+
 public class SearchGuardSSLInfoAction extends BaseRestHandler {
 
+    private final SearchGuardKeyStore sgks;
+
     @Inject
-    public SearchGuardSSLInfoAction(final Settings settings, final RestController controller, final Client client) {
+    public SearchGuardSSLInfoAction(final Settings settings, final RestController controller, final Client client,
+            final SearchGuardKeyStore sgks) {
         super(settings, controller, client);
+        this.sgks = sgks;
         controller.registerHandler(GET, "/_searchguard/sslinfo", this);
     }
 
@@ -56,6 +63,11 @@ public class SearchGuardSSLInfoAction extends BaseRestHandler {
             builder.field("principal", httpRequest.headers().get("_sg_ssl_principal"));
             builder.field("ssl_protocol", httpRequest.headers().get("_sg_ssl_protocol"));
             builder.field("ssl_cipher", httpRequest.headers().get("_sg_ssl_cipher"));
+            builder.field("ssl_openssl_available", OpenSsl.isAvailable());
+            builder.field("ssl_openssl_non_available_cause", OpenSsl.unavailabilityCause());
+            builder.field("ssl_provider_http", sgks.sslHTTPProvider);
+            builder.field("ssl_provider_node_server", sgks.sslNodeServerProvider);
+            builder.field("ssl_provider_node_client", sgks.sslNodeClientProvider);
             builder.endObject();
 
             response = new BytesRestResponse(RestStatus.OK, builder);

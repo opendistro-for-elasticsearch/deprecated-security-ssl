@@ -54,23 +54,14 @@ openssl ca \
 	
 echo Signing CA generated
 
-#Useful stuff but not directly needed by this script
-#openssl x509 -in ca/root-ca.crt -out ca/root-ca.der -outform DER
-#openssl x509 -in ca/signing-ca.crt -out ca/signing-ca.der -outform DER
-#openssl x509 -inform der -outform PEM -in ca/root-ca.der -out ca/root-ca.pem
-#openssl x509 -inform der -outform PEM -in ca/signing-ca.der -out ca/signing-ca.pem
-#cat ca/root-ca.pem ca/signing-ca.pem > ca/chain-ca.pem
+openssl x509 -in ca/root-ca.crt -out ca/root-ca.pem -outform PEM
+openssl x509 -in ca/signing-ca.crt -out ca/signing-ca.pem -outform PEM
+cat ca/root-ca.pem ca/signing-ca.pem > ca/chain-ca.pem
 
 "$JAVA_HOME/bin/keytool"  \
-    -import  \
-    -file ca/root-ca.crt  \
+    -importcert \
+    -v \
+    -file ca/chain-ca.pem  \
     -keystore truststore.jks   \
     -storepass $TS_PASS  \
     -noprompt -alias root-ca
-
-"$JAVA_HOME/bin/keytool"  \
-    -import \
-    -file ca/signing-ca.crt  \
-    -keystore truststore.jks   \
-    -storepass $TS_PASS  \
-    -noprompt -alias sig-ca

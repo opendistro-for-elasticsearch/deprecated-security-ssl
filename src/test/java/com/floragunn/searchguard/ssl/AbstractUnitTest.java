@@ -60,8 +60,6 @@ import org.junit.rules.TestName;
 import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
 
-import com.floragunn.searchguard.ssl.util.EnabledSSLCiphers;
-
 public abstract class AbstractUnitTest {
 
     static {
@@ -284,10 +282,10 @@ public abstract class AbstractUnitTest {
             log.debug("Configure HTTP client with SSL");
 
             final KeyStore myTrustStore = KeyStore.getInstance("JKS");
-            myTrustStore.load(new FileInputStream(getAbsoluteFilePathFromClassPath("SearchguardTS.jks")), "changeit".toCharArray());
+            myTrustStore.load(new FileInputStream(getAbsoluteFilePathFromClassPath("truststore.jks")), "changeit".toCharArray());
 
             final KeyStore keyStore = KeyStore.getInstance("JKS");
-            keyStore.load(new FileInputStream(getAbsoluteFilePathFromClassPath("SearchguardKS.jks")), "changeit".toCharArray());
+            keyStore.load(new FileInputStream(getAbsoluteFilePathFromClassPath("node-0-keystore.jks")), "changeit".toCharArray());
 
             final SSLContextBuilder sslContextbBuilder = SSLContexts.custom().useTLS();
 
@@ -306,11 +304,11 @@ public abstract class AbstractUnitTest {
             if (enableHTTPClientSSLv3Only) {
                 protocols = new String[] { "SSLv3" };
             } else {
-                protocols = EnabledSSLCiphers.getEnabledSSLProtocols();
+                protocols = new String[] { "TLSv1", "TLSv1.1", "TLSv1.2" };
             }
 
-            final SSLConnectionSocketFactory sslsf = new SSLConnectionSocketFactory(sslContext, protocols,
-                    EnabledSSLCiphers.getEbabledSSLCiphers(), SSLConnectionSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
+            final SSLConnectionSocketFactory sslsf = new SSLConnectionSocketFactory(sslContext, protocols, null,
+                    SSLConnectionSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
 
             hcb.setSSLSocketFactory(sslsf);
         }
