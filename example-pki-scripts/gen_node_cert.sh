@@ -50,32 +50,7 @@ cat ca/chain-ca.pem $NODE_NAME-signed.pem | keytool \
     -noprompt \
     -alias $NODE_NAME
 
-
-#keytool \
-#    -import \
-#    -file ca/root-ca.crt \
-#    -keystore $NODE_NAME-keystore.jks \
-#    -storepass $KS_PASS \
-#    -noprompt \
-#    -alias root-ca
-
-#keytool \
-#    -import \
-#    -file ca/signing-ca.crt \
-#    -keystore $NODE_NAME-keystore.jks \
-#    -storepass $KS_PASS \
-#    -noprompt \
-#    -alias sig-ca
-
-#keytool \
-#    -import \
-#    -file $NODE_NAME-signed.crt \
-#    -keystore $NODE_NAME-keystore.jks \
-#    -storepass $KS_PASS \
-#    -noprompt \
-#    -alias $NODE_NAME
-
 rm -f $NODE_NAME.csr
-rm -f $NODE_NAME-signed.crt
+rm -f $NODE_NAME-signed.*
 echo All done for $NODE_NAME
 	
