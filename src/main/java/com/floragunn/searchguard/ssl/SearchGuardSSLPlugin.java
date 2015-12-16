@@ -48,10 +48,10 @@ public final class SearchGuardSSLPlugin extends Plugin {
     public SearchGuardSSLPlugin(final Settings settings) {
         this.settings = settings;
         client = !"node".equals(this.settings.get(SearchGuardSSLPlugin.CLIENT_TYPE));
-        httpSSLEnabled = settings.getAsBoolean(ConfigConstants.SEARCHGUARD_SSL_TRANSPORT_HTTP_ENABLED,
-                ConfigConstants.SEARCHGUARD_SSL_TRANSPORT_HTTP_ENABLED_DEFAULT);
-        transportSSLEnabled = settings.getAsBoolean(ConfigConstants.SEARCHGUARD_SSL_TRANSPORT_NODE_ENABLED,
-                ConfigConstants.SEARCHGUARD_SSL_TRANSPORT_NODE_ENABLED_DEFAULT);
+        httpSSLEnabled = settings.getAsBoolean(ConfigConstants.SEARCHGUARD_SSL_HTTP_ENABLED,
+                ConfigConstants.SEARCHGUARD_SSL_HTTP_ENABLED_DEFAULT);
+        transportSSLEnabled = settings.getAsBoolean(ConfigConstants.SEARCHGUARD_SSL_TRANSPORT_ENABLED,
+                ConfigConstants.SEARCHGUARD_SSL_TRANSPORT_ENABLED_DEFAULT);
 
         if (!httpSSLEnabled && !transportSSLEnabled) {
             log.error("SSL not activated for http and/or transport.");

@@ -82,7 +82,7 @@ public class SearchGuardSSLNettyTransport extends NettyTransport {
         @Override
         public ChannelPipeline getPipeline() throws Exception {
             final ChannelPipeline pipeline = super.getPipeline();
-            final SslHandler sslHandler = new SslHandler(sgks.createServerNodeSSLEngine());
+            final SslHandler sslHandler = new SslHandler(sgks.createServerTransportSSLEngine());
             sslHandler.setEnableRenegotiation(false);
             pipeline.addFirst("ssl_server", sslHandler);
             pipeline.replace("dispatcher", "dispatcher", new SearchGuardMessageChannelHandler(nettyTransport, nettyLogger));
@@ -117,9 +117,9 @@ public class SearchGuardSSLNettyTransport extends NettyTransport {
                         hostname = inetSocketAddress.getHostString();
                     }
 
-                    engine = sgks.createClientNodeSSLEngine(hostname, inetSocketAddress.getPort());
+                    engine = sgks.createClientTransportSSLEngine(hostname, inetSocketAddress.getPort());
                 } else {
-                    engine = sgks.createClientNodeSSLEngine(null, -1);
+                    engine = sgks.createClientTransportSSLEngine(null, -1);
                 }
             } catch (final SSLException e) {
                 throw ExceptionsHelper.convertToElastic(e);
@@ -143,10 +143,10 @@ public class SearchGuardSSLNettyTransport extends NettyTransport {
             super(nettyTransport);
             this.sgks = sgks;
 
-            hostnameVerificationEnabled = settings.getAsBoolean(
-                    ConfigConstants.SEARCHGUARD_SSL_TRANSPORT_NODE_ENCFORCE_HOSTNAME_VERIFICATION, true);
+            hostnameVerificationEnabled = settings.getAsBoolean(ConfigConstants.SEARCHGUARD_SSL_TRANSPORT_ENCFORCE_HOSTNAME_VERIFICATION,
+                    true);
             hostnameVerificationResovleHostName = settings.getAsBoolean(
-                    ConfigConstants.SEARCHGUARD_SSL_TRANSPORT_NODE_ENCFORCE_HOSTNAME_VERIFICATION_RESOLVE_HOST_NAME, true);
+                    ConfigConstants.SEARCHGUARD_SSL_TRANSPORT_ENCFORCE_HOSTNAME_VERIFICATION_RESOLVE_HOST_NAME, true);
 
             this.nettyLogger = nettyLogger;
         }

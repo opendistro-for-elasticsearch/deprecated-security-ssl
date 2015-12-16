@@ -19,7 +19,7 @@ import javax.xml.bind.DatatypeConverter;
 public class CertificateHelper {
 
     public static int exportCertificateChain(final KeyStore ks, final String alias, final File saveTo) throws KeyStoreException,
-            IOException, CertificateEncodingException {
+    IOException, CertificateEncodingException {
         final Enumeration<String> e = ks.aliases();
         final List<String> aliases = new ArrayList<>();
 
