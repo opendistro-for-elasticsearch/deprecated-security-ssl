@@ -33,7 +33,7 @@ Prerequisites:
 
 * Java 7 or 8 (recommended)
 * Elasticsearch 2.1.0
-* Optional: Tomcat Native and Open SSL
+* Optional: Tomcat Native and Open SSL, see [wiki](https://github.com/floragunncom/search-guard-ssl/wiki)
 
 Build it yourself:
 
@@ -53,7 +53,7 @@ Note:
 
 Check your configuration by visiting [https://localhost:9200/_searchguard/sslinfo?pretty](https://localhost:9200/_searchguard/sslinfo?pretty) if you have enabled HTTPS or [http://localhost:9200/_searchguard/sslinfo?pretty](http://localhost:9200/_searchguard/sslinfo?pretty) if HTTPS is not enabled.
 
-
+For details refer to the [wiki](https://github.com/floragunncom/search-guard-ssl/wiki).
 
 
 
