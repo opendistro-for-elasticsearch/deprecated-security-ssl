@@ -11,6 +11,7 @@ import io.netty.handler.ssl.SslProvider;
 import java.io.File;
 import java.io.FileInputStream;
 import java.nio.file.Files;
+import java.nio.file.LinkOption;
 import java.nio.file.Paths;
 import java.security.KeyStore;
 import java.security.NoSuchAlgorithmException;
@@ -149,8 +150,8 @@ public class SearchGuardKeyStore {
                         + " must be set if transport ssl is reqested.");
             }
 
-            if (!Files.isReadable(Paths.get(keystoreFilePath))) {
-                throw new ElasticsearchException("No such file " + keystoreFilePath);
+            if (Files.isDirectory(Paths.get(keystoreFilePath), LinkOption.NOFOLLOW_LINKS) || !Files.isReadable(Paths.get(keystoreFilePath))) {
+                throw new ElasticsearchException("No such keystore file " + keystoreFilePath);
             }
 
             if (Strings.isNullOrEmpty(truststoreFilePath)) {
@@ -158,8 +159,8 @@ public class SearchGuardKeyStore {
                         + " must be set if transport ssl is reqested.");
             }
 
-            if (!Files.isReadable(Paths.get(truststoreFilePath))) {
-                throw new ElasticsearchException("No such file " + truststoreFilePath);
+            if (Files.isDirectory(Paths.get(truststoreFilePath), LinkOption.NOFOLLOW_LINKS) || !Files.isReadable(Paths.get(truststoreFilePath))) {
+                throw new ElasticsearchException("No such truststore file " + truststoreFilePath);
             }
 
             final String truststoreType = settings.get(ConfigConstants.SEARCHGUARD_SSL_TRANSPORT_TRUSTSTORE_TYPE, "JKS");
@@ -211,8 +212,8 @@ public class SearchGuardKeyStore {
                         + " must be set if https is reqested.");
             }
 
-            if (!Files.isReadable(Paths.get(keystoreFilePath))) {
-                throw new ElasticsearchException("No such file " + keystoreFilePath);
+            if (Files.isDirectory(Paths.get(keystoreFilePath), LinkOption.NOFOLLOW_LINKS) || !Files.isReadable(Paths.get(keystoreFilePath))) {
+                throw new ElasticsearchException("No such keystore file (for https) " + keystoreFilePath);
             }
 
             if (enforceHTTPClientAuth && Strings.isNullOrEmpty(truststoreFilePath)) {
@@ -220,8 +221,8 @@ public class SearchGuardKeyStore {
                         ConfigConstants.SEARCHGUARD_SSL_HTTP_TRUSTSTORE_FILEPATH, ConfigConstants.SEARCHGUARD_SSL_HTTP_ENFORCE_CLIENTAUTH);
             }
 
-            if (!Strings.isNullOrEmpty(truststoreFilePath) && !Files.isReadable(Paths.get(truststoreFilePath))) {
-                throw new ElasticsearchException("No such file " + truststoreFilePath);
+            if (enforceHTTPClientAuth && (Files.isDirectory(Paths.get(truststoreFilePath), LinkOption.NOFOLLOW_LINKS) || !Files.isReadable(Paths.get(truststoreFilePath)))) {
+                throw new ElasticsearchException("No such truststore file (for https) " + truststoreFilePath);
             }
 
             try {
@@ -236,7 +237,7 @@ public class SearchGuardKeyStore {
                 httpKeystoreCert.deleteOnExit();
                 httpKeystoreKey.deleteOnExit();
 
-                if (!Strings.isNullOrEmpty(truststoreFilePath)) {
+                if (enforceHTTPClientAuth) {
 
                     final String truststoreType = settings.get(ConfigConstants.SEARCHGUARD_SSL_HTTP_TRUSTSTORE_TYPE, "JKS");
                     final String truststorePassword = settings.get(ConfigConstants.SEARCHGUARD_SSL_HTTP_TRUSTSTORE_PASSWORD, "changeit");
