@@ -33,7 +33,8 @@ import org.elasticsearch.transport.TransportModule;
 import com.floragunn.searchguard.ssl.http.netty.SearchGuardSSLNettyHttpServerTransport;
 import com.floragunn.searchguard.ssl.rest.SearchGuardSSLInfoAction;
 import com.floragunn.searchguard.ssl.transport.SearchGuardSSLNettyTransport;
-import com.floragunn.searchguard.ssl.util.ConfigConstants;
+import com.floragunn.searchguard.ssl.transport.SearchGuardSSLTransportService;
+import com.floragunn.searchguard.ssl.util.SSLConfigConstants;
 import com.google.common.collect.ImmutableList;
 
 public final class SearchGuardSSLPlugin extends Plugin {
@@ -48,10 +49,10 @@ public final class SearchGuardSSLPlugin extends Plugin {
     public SearchGuardSSLPlugin(final Settings settings) {
         this.settings = settings;
         client = !"node".equals(this.settings.get(SearchGuardSSLPlugin.CLIENT_TYPE));
-        httpSSLEnabled = settings.getAsBoolean(ConfigConstants.SEARCHGUARD_SSL_HTTP_ENABLED,
-                ConfigConstants.SEARCHGUARD_SSL_HTTP_ENABLED_DEFAULT);
-        transportSSLEnabled = settings.getAsBoolean(ConfigConstants.SEARCHGUARD_SSL_TRANSPORT_ENABLED,
-                ConfigConstants.SEARCHGUARD_SSL_TRANSPORT_ENABLED_DEFAULT);
+        httpSSLEnabled = settings.getAsBoolean(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_ENABLED,
+                SSLConfigConstants.SEARCHGUARD_SSL_HTTP_ENABLED_DEFAULT);
+        transportSSLEnabled = settings.getAsBoolean(SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_ENABLED,
+                SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_ENABLED_DEFAULT);
 
         if (!httpSSLEnabled && !transportSSLEnabled) {
             log.error("SSL not activated for http and/or transport.");
@@ -75,6 +76,10 @@ public final class SearchGuardSSLPlugin extends Plugin {
     public void onModule(final TransportModule module) {
         if (transportSSLEnabled) {
             module.setTransport(SearchGuardSSLNettyTransport.class, name());
+
+            if (!client) {
+                module.setTransportService(SearchGuardSSLTransportService.class, name());
+            }
         }
     }
 

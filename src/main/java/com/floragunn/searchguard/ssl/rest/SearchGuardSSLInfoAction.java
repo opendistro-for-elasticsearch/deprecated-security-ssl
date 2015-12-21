@@ -20,18 +20,18 @@ package com.floragunn.searchguard.ssl.rest;
 import static org.elasticsearch.rest.RestRequest.Method.GET;
 import io.netty.handler.ssl.OpenSsl;
 
+import java.security.cert.X509Certificate;
+
 import org.elasticsearch.client.Client;
 import org.elasticsearch.common.inject.Inject;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.xcontent.XContentBuilder;
-import org.elasticsearch.http.netty.NettyHttpRequest;
 import org.elasticsearch.rest.BaseRestHandler;
 import org.elasticsearch.rest.BytesRestResponse;
 import org.elasticsearch.rest.RestChannel;
 import org.elasticsearch.rest.RestController;
 import org.elasticsearch.rest.RestRequest;
 import org.elasticsearch.rest.RestStatus;
-import org.jboss.netty.handler.codec.http.HttpRequest;
 
 import com.floragunn.searchguard.ssl.SearchGuardKeyStore;
 
@@ -55,14 +55,13 @@ public class SearchGuardSSLInfoAction extends BaseRestHandler {
 
         try {
 
-            final NettyHttpRequest nettyRequest = (NettyHttpRequest) request;
-            final HttpRequest httpRequest = nettyRequest.request();
-
+            final X509Certificate[] certs = request.getFromContext("_sg_ssl_peer_certificates");
             builder.startObject();
 
-            builder.field("principal", httpRequest.headers().get("_sg_ssl_principal"));
-            builder.field("ssl_protocol", httpRequest.headers().get("_sg_ssl_protocol"));
-            builder.field("ssl_cipher", httpRequest.headers().get("_sg_ssl_cipher"));
+            builder.field("principal", request.getFromContext("_sg_ssl_principal"));
+            builder.field("peer_certificates", certs != null && certs.length > 0 ? certs.length + " present" : null);
+            builder.field("ssl_protocol", request.getFromContext("_sg_ssl_protocol"));
+            builder.field("ssl_cipher", request.getFromContext("_sg_ssl_cipher"));
             builder.field("ssl_openssl_available", OpenSsl.isAvailable());
             builder.field("ssl_openssl_non_available_cause", OpenSsl.unavailabilityCause());
             builder.field("ssl_provider_http", sgks.sslHTTPProvider);

@@ -17,12 +17,23 @@
 
 package com.floragunn.searchguard.ssl.http.netty;
 
+import java.security.cert.Certificate;
+import java.security.cert.X509Certificate;
+
+import javax.net.ssl.SSLEngine;
+import javax.net.ssl.SSLPeerUnverifiedException;
+import javax.security.auth.x500.X500Principal;
+
+import org.elasticsearch.ExceptionsHelper;
 import org.elasticsearch.common.inject.Inject;
 import org.elasticsearch.common.logging.ESLogger;
 import org.elasticsearch.common.logging.Loggers;
 import org.elasticsearch.common.network.NetworkService;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.util.BigArrays;
+import org.elasticsearch.http.HttpChannel;
+import org.elasticsearch.http.HttpRequest;
+import org.elasticsearch.http.netty.NettyHttpRequest;
 import org.elasticsearch.http.netty.NettyHttpServerTransport;
 import org.jboss.netty.channel.ChannelPipeline;
 import org.jboss.netty.channel.ChannelPipelineFactory;
@@ -65,9 +76,39 @@ public class SearchGuardSSLNettyHttpServerTransport extends NettyHttpServerTrans
             final SslHandler sslHandler = new SslHandler(sgks.createHTTPSSLEngine());
             sslHandler.setEnableRenegotiation(false);
             pipeline.addFirst("ssl_http", sslHandler);
-            pipeline.addBefore("handler", "mutual_ssl", new SearchGuardMutualSSLHandler());
             return pipeline;
         }
+    }
+
+    @Override
+    protected void dispatchRequest(final HttpRequest request, final HttpChannel channel) {
+
+        final NettyHttpRequest nettyHttpRequest = (NettyHttpRequest) request;
+        final SslHandler sslhandler = (SslHandler) nettyHttpRequest.getChannel().getPipeline().get("ssl_http");
+        final SSLEngine engine = sslhandler.getEngine();
+
+        if (engine.getNeedClientAuth()) {
+
+            X500Principal principal;
+
+            try {
+                final Certificate[] certs = sslhandler.getEngine().getSession().getPeerCertificates();
+
+                if (certs != null && certs.length > 0 && certs instanceof X509Certificate[]) {
+                    principal = ((X509Certificate) certs[0]).getSubjectX500Principal();
+                    request.putInContext("_sg_ssl_principal", principal == null ? null : principal.getName());
+                    request.putInContext("_sg_ssl_peer_certificates", certs);
+                }
+
+            } catch (final SSLPeerUnverifiedException e) {
+                throw ExceptionsHelper.convertToElastic(e);
+            }
+
+            request.putInContext("_sg_ssl_protocol", sslhandler.getEngine().getSession().getProtocol());
+            request.putInContext("_sg_ssl_cipher", sslhandler.getEngine().getSession().getCipherSuite());
+        }
+
+        super.dispatchRequest(request, channel);
     }
 
 }

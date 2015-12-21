@@ -1,3 +1,20 @@
+/*
+ * Copyright 2015 floragunn UG (haftungsbeschränkt)
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
+ */
+
 package com.floragunn.searchguard.ssl;
 
 import io.netty.buffer.PooledByteBufAllocator;
@@ -34,8 +51,8 @@ import org.elasticsearch.common.logging.Loggers;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.env.Environment;
 
-import com.floragunn.searchguard.ssl.util.CertificateHelper;
-import com.floragunn.searchguard.ssl.util.ConfigConstants;
+import com.floragunn.searchguard.ssl.util.SSLCertificateHelper;
+import com.floragunn.searchguard.ssl.util.SSLConfigConstants;
 import com.google.common.base.Strings;
 
 public class SearchGuardKeyStore {
@@ -54,10 +71,10 @@ public class SearchGuardKeyStore {
     }
 
     private static final String[] PREFFERED_SSL_CIPHERS = { "TLS_RSA_WITH_AES_128_CBC_SHA256", "TLS_RSA_WITH_AES_128_CBC_SHA",
-        "TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA", "TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384", "TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384",
-        "TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256", "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA", "TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384",
-        "TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256", "TLS_DHE_RSA_WITH_AES_256_CBC_SHA", "TLS_DHE_RSA_WITH_AES_128_CBC_SHA",
-        "TLS_DHE_RSA_WITH_AES_256_GCM_SHA384", "TLS_DHE_RSA_WITH_AES_128_GCM_SHA256" };
+            "TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA", "TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384", "TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384",
+            "TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256", "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA", "TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384",
+            "TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256", "TLS_DHE_RSA_WITH_AES_256_CBC_SHA", "TLS_DHE_RSA_WITH_AES_128_CBC_SHA",
+            "TLS_DHE_RSA_WITH_AES_256_GCM_SHA384", "TLS_DHE_RSA_WITH_AES_128_GCM_SHA256" };
 
     private final Settings settings;
     private final ESLogger log = Loggers.getLogger(this.getClass());
@@ -81,14 +98,14 @@ public class SearchGuardKeyStore {
     public SearchGuardKeyStore(final Settings settings) {
         super();
         this.settings = settings;
-        httpSSLEnabled = settings.getAsBoolean(ConfigConstants.SEARCHGUARD_SSL_HTTP_ENABLED,
-                ConfigConstants.SEARCHGUARD_SSL_HTTP_ENABLED_DEFAULT);
-        transportSSLEnabled = settings.getAsBoolean(ConfigConstants.SEARCHGUARD_SSL_TRANSPORT_ENABLED,
-                ConfigConstants.SEARCHGUARD_SSL_TRANSPORT_ENABLED_DEFAULT);
+        httpSSLEnabled = settings.getAsBoolean(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_ENABLED,
+                SSLConfigConstants.SEARCHGUARD_SSL_HTTP_ENABLED_DEFAULT);
+        transportSSLEnabled = settings.getAsBoolean(SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_ENABLED,
+                SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_ENABLED_DEFAULT);
         final boolean useOpenSSLForHttpIfAvailable = settings.getAsBoolean(
-                ConfigConstants.SEARCHGUARD_SSL_HTTP_ENABLE_OPENSSL_IF_AVAILABLE, true);
+                SSLConfigConstants.SEARCHGUARD_SSL_HTTP_ENABLE_OPENSSL_IF_AVAILABLE, true);
         final boolean useOpenSSLForTransportIfAvailable = settings.getAsBoolean(
-                ConfigConstants.SEARCHGUARD_SSL_TRANSPORT_ENABLE_OPENSSL_IF_AVAILABLE, true);
+                SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_ENABLE_OPENSSL_IF_AVAILABLE, true);
 
         if (httpSSLEnabled && useOpenSSLForHttpIfAvailable) {
             sslHTTPProvider = SslContext.defaultServerProvider();
@@ -137,16 +154,17 @@ public class SearchGuardKeyStore {
         if (transportSSLEnabled) {
             final Environment env = new Environment(settings);
             final String keystoreFilePath = env.configFile()
-                    .resolve(settings.get(ConfigConstants.SEARCHGUARD_SSL_TRANSPORT_KEYSTORE_FILEPATH, "")).toAbsolutePath().toString();
-            final String keystoreType = settings.get(ConfigConstants.SEARCHGUARD_SSL_TRANSPORT_KEYSTORE_TYPE, "JKS");
-            final String keystorePassword = settings.get(ConfigConstants.SEARCHGUARD_SSL_TRANSPORT_KEYSTORE_PASSWORD, "changeit");
-            final String keystoreAlias = settings.get(ConfigConstants.SEARCHGUARD_SSL_TRANSPORT_KEYSTORE_ALIAS, null);
+                    .resolve(settings.get(SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_KEYSTORE_FILEPATH, "")).toAbsolutePath().toString();
+            final String keystoreType = settings.get(SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_KEYSTORE_TYPE, "JKS");
+            final String keystorePassword = settings.get(SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_KEYSTORE_PASSWORD, "changeit");
+            final String keystoreAlias = settings.get(SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_KEYSTORE_ALIAS, null);
 
             final String truststoreFilePath = env.configFile()
-                    .resolve(settings.get(ConfigConstants.SEARCHGUARD_SSL_TRANSPORT_TRUSTSTORE_FILEPATH, "")).toAbsolutePath().toString();
+                    .resolve(settings.get(SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_TRUSTSTORE_FILEPATH, "")).toAbsolutePath()
+                    .toString();
 
             if (Strings.isNullOrEmpty(keystoreFilePath)) {
-                throw new ElasticsearchException(ConfigConstants.SEARCHGUARD_SSL_TRANSPORT_KEYSTORE_FILEPATH
+                throw new ElasticsearchException(SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_KEYSTORE_FILEPATH
                         + " must be set if transport ssl is reqested.");
             }
 
@@ -155,17 +173,18 @@ public class SearchGuardKeyStore {
             }
 
             if (Strings.isNullOrEmpty(truststoreFilePath)) {
-                throw new ElasticsearchException(ConfigConstants.SEARCHGUARD_SSL_TRANSPORT_TRUSTSTORE_FILEPATH
+                throw new ElasticsearchException(SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_TRUSTSTORE_FILEPATH
                         + " must be set if transport ssl is reqested.");
             }
 
-            if (Files.isDirectory(Paths.get(truststoreFilePath), LinkOption.NOFOLLOW_LINKS) || !Files.isReadable(Paths.get(truststoreFilePath))) {
+            if (Files.isDirectory(Paths.get(truststoreFilePath), LinkOption.NOFOLLOW_LINKS)
+                    || !Files.isReadable(Paths.get(truststoreFilePath))) {
                 throw new ElasticsearchException("No such truststore file " + truststoreFilePath);
             }
 
-            final String truststoreType = settings.get(ConfigConstants.SEARCHGUARD_SSL_TRANSPORT_TRUSTSTORE_TYPE, "JKS");
-            final String truststorePassword = settings.get(ConfigConstants.SEARCHGUARD_SSL_TRANSPORT_TRUSTSTORE_PASSWORD, "changeit");
-            final String truststoreAlias = settings.get(ConfigConstants.SEARCHGUARD_SSL_TRANSPORT_TRUSTSTORE_ALIAS, null);
+            final String truststoreType = settings.get(SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_TRUSTSTORE_TYPE, "JKS");
+            final String truststorePassword = settings.get(SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_TRUSTSTORE_PASSWORD, "changeit");
+            final String truststoreAlias = settings.get(SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_TRUSTSTORE_ALIAS, null);
 
             try {
 
@@ -174,8 +193,8 @@ public class SearchGuardKeyStore {
 
                 transportKeystoreCert = File.createTempFile("sg_", ".pem");
                 transportKeystoreKey = File.createTempFile("sg_", ".pem");
-                CertificateHelper.exportCertificateChain(ks, keystoreAlias, transportKeystoreCert);
-                CertificateHelper.exportDecryptedKey(ks, keystoreAlias, keystorePassword.toCharArray(), transportKeystoreKey);
+                SSLCertificateHelper.exportCertificateChain(ks, keystoreAlias, transportKeystoreCert);
+                SSLCertificateHelper.exportDecryptedKey(ks, keystoreAlias, keystorePassword.toCharArray(), transportKeystoreKey);
                 transportKeystoreCert.deleteOnExit();
                 transportKeystoreKey.deleteOnExit();
 
@@ -185,7 +204,7 @@ public class SearchGuardKeyStore {
                 trustedTransportCertificates = File.createTempFile("sg_", ".pem");
                 trustedTransportCertificates.deleteOnExit();
 
-                CertificateHelper.exportCertificateChain(ts, truststoreAlias, trustedTransportCertificates);
+                SSLCertificateHelper.exportCertificateChain(ts, truststoreAlias, trustedTransportCertificates);
 
             } catch (final Exception e) {
                 throw ExceptionsHelper.convertToElastic(e);
@@ -198,17 +217,17 @@ public class SearchGuardKeyStore {
         if (!client && httpSSLEnabled) {
             final Environment env = new Environment(settings);
             final String keystoreFilePath = env.configFile()
-                    .resolve(settings.get(ConfigConstants.SEARCHGUARD_SSL_HTTP_KEYSTORE_FILEPATH, "")).toAbsolutePath().toString();
-            final String keystoreType = settings.get(ConfigConstants.SEARCHGUARD_SSL_HTTP_KEYSTORE_TYPE, "JKS");
-            final String keystorePassword = settings.get(ConfigConstants.SEARCHGUARD_SSL_HTTP_KEYSTORE_PASSWORD, "changeit");
-            final String keystoreAlias = settings.get(ConfigConstants.SEARCHGUARD_SSL_HTTP_KEYSTORE_ALIAS, null);
-            enforceHTTPClientAuth = settings.getAsBoolean(ConfigConstants.SEARCHGUARD_SSL_HTTP_ENFORCE_CLIENTAUTH, false);
+                    .resolve(settings.get(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_KEYSTORE_FILEPATH, "")).toAbsolutePath().toString();
+            final String keystoreType = settings.get(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_KEYSTORE_TYPE, "JKS");
+            final String keystorePassword = settings.get(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_KEYSTORE_PASSWORD, "changeit");
+            final String keystoreAlias = settings.get(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_KEYSTORE_ALIAS, null);
+            enforceHTTPClientAuth = settings.getAsBoolean(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_ENFORCE_CLIENTAUTH, false);
 
             final String truststoreFilePath = env.configFile()
-                    .resolve(settings.get(ConfigConstants.SEARCHGUARD_SSL_HTTP_TRUSTSTORE_FILEPATH, "")).toAbsolutePath().toString();
+                    .resolve(settings.get(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_TRUSTSTORE_FILEPATH, "")).toAbsolutePath().toString();
 
             if (Strings.isNullOrEmpty(keystoreFilePath)) {
-                throw new ElasticsearchException(ConfigConstants.SEARCHGUARD_SSL_HTTP_KEYSTORE_FILEPATH
+                throw new ElasticsearchException(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_KEYSTORE_FILEPATH
                         + " must be set if https is reqested.");
             }
 
@@ -218,10 +237,13 @@ public class SearchGuardKeyStore {
 
             if (enforceHTTPClientAuth && Strings.isNullOrEmpty(truststoreFilePath)) {
                 throw new ElasticsearchException("{} must not be null or empty if {} is true",
-                        ConfigConstants.SEARCHGUARD_SSL_HTTP_TRUSTSTORE_FILEPATH, ConfigConstants.SEARCHGUARD_SSL_HTTP_ENFORCE_CLIENTAUTH);
+                        SSLConfigConstants.SEARCHGUARD_SSL_HTTP_TRUSTSTORE_FILEPATH,
+                        SSLConfigConstants.SEARCHGUARD_SSL_HTTP_ENFORCE_CLIENTAUTH);
             }
 
-            if (enforceHTTPClientAuth && (Files.isDirectory(Paths.get(truststoreFilePath), LinkOption.NOFOLLOW_LINKS) || !Files.isReadable(Paths.get(truststoreFilePath)))) {
+            if (enforceHTTPClientAuth
+                    && (Files.isDirectory(Paths.get(truststoreFilePath), LinkOption.NOFOLLOW_LINKS) || !Files.isReadable(Paths
+                            .get(truststoreFilePath)))) {
                 throw new ElasticsearchException("No such truststore file (for https) " + truststoreFilePath);
             }
 
@@ -232,16 +254,16 @@ public class SearchGuardKeyStore {
 
                 httpKeystoreCert = File.createTempFile("sg_", ".pem");
                 httpKeystoreKey = File.createTempFile("sg_", ".pem");
-                CertificateHelper.exportCertificateChain(ks, keystoreAlias, httpKeystoreCert);
-                CertificateHelper.exportDecryptedKey(ks, keystoreAlias, keystorePassword.toCharArray(), httpKeystoreKey);
+                SSLCertificateHelper.exportCertificateChain(ks, keystoreAlias, httpKeystoreCert);
+                SSLCertificateHelper.exportDecryptedKey(ks, keystoreAlias, keystorePassword.toCharArray(), httpKeystoreKey);
                 httpKeystoreCert.deleteOnExit();
                 httpKeystoreKey.deleteOnExit();
 
                 if (enforceHTTPClientAuth) {
 
-                    final String truststoreType = settings.get(ConfigConstants.SEARCHGUARD_SSL_HTTP_TRUSTSTORE_TYPE, "JKS");
-                    final String truststorePassword = settings.get(ConfigConstants.SEARCHGUARD_SSL_HTTP_TRUSTSTORE_PASSWORD, "changeit");
-                    final String truststoreAlias = settings.get(ConfigConstants.SEARCHGUARD_SSL_HTTP_TRUSTSTORE_ALIAS, null);
+                    final String truststoreType = settings.get(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_TRUSTSTORE_TYPE, "JKS");
+                    final String truststorePassword = settings.get(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_TRUSTSTORE_PASSWORD, "changeit");
+                    final String truststoreAlias = settings.get(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_TRUSTSTORE_ALIAS, null);
 
                     final KeyStore ts = KeyStore.getInstance(truststoreType);
                     ts.load(new FileInputStream(new File(truststoreFilePath)), truststorePassword.toCharArray());
@@ -249,7 +271,7 @@ public class SearchGuardKeyStore {
                     trustedHTTPCertificates = File.createTempFile("sg_", ".pem");
                     trustedHTTPCertificates.deleteOnExit();
 
-                    CertificateHelper.exportCertificateChain(ts, truststoreAlias, trustedHTTPCertificates);
+                    SSLCertificateHelper.exportCertificateChain(ts, truststoreAlias, trustedHTTPCertificates);
                 }
             } catch (final Exception e) {
                 throw ExceptionsHelper.convertToElastic(e);

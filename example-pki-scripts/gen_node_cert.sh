@@ -3,7 +3,9 @@ set -e
 NODE_NAME=node-$1
 KS_PASS=$2
 CA_PASS=$3
-rm -f $NODE_NAME*
+rm -f $NODE_NAME-keystore.jks
+rm -f $NODE_NAME.csr
+rm -f $NODE_NAME-signed.pem
 
 echo Generating keystore and certificate for node $NODE_NAME
 
@@ -16,7 +18,7 @@ keytool -genkey \
         -keypass $KS_PASS \
         -storepass $KS_PASS \
         -dname "CN=$NODE_NAME.example.com, OU=SSL, O=Test, L=Test, C=DE" \
-        -ext san=dns:$NODE_NAME.example.com,ip:10.1.1.1
+        -ext san=dns:$NODE_NAME.example.com,ip:10.1.1.1,oid:1.2.3.4.5.5
 
 echo Generating certificate signing request for node $NODE_NAME
 
@@ -28,7 +30,7 @@ keytool -certreq \
         -keypass $KS_PASS \
         -storepass $KS_PASS \
         -dname "CN=$NODE_NAME.example.com, OU=SSL, O=Test, L=Test, C=DE" \
-        -ext san=dns:$NODE_NAME.example.com,ip:10.1.1.1
+        -ext san=dns:$NODE_NAME.example.com,ip:10.1.1.1,oid:1.2.3.4.5.5
 
 echo Sign certificate request with CA
 openssl ca \
@@ -50,7 +52,5 @@ cat ca/chain-ca.pem $NODE_NAME-signed.pem | keytool \
     -noprompt \
     -alias $NODE_NAME
 
-rm -f $NODE_NAME.csr
-rm -f $NODE_NAME-signed.*
 echo All done for $NODE_NAME
 	

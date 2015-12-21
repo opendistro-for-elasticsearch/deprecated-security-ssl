@@ -17,7 +17,7 @@
 
 package com.floragunn.searchguard.ssl.util;
 
-public final class ConfigConstants {
+public final class SSLConfigConstants {
 
     public static final String SEARCHGUARD_SSL_HTTP_ENABLE_OPENSSL_IF_AVAILABLE = "searchguard.ssl.http.enable_openssl_if_available";
     public static final String SEARCHGUARD_SSL_HTTP_ENABLED = "searchguard.ssl.http.enabled";
@@ -45,7 +45,7 @@ public final class ConfigConstants {
     public static final String SEARCHGUARD_SSL_TRANSPORT_TRUSTSTORE_PASSWORD = "searchguard.ssl.transport.truststore_password";
     public static final String SEARCHGUARD_SSL_TRANSPORT_TRUSTSTORE_TYPE = "searchguard.ssl.transport.truststore_type";
 
-    private ConfigConstants() {
+    private SSLConfigConstants() {
 
     }
 

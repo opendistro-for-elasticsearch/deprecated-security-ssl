@@ -40,7 +40,7 @@ import org.jboss.netty.channel.SimpleChannelHandler;
 import org.jboss.netty.handler.ssl.SslHandler;
 
 import com.floragunn.searchguard.ssl.SearchGuardKeyStore;
-import com.floragunn.searchguard.ssl.util.ConfigConstants;
+import com.floragunn.searchguard.ssl.util.SSLConfigConstants;
 
 public class SearchGuardSSLNettyTransport extends NettyTransport {
 
@@ -143,10 +143,10 @@ public class SearchGuardSSLNettyTransport extends NettyTransport {
             super(nettyTransport);
             this.sgks = sgks;
 
-            hostnameVerificationEnabled = settings.getAsBoolean(ConfigConstants.SEARCHGUARD_SSL_TRANSPORT_ENCFORCE_HOSTNAME_VERIFICATION,
-                    true);
+            hostnameVerificationEnabled = settings.getAsBoolean(
+                    SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_ENCFORCE_HOSTNAME_VERIFICATION, true);
             hostnameVerificationResovleHostName = settings.getAsBoolean(
-                    ConfigConstants.SEARCHGUARD_SSL_TRANSPORT_ENCFORCE_HOSTNAME_VERIFICATION_RESOLVE_HOST_NAME, true);
+                    SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_ENCFORCE_HOSTNAME_VERIFICATION_RESOLVE_HOST_NAME, true);
 
             this.nettyLogger = nettyLogger;
         }
