@@ -57,10 +57,10 @@ public class SearchGuardSSLTransportService extends TransportService {
         super.registerRequestHandler(action, request, executor, forceExecution, new Interceptor<Request>(handler));
     }
 
-    private static class Interceptor<Request extends TransportRequest> implements TransportRequestHandler<Request> {
+    private class Interceptor<Request extends TransportRequest> implements TransportRequestHandler<Request> {
 
         private final ESLogger log = Loggers.getLogger(this.getClass());
-        TransportRequestHandler<Request> handler;
+        private final TransportRequestHandler<Request> handler;
 
         public Interceptor(final TransportRequestHandler<Request> handler) {
             super();
@@ -101,8 +101,10 @@ public class SearchGuardSSLTransportService extends TransportService {
             }
         }
 
-        protected void addAdditionalContextValues(final Request request, final X509Certificate[] certs) throws Exception {
-            // no-op
-        }
+        
+    }
+    
+    protected void addAdditionalContextValues(final TransportRequest request, final X509Certificate[] certs) throws Exception {
+        // no-op
     }
 }
