@@ -75,7 +75,7 @@ public class SearchGuardSSLTransportService extends TransportService {
         public void messageReceived(final Request request, final TransportChannel transportChannel) throws Exception {
 
             if (!(transportChannel instanceof NettyTransportChannel)) {
-                this.handler.messageReceived(request, transportChannel);
+                messageReceivedDecorate(request, handler, transportChannel);
                 return;
             }
 
@@ -102,7 +102,7 @@ public class SearchGuardSSLTransportService extends TransportService {
                     request.putInContext("_sg_ssl_transport_peer_certificates", certs);
                     request.putInContext("_sg_ssl_transport_protocol", sslhandler.getEngine().getSession().getProtocol());
                     request.putInContext("_sg_ssl_transport_cipher", sslhandler.getEngine().getSession().getCipherSuite());
-                    this.handler.messageReceived(request, transportChannel);
+                    messageReceivedDecorate(request, handler, transportChannel);
                 } else {
                     final String msg = "No transport client certificates found (SG 12)";
                     log.error(msg);
@@ -124,5 +124,9 @@ public class SearchGuardSSLTransportService extends TransportService {
     protected void addAdditionalContextValues(final String action, final TransportRequest request, final X509Certificate[] certs)
             throws Exception {
         // no-op
+    }
+    
+    protected void messageReceivedDecorate(final TransportRequest request, final TransportRequestHandler handler, final TransportChannel transportChannel) throws Exception {
+        handler.messageReceived(request, transportChannel);
     }
 }

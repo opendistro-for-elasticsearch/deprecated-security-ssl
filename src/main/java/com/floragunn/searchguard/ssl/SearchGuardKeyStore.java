@@ -296,10 +296,6 @@ public class SearchGuardKeyStore {
 
     public SSLEngine createServerTransportSSLEngine() throws SSLException {
 
-        if (log.isDebugEnabled()) {
-            log.debug("Create server transport engine for trustedTransportCertificates {}", trustedTransportCertificates);
-        }
-
         if (trustedTransportCertificates == null) {
             throw new ElasticsearchException("No truststore configured for server");
         }
@@ -313,10 +309,6 @@ public class SearchGuardKeyStore {
     }
 
     public SSLEngine createClientTransportSSLEngine(final String peerHost, final int peerPort) throws SSLException {
-
-        if (log.isDebugEnabled()) {
-            log.debug("Create client transport engine for peer {} and port {}", peerHost, peerPort);
-        }
 
         if (trustedTransportCertificates == null) {
             throw new ElasticsearchException("No truststore configured for client");
