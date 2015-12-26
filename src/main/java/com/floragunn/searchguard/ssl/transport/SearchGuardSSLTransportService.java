@@ -21,9 +21,11 @@ import java.security.cert.Certificate;
 import java.security.cert.X509Certificate;
 import java.util.concurrent.Callable;
 
+import javax.net.ssl.SSLPeerUnverifiedException;
 import javax.security.auth.x500.X500Principal;
 
 import org.elasticsearch.ElasticsearchException;
+import org.elasticsearch.ExceptionsHelper;
 import org.elasticsearch.common.inject.Inject;
 import org.elasticsearch.common.logging.ESLogger;
 import org.elasticsearch.common.logging.Loggers;
@@ -48,23 +50,25 @@ public class SearchGuardSSLTransportService extends TransportService {
     @Override
     public <Request extends TransportRequest> void registerRequestHandler(final String action, final Callable<Request> requestFactory,
             final String executor, final TransportRequestHandler<Request> handler) {
-        super.registerRequestHandler(action, requestFactory, executor, new Interceptor<Request>(handler));
+        super.registerRequestHandler(action, requestFactory, executor, new Interceptor<Request>(handler, action));
     }
 
     @Override
     public <Request extends TransportRequest> void registerRequestHandler(final String action, final Class<Request> request,
             final String executor, final boolean forceExecution, final TransportRequestHandler<Request> handler) {
-        super.registerRequestHandler(action, request, executor, forceExecution, new Interceptor<Request>(handler));
+        super.registerRequestHandler(action, request, executor, forceExecution, new Interceptor<Request>(handler, action));
     }
 
     private class Interceptor<Request extends TransportRequest> implements TransportRequestHandler<Request> {
 
         private final ESLogger log = Loggers.getLogger(this.getClass());
         private final TransportRequestHandler<Request> handler;
+        private final String action;
 
-        public Interceptor(final TransportRequestHandler<Request> handler) {
+        public Interceptor(final TransportRequestHandler<Request> handler, final String acion) {
             super();
             this.handler = handler;
+            this.action = acion;
         }
 
         @Override
@@ -78,12 +82,21 @@ public class SearchGuardSSLTransportService extends TransportService {
             try {
                 final Channel channel = ((NettyTransportChannel) transportChannel).getChannel();
                 final SslHandler sslhandler = (SslHandler) channel.getPipeline().get("ssl_server");
+
+                if (sslhandler == null) {
+                    final String msg = "No ssl handler found";
+                    log.error(msg);
+                    final Exception exception = new ElasticsearchException(msg);
+                    transportChannel.sendResponse(exception);
+                    throw exception;
+                }
+
                 X500Principal principal;
 
                 final Certificate[] certs = sslhandler.getEngine().getSession().getPeerCertificates();
 
                 if (certs != null && certs.length > 0 && certs instanceof X509Certificate[]) {
-                    addAdditionalContextValues(request, (X509Certificate[]) certs);
+                    addAdditionalContextValues(action, request, (X509Certificate[]) certs);
                     principal = ((X509Certificate) certs[0]).getSubjectX500Principal();
                     request.putInContext("_sg_ssl_transport_principal", principal == null ? null : principal.getName());
                     request.putInContext("_sg_ssl_transport_peer_certificates", certs);
@@ -91,20 +104,25 @@ public class SearchGuardSSLTransportService extends TransportService {
                     request.putInContext("_sg_ssl_transport_cipher", sslhandler.getEngine().getSession().getCipherSuite());
                     this.handler.messageReceived(request, transportChannel);
                 } else {
-                    log.error("No transport client certificates found (SG 12)");
-                    transportChannel.sendResponse(new ElasticsearchException("No transport client certificates found (SG 12)"));
+                    final String msg = "No transport client certificates found (SG 12)";
+                    log.error(msg);
+                    final Exception exception = new ElasticsearchException(msg);
+                    transportChannel.sendResponse(exception);
+                    throw exception;
                 }
 
-            } catch (final Exception e) {
-                log.error("Can not verify SSL peer (SG 13) {}", e, e);
-                transportChannel.sendResponse(new ElasticsearchException("No transport client certificates found (SG 12)"));
+            } catch (final SSLPeerUnverifiedException e) {
+                log.error("Can not verify SSL peer (SG 13) due to {}", e, e);
+                final Exception exception = ExceptionsHelper.convertToElastic(e);
+                transportChannel.sendResponse(exception);
+                throw exception;
             }
         }
 
-        
     }
-    
-    protected void addAdditionalContextValues(final TransportRequest request, final X509Certificate[] certs) throws Exception {
+
+    protected void addAdditionalContextValues(final String action, final TransportRequest request, final X509Certificate[] certs)
+            throws Exception {
         // no-op
     }
 }

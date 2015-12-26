@@ -77,7 +77,7 @@ public final class SearchGuardSSLPlugin extends Plugin {
         if (transportSSLEnabled) {
             module.setTransport(SearchGuardSSLNettyTransport.class, name());
 
-            if (!client) {
+            if (!client && !searchGuardPluginAvailable()) {
                 module.setTransportService(SearchGuardSSLTransportService.class, name());
             }
         }
@@ -101,5 +101,14 @@ public final class SearchGuardSSLPlugin extends Plugin {
     @Override
     public String name() {
         return "search-guard-ssl";
+    }
+
+    private boolean searchGuardPluginAvailable() {
+        try {
+            getClass().getClassLoader().loadClass("com.floragunn.searchguard.SearchGuardPlugin");
+            return true;
+        } catch (final ClassNotFoundException cnfe) {
+            return false;
+        }
     }
 }
