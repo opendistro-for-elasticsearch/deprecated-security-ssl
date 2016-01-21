@@ -19,6 +19,7 @@ package com.floragunn.searchguard.ssl.transport;
 
 import java.security.cert.Certificate;
 import java.security.cert.X509Certificate;
+import java.util.Arrays;
 import java.util.concurrent.Callable;
 
 import javax.net.ssl.SSLPeerUnverifiedException;
@@ -94,17 +95,18 @@ public class SearchGuardSSLTransportService extends TransportService {
                 X500Principal principal;
 
                 final Certificate[] certs = sslhandler.getEngine().getSession().getPeerCertificates();
-
-                if (certs != null && certs.length > 0 && certs instanceof X509Certificate[]) {
-                    addAdditionalContextValues(action, request, (X509Certificate[]) certs);
-                    principal = ((X509Certificate) certs[0]).getSubjectX500Principal();
+                
+                if (certs != null && certs.length > 0 && certs[0] instanceof X509Certificate) {
+                    X509Certificate[] x509Certs = Arrays.copyOf(certs, certs.length, X509Certificate[].class);
+                    addAdditionalContextValues(action, request, x509Certs);
+                    principal = x509Certs[0].getSubjectX500Principal();
                     request.putInContext("_sg_ssl_transport_principal", principal == null ? null : principal.getName());
-                    request.putInContext("_sg_ssl_transport_peer_certificates", certs);
+                    request.putInContext("_sg_ssl_transport_peer_certificates", x509Certs);
                     request.putInContext("_sg_ssl_transport_protocol", sslhandler.getEngine().getSession().getProtocol());
                     request.putInContext("_sg_ssl_transport_cipher", sslhandler.getEngine().getSession().getCipherSuite());
                     messageReceivedDecorate(request, handler, transportChannel);
                 } else {
-                    final String msg = "No transport client certificates found (SG 12)";
+                    final String msg = "No X509 transport client certificates found (SG 12)";
                     log.error(msg);
                     final Exception exception = new ElasticsearchException(msg);
                     transportChannel.sendResponse(exception);
@@ -113,6 +115,11 @@ public class SearchGuardSSLTransportService extends TransportService {
 
             } catch (final SSLPeerUnverifiedException e) {
                 log.error("Can not verify SSL peer (SG 13) due to {}", e, e);
+                final Exception exception = ExceptionsHelper.convertToElastic(e);
+                transportChannel.sendResponse(exception);
+                throw exception;
+            } catch (final Exception e) {
+                log.error("Unexpected SSL exception (SG 14) due to {}", e, e);
                 final Exception exception = ExceptionsHelper.convertToElastic(e);
                 transportChannel.sendResponse(exception);
                 throw exception;

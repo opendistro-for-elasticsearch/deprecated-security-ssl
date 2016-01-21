@@ -19,9 +19,9 @@ package com.floragunn.searchguard.ssl.http.netty;
 
 import java.security.cert.Certificate;
 import java.security.cert.X509Certificate;
+import java.util.Arrays;
 
 import javax.net.ssl.SSLEngine;
-import javax.net.ssl.SSLPeerUnverifiedException;
 import javax.security.auth.x500.X500Principal;
 
 import org.elasticsearch.ExceptionsHelper;
@@ -94,13 +94,14 @@ public class SearchGuardSSLNettyHttpServerTransport extends NettyHttpServerTrans
             try {
                 final Certificate[] certs = sslhandler.getEngine().getSession().getPeerCertificates();
 
-                if (certs != null && certs.length > 0 && certs instanceof X509Certificate[]) {
-                    principal = ((X509Certificate) certs[0]).getSubjectX500Principal();
+                if (certs != null && certs.length > 0 && certs[0] instanceof X509Certificate) {
+                    X509Certificate[] x509Certs = Arrays.copyOf(certs, certs.length, X509Certificate[].class);
+                    principal =  x509Certs[0].getSubjectX500Principal();
                     request.putInContext("_sg_ssl_principal", principal == null ? null : principal.getName());
-                    request.putInContext("_sg_ssl_peer_certificates", certs);
+                    request.putInContext("_sg_ssl_peer_certificates",  x509Certs);
                 }
 
-            } catch (final SSLPeerUnverifiedException e) {
+            } catch (final Exception e) {
                 throw ExceptionsHelper.convertToElastic(e);
             }
 

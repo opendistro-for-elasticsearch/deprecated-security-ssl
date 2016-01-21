@@ -19,7 +19,6 @@ package com.floragunn.searchguard.ssl;
 
 import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.handler.ssl.ApplicationProtocolConfig;
-import io.netty.handler.ssl.ClientAuth;
 import io.netty.handler.ssl.OpenSsl;
 import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
@@ -283,14 +282,17 @@ public class SearchGuardKeyStore {
 
         final SslContextBuilder sslContextBuilder = SslContextBuilder.forServer(httpKeystoreCert, httpKeystoreKey)
                 .ciphers(getEnabledSSLCiphers()).applicationProtocolConfig(ApplicationProtocolConfig.DISABLED)
-                .clientAuth(enforceHTTPClientAuth ? ClientAuth.REQUIRE : ClientAuth.NONE).sessionCacheSize(0).sessionTimeout(0)
+                //.clientAuth(enforceHTTPClientAuth ? ClientAuth.REQUIRE : ClientAuth.NONE) https://github.com/netty/netty/issues/4722
+                .sessionCacheSize(0).sessionTimeout(0)
                 .sslProvider(this.sslHTTPProvider);
 
         if (enforceHTTPClientAuth) {
             sslContextBuilder.trustManager(trustedHTTPCertificates);
         }
 
-        return sslContextBuilder.build().newEngine(PooledByteBufAllocator.DEFAULT);
+        SSLEngine engine =  sslContextBuilder.build().newEngine(PooledByteBufAllocator.DEFAULT);
+        engine.setNeedClientAuth(enforceHTTPClientAuth);
+        return engine;
 
     }
 
@@ -302,9 +304,12 @@ public class SearchGuardKeyStore {
 
         final SslContextBuilder sslContextBuilder = SslContextBuilder.forServer(transportKeystoreCert, transportKeystoreKey)
                 .ciphers(getEnabledSSLCiphers()).applicationProtocolConfig(ApplicationProtocolConfig.DISABLED)
-                .clientAuth(ClientAuth.REQUIRE).sessionCacheSize(0).sessionTimeout(0).sslProvider(this.sslTransportServerProvider)
+                //.clientAuth(ClientAuth.REQUIRE) https://github.com/netty/netty/issues/4722
+                .sessionCacheSize(0).sessionTimeout(0).sslProvider(this.sslTransportServerProvider)
                 .trustManager(trustedTransportCertificates);
-        return sslContextBuilder.build().newEngine(PooledByteBufAllocator.DEFAULT);
+        SSLEngine engine = sslContextBuilder.build().newEngine(PooledByteBufAllocator.DEFAULT);
+        engine.setNeedClientAuth(true);
+        return engine;
 
     }
 
