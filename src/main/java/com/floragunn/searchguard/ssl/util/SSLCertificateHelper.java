@@ -17,26 +17,16 @@
 
 package com.floragunn.searchguard.ssl.util;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.security.Key;
-import java.security.KeyStore;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.UnrecoverableKeyException;
+import java.security.*;
 import java.security.cert.Certificate;
-import java.security.cert.CertificateEncodingException;
+import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
 
-import javax.xml.bind.DatatypeConverter;
-
 public class SSLCertificateHelper {
 
-    public static int exportCertificateChain(final KeyStore ks, final String alias, final File saveTo) throws KeyStoreException,
-            IOException, CertificateEncodingException {
+    public static X509Certificate[] exportCertificateChain(final KeyStore ks, final String alias) throws KeyStoreException {
         final Enumeration<String> e = ks.aliases();
         final List<String> aliases = new ArrayList<>();
 
@@ -54,34 +44,26 @@ public class SSLCertificateHelper {
             throw new KeyStoreException("null alias, current aliases: " + aliases);
         }
 
-        try (FileWriter fw = new FileWriter(saveTo)) {
-            Certificate[] certs = ks.getCertificateChain(evaluatedAlias);
-
-            if (certs == null) {
-
-                certs = new Certificate[] { ks.getCertificate(evaluatedAlias) };
-                if (certs == null) {
-
-                    throw new KeyStoreException("no certificate chain or certificate with alias named " + evaluatedAlias);
-                }
+        Certificate[] certs = ks.getCertificateChain(evaluatedAlias);
+        if (certs == null) {
+            certs = new Certificate[]{ks.getCertificate(evaluatedAlias)};
+            if (certs[0] == null) {
+                throw new KeyStoreException("no certificate chain or certificate with alias named " + evaluatedAlias);
             }
-
-            for (int i = 0; i < certs.length; i++) {
-                final Certificate certificate = certs[i];
-                if (certificate == null) {
-                    continue;
-                }
-                fw.write("-----BEGIN CERTIFICATE-----" + System.lineSeparator());
-                fw.write(DatatypeConverter.printBase64Binary(certificate.getEncoded()) + System.lineSeparator());
-                fw.write("-----END CERTIFICATE-----" + System.lineSeparator());
-            }
-
-            return certs.length;
         }
+
+        List<X509Certificate> x509Certificates = new ArrayList<>();
+        for (Certificate c : certs) {
+            if (c == null)
+                continue;
+            if (c instanceof X509Certificate)
+                x509Certificates.add((X509Certificate) c);
+        }
+
+        return x509Certificates.toArray(new X509Certificate[x509Certificates.size()]);
     }
 
-    public static void exportDecryptedKey(final KeyStore ks, final String alias, final char[] password, final File saveTo)
-            throws KeyStoreException, IOException, UnrecoverableKeyException, NoSuchAlgorithmException {
+    public static PrivateKey exportDecryptedKey(final KeyStore ks, final String alias, final char[] password) throws KeyStoreException, UnrecoverableKeyException, NoSuchAlgorithmException {
         final Enumeration<String> e = ks.aliases();
         final List<String> aliases = new ArrayList<>();
 
@@ -96,20 +78,19 @@ public class SSLCertificateHelper {
         }
 
         if (evaluatedAlias == null) {
-            throw new KeyStoreException("null alias");
+            throw new KeyStoreException("null alias, current aliases: " + aliases);
         }
 
-        try (FileWriter fw = new FileWriter(saveTo)) {
-            final Key key = ks.getKey(evaluatedAlias, password);
+        final Key key = ks.getKey(evaluatedAlias, password);
 
-            if (key == null) {
-                throw new KeyStoreException("no key alias named " + evaluatedAlias);
-            }
-
-            fw.write("-----BEGIN PRIVATE KEY-----" + System.lineSeparator());
-            fw.write(DatatypeConverter.printBase64Binary(key.getEncoded()) + System.lineSeparator());
-            fw.write("-----END PRIVATE KEY-----");
+        if (key == null) {
+            throw new KeyStoreException("no key alias named " + evaluatedAlias);
         }
+
+        if (key instanceof PrivateKey) {
+            return (PrivateKey) key;
+        }
+
+        return null;
     }
-
 }
