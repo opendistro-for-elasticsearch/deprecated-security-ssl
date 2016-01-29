@@ -27,7 +27,7 @@ You **must** verify the integrity of the [downloaded file](https://oss.sonatype.
 ##Installation
 Install it like any other Elasticsearch plugin
 
-``sudo bin/plugin install com.floragunn/search-guard-ssl/2.1.0.2``
+``sudo bin/plugin install com.floragunn/search-guard-ssl/2.1.0.3``
 
 Prerequisites:
 
