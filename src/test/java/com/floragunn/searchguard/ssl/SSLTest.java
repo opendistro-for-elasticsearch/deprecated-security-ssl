@@ -40,6 +40,8 @@ public class SSLTest extends AbstractUnitTest {
 
     @Rule
     public final ExpectedException thrown = ExpectedException.none();
+    
+    protected boolean allowOpenSSL = false;
 
     @Test
     public void testHttps() throws Exception {
@@ -50,6 +52,8 @@ public class SSLTest extends AbstractUnitTest {
 
         final Settings settings = Settings.settingsBuilder().put("searchguard.ssl.transport.enabled", false)
                 .put(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_KEYSTORE_ALIAS, "node-0").put("searchguard.ssl.http.enabled", true)
+                .put(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_ENABLE_OPENSSL_IF_AVAILABLE, allowOpenSSL)
+                .put(SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_ENABLE_OPENSSL_IF_AVAILABLE, allowOpenSSL)
                 .put("searchguard.ssl.http.enforce_clientauth", true)
                 .put("searchguard.ssl.http.keystore_filepath", getAbsoluteFilePathFromClassPath("node-0-keystore.jks"))
                 .put("searchguard.ssl.http.truststore_filepath", getAbsoluteFilePathFromClassPath("truststore.jks")).build();
@@ -70,6 +74,8 @@ public class SSLTest extends AbstractUnitTest {
         sendHTTPClientCertificate = true;
 
         final Settings settings = Settings.settingsBuilder().put("searchguard.ssl.transport.enabled", true)
+                .put(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_ENABLE_OPENSSL_IF_AVAILABLE, allowOpenSSL)
+                .put(SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_ENABLE_OPENSSL_IF_AVAILABLE, allowOpenSSL)
                 .put(SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_KEYSTORE_ALIAS, "node-0")
                 .put(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_KEYSTORE_ALIAS, "node-0")
                 .put("searchguard.ssl.transport.keystore_filepath", getAbsoluteFilePathFromClassPath("node-0-keystore.jks"))
@@ -98,6 +104,8 @@ public class SSLTest extends AbstractUnitTest {
         sendHTTPClientCertificate = false;
 
         final Settings settings = Settings.settingsBuilder().put("searchguard.ssl.transport.enabled", false)
+                .put(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_ENABLE_OPENSSL_IF_AVAILABLE, allowOpenSSL)
+                .put(SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_ENABLE_OPENSSL_IF_AVAILABLE, allowOpenSSL)
                 .put(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_KEYSTORE_ALIAS, "node-0").put("searchguard.ssl.http.enabled", true)
                 .put("searchguard.ssl.http.enforce_clientauth", false)
                 .put("searchguard.ssl.http.keystore_filepath", getAbsoluteFilePathFromClassPath("node-0-keystore.jks"))
@@ -116,6 +124,8 @@ public class SSLTest extends AbstractUnitTest {
         sendHTTPClientCertificate = false;
 
         final Settings settings = Settings.settingsBuilder().put("searchguard.ssl.transport.enabled", false)
+                .put(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_ENABLE_OPENSSL_IF_AVAILABLE, allowOpenSSL)
+                .put(SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_ENABLE_OPENSSL_IF_AVAILABLE, allowOpenSSL)
                 .put(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_KEYSTORE_ALIAS, "node-0").put("searchguard.ssl.http.enabled", true)
                 .put("searchguard.ssl.http.enforce_clientauth", false)
                 .put("searchguard.ssl.http.keystore_filepath", getAbsoluteFilePathFromClassPath("node-0-keystore.jks"))
@@ -136,6 +146,8 @@ public class SSLTest extends AbstractUnitTest {
         enableHTTPClientSSLv3Only = true;
 
         final Settings settings = Settings.settingsBuilder().put("searchguard.ssl.transport.enabled", false)
+                .put(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_ENABLE_OPENSSL_IF_AVAILABLE, allowOpenSSL)
+                .put(SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_ENABLE_OPENSSL_IF_AVAILABLE, allowOpenSSL)
                 .put(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_KEYSTORE_ALIAS, "node-0").put("searchguard.ssl.http.enabled", true)
                 .put("searchguard.ssl.http.enforce_clientauth", false)
                 .put("searchguard.ssl.http.keystore_filepath", getAbsoluteFilePathFromClassPath("node-0-keystore.jks"))
@@ -151,6 +163,8 @@ public class SSLTest extends AbstractUnitTest {
     public void testTransportClientSSL() throws Exception {
 
         final Settings settings = Settings.settingsBuilder().put("searchguard.ssl.transport.enabled", true)
+                .put(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_ENABLE_OPENSSL_IF_AVAILABLE, allowOpenSSL)
+                .put(SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_ENABLE_OPENSSL_IF_AVAILABLE, allowOpenSSL)
                 .put(SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_KEYSTORE_ALIAS, "node-0")
                 .put("searchguard.ssl.transport.keystore_filepath", getAbsoluteFilePathFromClassPath("node-0-keystore.jks"))
                 .put("searchguard.ssl.transport.truststore_filepath", getAbsoluteFilePathFromClassPath("truststore.jks"))
@@ -171,6 +185,8 @@ public class SSLTest extends AbstractUnitTest {
     public void testNodeClientSSL() throws Exception {
 
         final Settings settings = Settings.settingsBuilder().put("searchguard.ssl.transport.enabled", true)
+                .put(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_ENABLE_OPENSSL_IF_AVAILABLE, allowOpenSSL)
+                .put(SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_ENABLE_OPENSSL_IF_AVAILABLE, allowOpenSSL)
                 .put(SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_KEYSTORE_ALIAS, "node-0")
                 .put("searchguard.ssl.transport.keystore_filepath", getAbsoluteFilePathFromClassPath("node-0-keystore.jks"))
                 .put("searchguard.ssl.transport.truststore_filepath", getAbsoluteFilePathFromClassPath("truststore.jks"))
@@ -194,6 +210,8 @@ public class SSLTest extends AbstractUnitTest {
         thrown.expect(NoNodeAvailableException.class);
 
         final Settings settings = Settings.settingsBuilder().put("searchguard.ssl.transport.enabled", true)
+                .put(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_ENABLE_OPENSSL_IF_AVAILABLE, allowOpenSSL)
+                .put(SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_ENABLE_OPENSSL_IF_AVAILABLE, allowOpenSSL)
                 .put(SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_KEYSTORE_ALIAS, "node-0")
                 .put("searchguard.ssl.transport.keystore_filepath", getAbsoluteFilePathFromClassPath("node-0-keystore.jks"))
                 .put("searchguard.ssl.transport.truststore_filepath", getAbsoluteFilePathFromClassPath("truststore.jks"))

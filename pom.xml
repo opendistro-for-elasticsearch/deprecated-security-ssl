@@ -92,13 +92,13 @@
           <scope>compile</scope>
         </dependency>
 
-        <!-- Uncomment to enable Open SSL support for mac development builds 
+        <!-- Optional, for native Open SSL support -->
         <dependency>
           <groupId>io.netty</groupId>
           <artifactId>netty-tcnative</artifactId>
           <version>1.1.33.Fork11</version>
-          <classifier>osx-x86_64</classifier>
-        </dependency> -->
+          <classifier>${os.detected.classifier}</classifier>
+        </dependency>
 
         <!-- Only test scoped dependencies hereafter -->
 
@@ -315,6 +315,13 @@
                 <version>3.1.0</version>
             </plugin>
         </plugins>
+        <extensions>
+        <extension>
+          <groupId>kr.motd.maven</groupId>
+          <artifactId>os-maven-plugin</artifactId>
+          <version>1.4.0.Final</version>
+        </extension>
+    </extensions>
     </build>
     <reporting>
         <plugins>
