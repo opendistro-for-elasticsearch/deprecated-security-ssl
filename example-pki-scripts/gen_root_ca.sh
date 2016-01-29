@@ -60,7 +60,7 @@ cat ca/signing-ca.pem ca/root-ca.pem > ca/chain-ca.pem
 
 #http://stackoverflow.com/questions/652916/converting-a-java-keystore-into-pem-format
 
-cat ca/chain-ca.pem | keytool \
+cat ca/root-ca.pem | keytool \
     -import \
     -v \
     -keystore truststore.jks   \
