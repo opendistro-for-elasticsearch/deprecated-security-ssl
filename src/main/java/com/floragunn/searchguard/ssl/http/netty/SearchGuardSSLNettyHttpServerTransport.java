@@ -105,9 +105,10 @@ public class SearchGuardSSLNettyHttpServerTransport extends NettyHttpServerTrans
                 throw ExceptionsHelper.convertToElastic(e);
             }
 
-            request.putInContext("_sg_ssl_protocol", sslhandler.getEngine().getSession().getProtocol());
-            request.putInContext("_sg_ssl_cipher", sslhandler.getEngine().getSession().getCipherSuite());
         }
+        
+        request.putInContext("_sg_ssl_protocol", sslhandler.getEngine().getSession().getProtocol());
+        request.putInContext("_sg_ssl_cipher", sslhandler.getEngine().getSession().getCipherSuite());
 
         super.dispatchRequest(request, channel);
     }
