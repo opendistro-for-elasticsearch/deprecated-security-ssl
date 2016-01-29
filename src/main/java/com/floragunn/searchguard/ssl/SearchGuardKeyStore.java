@@ -19,6 +19,7 @@ package com.floragunn.searchguard.ssl;
 
 import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.handler.ssl.ApplicationProtocolConfig;
+import io.netty.handler.ssl.ClientAuth;
 import io.netty.handler.ssl.OpenSsl;
 import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
@@ -282,7 +283,7 @@ public class SearchGuardKeyStore {
 
         final SslContextBuilder sslContextBuilder = SslContextBuilder.forServer(httpKeystoreCert, httpKeystoreKey)
                 .ciphers(getEnabledSSLCiphers()).applicationProtocolConfig(ApplicationProtocolConfig.DISABLED)
-                //.clientAuth(enforceHTTPClientAuth ? ClientAuth.REQUIRE : ClientAuth.NONE) https://github.com/netty/netty/issues/4722
+                .clientAuth(enforceHTTPClientAuth ? ClientAuth.REQUIRE : ClientAuth.NONE) //https://github.com/netty/netty/issues/4722
                 .sessionCacheSize(0).sessionTimeout(0)
                 .sslProvider(this.sslHTTPProvider);
 
@@ -291,7 +292,7 @@ public class SearchGuardKeyStore {
         }
 
         SSLEngine engine =  sslContextBuilder.build().newEngine(PooledByteBufAllocator.DEFAULT);
-        engine.setNeedClientAuth(enforceHTTPClientAuth);
+        //engine.setNeedClientAuth(enforceHTTPClientAuth);
         return engine;
 
     }
@@ -304,11 +305,11 @@ public class SearchGuardKeyStore {
 
         final SslContextBuilder sslContextBuilder = SslContextBuilder.forServer(transportKeystoreCert, transportKeystoreKey)
                 .ciphers(getEnabledSSLCiphers()).applicationProtocolConfig(ApplicationProtocolConfig.DISABLED)
-                //.clientAuth(ClientAuth.REQUIRE) https://github.com/netty/netty/issues/4722
+                .clientAuth(ClientAuth.REQUIRE) //https://github.com/netty/netty/issues/4722
                 .sessionCacheSize(0).sessionTimeout(0).sslProvider(this.sslTransportServerProvider)
                 .trustManager(trustedTransportCertificates);
         SSLEngine engine = sslContextBuilder.build().newEngine(PooledByteBufAllocator.DEFAULT);
-        engine.setNeedClientAuth(true);
+        //engine.setNeedClientAuth(true);
         return engine;
 
     }
