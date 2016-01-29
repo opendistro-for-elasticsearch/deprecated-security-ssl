@@ -50,5 +50,7 @@ cat ca/chain-ca.pem $CLIENT_NAME-signed.pem | keytool \
     -noprompt \
     -alias $CLIENT_NAME
 
+keytool -importkeystore -srckeystore $CLIENT_NAME-keystore.jks -srcstorepass $KS_PASS -srcstoretype JKS -deststoretype PKCS12 -deststorepass $KS_PASS -destkeystore $CLIENT_NAME-keystore.p12
+
 echo All done for $CLIENT_NAME
 	
