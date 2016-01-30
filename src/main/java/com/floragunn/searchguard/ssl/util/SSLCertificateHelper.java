@@ -46,7 +46,7 @@ public class SSLCertificateHelper {
 
         String evaluatedAlias = alias;
 
-        if (alias == null && aliases.size() == 1) {
+        if (alias == null && aliases.size() > 0) {
             evaluatedAlias = aliases.get(0);
         }
 
@@ -91,7 +91,7 @@ public class SSLCertificateHelper {
 
         String evaluatedAlias = alias;
 
-        if (alias == null && aliases.size() == 1) {
+        if (alias == null && aliases.size() > 0) {
             evaluatedAlias = aliases.get(0);
         }
 
