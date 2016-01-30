@@ -32,6 +32,8 @@ import java.nio.file.LinkOption;
 import java.nio.file.Paths;
 import java.security.KeyStore;
 import java.security.NoSuchAlgorithmException;
+import java.security.PrivateKey;
+import java.security.cert.X509Certificate;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
@@ -70,11 +72,11 @@ public class SearchGuardKeyStore {
         }
     }
 
-    private static final String[] PREFFERED_SSL_CIPHERS = { "TLS_RSA_WITH_AES_128_CBC_SHA256", "TLS_RSA_WITH_AES_128_CBC_SHA",
+    private static final String[] PREFFERED_SSL_CIPHERS = {"TLS_RSA_WITH_AES_128_CBC_SHA256", "TLS_RSA_WITH_AES_128_CBC_SHA",
             "TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA", "TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384", "TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384",
             "TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256", "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA", "TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384",
             "TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256", "TLS_DHE_RSA_WITH_AES_256_CBC_SHA", "TLS_DHE_RSA_WITH_AES_128_CBC_SHA",
-            "TLS_DHE_RSA_WITH_AES_256_GCM_SHA384", "TLS_DHE_RSA_WITH_AES_128_GCM_SHA256" };
+            "TLS_DHE_RSA_WITH_AES_256_GCM_SHA384", "TLS_DHE_RSA_WITH_AES_128_GCM_SHA256"};
 
     private final Settings settings;
     private final ESLogger log = Loggers.getLogger(this.getClass());
@@ -83,12 +85,12 @@ public class SearchGuardKeyStore {
     public final SslProvider sslTransportClientProvider;
     private final boolean httpSSLEnabled;
     private final boolean transportSSLEnabled;
-    private File trustedHTTPCertificates;
-    private File trustedTransportCertificates;
-    private File httpKeystoreCert;
-    private File httpKeystoreKey;
-    private File transportKeystoreCert;
-    private File transportKeystoreKey;
+    private X509Certificate[] trustedHTTPCertificates;
+    private X509Certificate[] trustedTransportCertificates;
+    private X509Certificate[] httpKeystoreCert;
+    private PrivateKey httpKeystoreKey;
+    private X509Certificate[] transportKeystoreCert;
+    private PrivateKey transportKeystoreKey;
     private boolean isOpenSSL;
     private boolean isJDKSSL;
     private boolean enforceHTTPClientAuth;
@@ -191,20 +193,13 @@ public class SearchGuardKeyStore {
                 final KeyStore ks = KeyStore.getInstance(keystoreType);
                 ks.load(new FileInputStream(new File(keystoreFilePath)), keystorePassword.toCharArray());
 
-                transportKeystoreCert = File.createTempFile("sg_", ".pem");
-                transportKeystoreKey = File.createTempFile("sg_", ".pem");
-                SSLCertificateHelper.exportCertificateChain(ks, keystoreAlias, transportKeystoreCert);
-                SSLCertificateHelper.exportDecryptedKey(ks, keystoreAlias, keystorePassword.toCharArray(), transportKeystoreKey);
-                transportKeystoreCert.deleteOnExit();
-                transportKeystoreKey.deleteOnExit();
+                transportKeystoreCert = SSLCertificateHelper.exportCertificateChain(ks, keystoreAlias);
+                transportKeystoreKey = SSLCertificateHelper.exportDecryptedKey(ks, keystoreAlias, keystorePassword.toCharArray());
 
                 final KeyStore ts = KeyStore.getInstance(truststoreType);
                 ts.load(new FileInputStream(new File(truststoreFilePath)), truststorePassword.toCharArray());
 
-                trustedTransportCertificates = File.createTempFile("sg_", ".pem");
-                trustedTransportCertificates.deleteOnExit();
-
-                SSLCertificateHelper.exportCertificateChain(ts, truststoreAlias, trustedTransportCertificates);
+                trustedTransportCertificates = SSLCertificateHelper.exportCertificateChain(ts, truststoreAlias);
 
             } catch (final Exception e) {
                 throw ExceptionsHelper.convertToElastic(e);
@@ -243,7 +238,7 @@ public class SearchGuardKeyStore {
 
             if (enforceHTTPClientAuth
                     && (Files.isDirectory(Paths.get(truststoreFilePath), LinkOption.NOFOLLOW_LINKS) || !Files.isReadable(Paths
-                            .get(truststoreFilePath)))) {
+                    .get(truststoreFilePath)))) {
                 throw new ElasticsearchException("No such truststore file (for https) " + truststoreFilePath);
             }
 
@@ -252,12 +247,8 @@ public class SearchGuardKeyStore {
                 final KeyStore ks = KeyStore.getInstance(keystoreType);
                 ks.load(new FileInputStream(new File(keystoreFilePath)), keystorePassword.toCharArray());
 
-                httpKeystoreCert = File.createTempFile("sg_", ".pem");
-                httpKeystoreKey = File.createTempFile("sg_", ".pem");
-                SSLCertificateHelper.exportCertificateChain(ks, keystoreAlias, httpKeystoreCert);
-                SSLCertificateHelper.exportDecryptedKey(ks, keystoreAlias, keystorePassword.toCharArray(), httpKeystoreKey);
-                httpKeystoreCert.deleteOnExit();
-                httpKeystoreKey.deleteOnExit();
+                httpKeystoreCert = SSLCertificateHelper.exportCertificateChain(ks, keystoreAlias);
+                httpKeystoreKey = SSLCertificateHelper.exportDecryptedKey(ks, keystoreAlias, keystorePassword.toCharArray());
 
                 if (enforceHTTPClientAuth) {
 
@@ -268,10 +259,7 @@ public class SearchGuardKeyStore {
                     final KeyStore ts = KeyStore.getInstance(truststoreType);
                     ts.load(new FileInputStream(new File(truststoreFilePath)), truststorePassword.toCharArray());
 
-                    trustedHTTPCertificates = File.createTempFile("sg_", ".pem");
-                    trustedHTTPCertificates.deleteOnExit();
-
-                    SSLCertificateHelper.exportCertificateChain(ts, truststoreAlias, trustedHTTPCertificates);
+                    trustedHTTPCertificates = SSLCertificateHelper.exportCertificateChain(ts, truststoreAlias);
                 }
             } catch (final Exception e) {
                 throw ExceptionsHelper.convertToElastic(e);
@@ -281,7 +269,7 @@ public class SearchGuardKeyStore {
 
     public SSLEngine createHTTPSSLEngine() throws SSLException {
 
-        final SslContextBuilder sslContextBuilder = SslContextBuilder.forServer(httpKeystoreCert, httpKeystoreKey)
+        final SslContextBuilder sslContextBuilder = SslContextBuilder.forServer(httpKeystoreKey, httpKeystoreCert)
                 .ciphers(getEnabledSSLCiphers()).applicationProtocolConfig(ApplicationProtocolConfig.DISABLED)
                 .clientAuth(enforceHTTPClientAuth ? ClientAuth.REQUIRE : ClientAuth.NONE) //https://github.com/netty/netty/issues/4722
                 .sessionCacheSize(0).sessionTimeout(0)
@@ -291,7 +279,7 @@ public class SearchGuardKeyStore {
             sslContextBuilder.trustManager(trustedHTTPCertificates);
         }
 
-        SSLEngine engine =  sslContextBuilder.build().newEngine(PooledByteBufAllocator.DEFAULT);
+        SSLEngine engine = sslContextBuilder.build().newEngine(PooledByteBufAllocator.DEFAULT);
         //engine.setNeedClientAuth(enforceHTTPClientAuth);
         return engine;
 
@@ -303,7 +291,7 @@ public class SearchGuardKeyStore {
             throw new ElasticsearchException("No truststore configured for server");
         }
 
-        final SslContextBuilder sslContextBuilder = SslContextBuilder.forServer(transportKeystoreCert, transportKeystoreKey)
+        final SslContextBuilder sslContextBuilder = SslContextBuilder.forServer(transportKeystoreKey, transportKeystoreCert)
                 .ciphers(getEnabledSSLCiphers()).applicationProtocolConfig(ApplicationProtocolConfig.DISABLED)
                 .clientAuth(ClientAuth.REQUIRE) //https://github.com/netty/netty/issues/4722
                 .sessionCacheSize(0).sessionTimeout(0).sslProvider(this.sslTransportServerProvider)
@@ -323,7 +311,7 @@ public class SearchGuardKeyStore {
         final SslContextBuilder sslContextBuilder = SslContextBuilder.forClient().ciphers(getEnabledSSLCiphers())
                 .applicationProtocolConfig(ApplicationProtocolConfig.DISABLED).sessionCacheSize(0).sessionTimeout(0)
                 .sslProvider(sslTransportClientProvider).trustManager(trustedTransportCertificates)
-                .keyManager(transportKeystoreCert, transportKeystoreKey, null);
+                .keyManager(transportKeystoreKey, transportKeystoreCert);
 
         final SslContext sslContext = sslContextBuilder.build();
 
