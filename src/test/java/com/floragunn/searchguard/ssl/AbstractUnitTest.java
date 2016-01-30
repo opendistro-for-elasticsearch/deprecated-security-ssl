@@ -17,6 +17,8 @@
 
 package com.floragunn.searchguard.ssl;
 
+import io.netty.handler.ssl.OpenSsl;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -69,6 +71,8 @@ public abstract class AbstractUnitTest {
         System.out.println("Java Version: " + System.getProperty("java.version") + " " + System.getProperty("java.vendor"));
         System.out.println("JVM Impl.: " + System.getProperty("java.vm.version") + " " + System.getProperty("java.vm.vendor") + " "
                 + System.getProperty("java.vm.name"));
+        System.out.println("Open SSL available: "+OpenSsl.isAvailable());
+        System.out.println("Open SSL version: "+OpenSsl.versionString());
     }
 
     @Rule

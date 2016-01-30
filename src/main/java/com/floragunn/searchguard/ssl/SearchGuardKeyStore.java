@@ -332,8 +332,8 @@ public class SearchGuardKeyStore {
     private void logOpenSSLInfos() {
         if (OpenSsl.isAvailable()) {
             log.info("Open SSL " + OpenSsl.versionString() + " available");
-            log.info("Open SSL available ciphers " + OpenSsl.availableCipherSuites());
-            log.info("Open SSL ALPN supported " + OpenSsl.isAlpnSupported());
+            log.debug("Open SSL available ciphers " + OpenSsl.availableCipherSuites());
+            log.debug("Open SSL ALPN supported " + OpenSsl.isAlpnSupported());
         } else {
             log.info("Open SSL not available because of " + OpenSsl.unavailabilityCause());
         }
