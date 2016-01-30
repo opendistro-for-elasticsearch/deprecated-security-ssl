@@ -21,12 +21,13 @@ import java.util.Arrays;
 
 import org.elasticsearch.Version;
 import org.elasticsearch.common.settings.Settings;
+import org.elasticsearch.node.internal.InternalSettingsPreparer;
 import org.elasticsearch.plugins.Plugin;
 
 public class PluginAwareNode extends Node {
 
     @SafeVarargs
     public PluginAwareNode(final Settings preparedSettings, final Class<? extends Plugin>... plugins) {
-        super(preparedSettings, Version.CURRENT, Arrays.asList(plugins));
+        super(InternalSettingsPreparer.prepareEnvironment(preparedSettings, null), Version.CURRENT, Arrays.asList(plugins));
     }
 }

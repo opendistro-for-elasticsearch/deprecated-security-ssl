@@ -1,4 +1,4 @@
-# Search Guard SSL for ES 2.1
+# Search Guard SSL for Elasticsearch 2.1.1
 Elasticsearch SSL for free.
 
 Search Guard SSL is a free and open source plugin for Elasticsearch which provides SSL for Elasticsearch. 
@@ -6,7 +6,7 @@ It does not provide authentication and authorization. For that pls refer to [Sea
 
 ![Logo](https://raw.githubusercontent.com/floragunncom/sg-assets/master/logo/sg_logo_small.jpg) 
 
-[![Build Status](https://travis-ci.org/floragunncom/search-guard-ssl.svg?branch=master)](https://travis-ci.org/floragunncom/search-guard-ssl) [![Coverage Status](https://coveralls.io/repos/floragunncom/search-guard-ssl/badge.svg?branch=master)](https://coveralls.io/r/floragunncom/search-guard-ssl?branch=master)
+[![Build Status](https://travis-ci.org/floragunncom/search-guard-ssl.svg?branch=2.1.1)](https://travis-ci.org/floragunncom/search-guard-ssl) [![Coverage Status](https://coveralls.io/repos/floragunncom/search-guard-ssl/badge.svg?branch=2.1.1)](https://coveralls.io/r/floragunncom/search-guard-ssl?branch=2.1.1)
 
 ##Support
 * Community support available via [google groups](https://groups.google.com/forum/#!forum/search-guard)
@@ -22,17 +22,17 @@ It does not provide authentication and authorization. For that pls refer to [Sea
 ##Pre-Installation
 ###Check Release Integrity
 
-You **must** verify the integrity of the [downloaded file](https://oss.sonatype.org/content/repositories/releases/com/floragunn/search-guard-ssl/2.1.0.1/). We provide PGP signatures for every release file. This signature should be matched against the KEYS file. We also provide MD5 and SHA-1 checksums for every release file. After you download the file, you should calculate a checksum for your download, and make sure it is the same as ours. [Here](http://www.openoffice.org/download/checksums.html) and [here](https://www.apache.org/info/verification.html) are some tips how to verify the pgp signatures.
+You **must** verify the integrity of the [downloaded file](https://oss.sonatype.org/content/repositories/releases/com/floragunn/search-guard-ssl/2.1.1.4/). We provide PGP signatures for every release file. This signature should be matched against the KEYS file. We also provide MD5 and SHA-1 checksums for every release file. After you download the file, you should calculate a checksum for your download, and make sure it is the same as ours. [Here](http://www.openoffice.org/download/checksums.html) and [here](https://www.apache.org/info/verification.html) are some tips how to verify the pgp signatures.
 
 ##Installation
 Install it like any other Elasticsearch plugin
 
-``sudo bin/plugin install com.floragunn/search-guard-ssl/2.1.0.3``
+``sudo bin/plugin install com.floragunn/search-guard-ssl/2.1.1.4``
 
 Prerequisites:
 
 * Java 7 or 8 (recommended)
-* Elasticsearch 2.1.0
+* Elasticsearch 2.1.1
 * Optional: Tomcat Native and Open SSL, see [wiki](https://github.com/floragunncom/search-guard-ssl/wiki)
 
 Build it yourself:
@@ -40,7 +40,8 @@ Build it yourself:
 * Install maven 3.1+
 * ``git clone https://github.com/floragunncom/search-guard-ssl.git``
 * ``cd search-guard-ssl``
-* execute ``mvn package -DskipTests`` 
+* ``git checkout 2.1.1``
+* ``mvn package -DskipTests`` 
 
 
 ##Configuration
