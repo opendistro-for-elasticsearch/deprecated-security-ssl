@@ -19,9 +19,15 @@ package com.floragunn.searchguard.ssl;
 
 import io.netty.handler.ssl.OpenSsl;
 
+import java.util.HashSet;
+import java.util.Set;
+
+import org.junit.Assert;
 import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Test;
+
+import com.floragunn.searchguard.ssl.util.SSLConfigConstants;
 
 public class OpenSSLTest extends SSLTest {
 
@@ -29,52 +35,81 @@ public class OpenSSLTest extends SSLTest {
     public void setup() {
         allowOpenSSL = true;
     }
-    
+
+    @Override
     @Test
     public void testHttps() throws Exception {
         Assume.assumeTrue(OpenSsl.isAvailable());
         super.testHttps();
     }
 
+    @Override
     @Test
     public void testHttpsAndNodeSSL() throws Exception {
         Assume.assumeTrue(OpenSsl.isAvailable());
         super.testHttpsAndNodeSSL();
     }
 
+    @Override
     @Test
     public void testHttpPlainFail() throws Exception {
         Assume.assumeTrue(OpenSsl.isAvailable());
         super.testHttpPlainFail();
     }
 
+    @Override
     @Test
     public void testHttpsNoEnforce() throws Exception {
         Assume.assumeTrue(OpenSsl.isAvailable());
         super.testHttpsNoEnforce();
     }
 
+    @Override
     @Test
     public void testHttpsV3Fail() throws Exception {
         Assume.assumeTrue(OpenSsl.isAvailable());
         super.testHttpsV3Fail();
     }
 
+    @Override
     @Test
     public void testTransportClientSSL() throws Exception {
         Assume.assumeTrue(OpenSsl.isAvailable());
         super.testTransportClientSSL();
     }
 
+    @Override
     @Test
     public void testNodeClientSSL() throws Exception {
         Assume.assumeTrue(OpenSsl.isAvailable());
         super.testNodeClientSSL();
     }
 
+    @Override
     @Test
     public void testTransportClientSSLFail() throws Exception {
         Assume.assumeTrue(OpenSsl.isAvailable());
         super.testTransportClientSSLFail();
+    }
+
+    @Test
+    public void testAvailCiphersOpenSSL() throws Exception {
+        Assume.assumeTrue(OpenSsl.isAvailable());
+
+        // Set<String> openSSLAvailCiphers = new
+        // HashSet<>(OpenSsl.availableCipherSuites());
+        // System.out.println("OpenSSL available ciphers: "+openSSLAvailCiphers);
+        // ECDHE-RSA-AES256-SHA, ECDH-ECDSA-AES256-SHA, DH-DSS-DES-CBC-SHA,
+        // ADH-AES256-SHA256, ADH-CAMELLIA128-SHA
+
+        final Set<String> openSSLSecureCiphers = new HashSet<>();
+        for (final String secure : SSLConfigConstants.SECURE_SSL_CIPHERS) {
+            if (OpenSsl.isCipherSuiteAvailable(secure)) {
+                openSSLSecureCiphers.add(secure);
+            }
+        }
+
+        System.out.println("OpenSSL secure ciphers: " + openSSLSecureCiphers);
+        Assert.assertTrue(openSSLSecureCiphers.size() > 0);
     }
 }

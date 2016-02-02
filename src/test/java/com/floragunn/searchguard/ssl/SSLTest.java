@@ -18,7 +18,12 @@
 package com.floragunn.searchguard.ssl;
 
 import java.net.InetSocketAddress;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLEngine;
 import javax.net.ssl.SSLHandshakeException;
 
 import org.apache.http.NoHttpResponseException;
@@ -40,7 +45,7 @@ public class SSLTest extends AbstractUnitTest {
 
     @Rule
     public final ExpectedException thrown = ExpectedException.none();
-    
+
     protected boolean allowOpenSSL = false;
 
     @Test
@@ -231,5 +236,22 @@ public class SSLTest extends AbstractUnitTest {
             tc.addTransportAddress(new InetSocketTransportAddress(new InetSocketAddress(nodeHost, nodePort)));
             Assert.assertEquals(3, tc.admin().cluster().nodesInfo(new NodesInfoRequest()).actionGet().getNodes().length);
         }
+    }
+
+    @Test
+    public void testAvailCiphers() throws Exception {
+        final SSLContext serverContext = SSLContext.getInstance("TLS");
+        serverContext.init(null, null, null);
+        final SSLEngine engine = serverContext.createSSLEngine();
+        final List<String> jdkSupportedCiphers = new ArrayList<>(Arrays.asList(engine.getSupportedCipherSuites()));
+        jdkSupportedCiphers.retainAll(SSLConfigConstants.SECURE_SSL_CIPHERS);
+        engine.setEnabledCipherSuites(jdkSupportedCiphers.toArray(new String[0]));
+
+        final List<String> jdkEnabledCiphers = Arrays.asList(engine.getEnabledCipherSuites());
+        // example
+        // TLS_RSA_WITH_AES_128_CBC_SHA256, TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA,
+        // TLS_RSA_WITH_AES_128_CBC_SHA, TLS_DHE_RSA_WITH_AES_128_CBC_SHA
+        System.out.println("JDK enabled ciphers: " + jdkEnabledCiphers);
+        Assert.assertTrue(jdkEnabledCiphers.size() > 0);
     }
 }

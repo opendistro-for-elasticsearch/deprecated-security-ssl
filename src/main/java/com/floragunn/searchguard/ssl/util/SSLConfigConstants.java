@@ -17,6 +17,12 @@
 
 package com.floragunn.searchguard.ssl.util;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 public final class SSLConfigConstants {
 
     public static final String SEARCHGUARD_SSL_HTTP_ENABLE_OPENSSL_IF_AVAILABLE = "searchguard.ssl.http.enable_openssl_if_available";
@@ -45,6 +51,27 @@ public final class SSLConfigConstants {
     public static final String SEARCHGUARD_SSL_TRANSPORT_TRUSTSTORE_PASSWORD = "searchguard.ssl.transport.truststore_password";
     public static final String SEARCHGUARD_SSL_TRANSPORT_TRUSTSTORE_TYPE = "searchguard.ssl.transport.truststore_type";
 
+    // @formatter:off
+    private static final String[] _SECURE_SSL_CIPHERS = 
+        {
+        "TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384",
+        "TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384",
+        "TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384", 
+        "TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA", 
+        "TLS_DHE_RSA_WITH_AES_256_CBC_SHA", 
+        "TLS_DHE_RSA_WITH_AES_256_GCM_SHA384",
+        "TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256", 
+        "TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256", 
+        "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA", 
+        "TLS_DHE_RSA_WITH_AES_128_GCM_SHA256",
+        "TLS_DHE_RSA_WITH_AES_128_CBC_SHA",
+        "TLS_RSA_WITH_AES_128_CBC_SHA256",
+        "TLS_RSA_WITH_AES_128_CBC_SHA"
+        };
+    // @formatter:on
+    
+    public static final List<String> SECURE_SSL_CIPHERS = Collections.unmodifiableList(Arrays.asList(_SECURE_SSL_CIPHERS));
+    
     private SSLConfigConstants() {
 
     }
