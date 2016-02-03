@@ -30,9 +30,12 @@ import java.io.FileInputStream;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.Paths;
+import java.security.AccessController;
 import java.security.KeyStore;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
+import java.security.PrivilegedActionException;
+import java.security.PrivilegedExceptionAction;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -49,6 +52,7 @@ import javax.net.ssl.SSLParameters;
 
 import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.ExceptionsHelper;
+import org.elasticsearch.SpecialPermission;
 import org.elasticsearch.common.inject.Inject;
 import org.elasticsearch.common.logging.ESLogger;
 import org.elasticsearch.common.logging.Loggers;
@@ -262,7 +266,9 @@ public class SearchGuardKeyStore {
             sslContextBuilder.trustManager(trustedHTTPCertificates);
         }
 
-        final SSLEngine engine = sslContextBuilder.build().newEngine(PooledByteBufAllocator.DEFAULT);
+        final SslContext sslContext = buildSSLContext(sslContextBuilder);
+
+        final SSLEngine engine = sslContext.newEngine(PooledByteBufAllocator.DEFAULT);
         // engine.setNeedClientAuth(enforceHTTPClientAuth);
         return engine;
 
@@ -280,7 +286,10 @@ public class SearchGuardKeyStore {
                 // https://github.com/netty/netty/issues/4722
                 .sessionCacheSize(0).sessionTimeout(0).sslProvider(this.sslTransportServerProvider)
                 .trustManager(trustedTransportCertificates);
-        final SSLEngine engine = sslContextBuilder.build().newEngine(PooledByteBufAllocator.DEFAULT);
+
+        final SslContext sslContext = buildSSLContext(sslContextBuilder);
+
+        final SSLEngine engine = sslContext.newEngine(PooledByteBufAllocator.DEFAULT);
         // engine.setNeedClientAuth(true);
         return engine;
 
@@ -297,7 +306,7 @@ public class SearchGuardKeyStore {
                 .sslProvider(sslTransportClientProvider).trustManager(trustedTransportCertificates)
                 .keyManager(transportKeystoreKey, transportKeystoreCert);
 
-        final SslContext sslContext = sslContextBuilder.build();
+        final SslContext sslContext = buildSSLContext(sslContextBuilder);
 
         if (peerHost != null) {
             final SSLEngine engine = sslContext.newEngine(PooledByteBufAllocator.DEFAULT, peerHost, peerPort);
@@ -324,10 +333,10 @@ public class SearchGuardKeyStore {
     }
 
     private List<String> getEnabledSSLCiphers(final SslProvider provider) {
-        if(provider == null) {
+        if (provider == null) {
             return Collections.emptyList();
         }
-        
+
         return provider == SslProvider.JDK ? enabledCiphersJDKProvider : enabledCiphersOpenSSLProvider;
     }
 
@@ -358,5 +367,28 @@ public class SearchGuardKeyStore {
         } catch (final Exception e) {
             enabledCiphersJDKProvider = Collections.emptyList();
         }
+    }
+
+    private SslContext buildSSLContext(final SslContextBuilder sslContextBuilder) throws SSLException {
+
+        final SecurityManager sm = System.getSecurityManager();
+
+        if (sm != null) {
+            sm.checkPermission(new SpecialPermission());
+        }
+
+        SslContext sslContext = null;
+        try {
+            sslContext = AccessController.doPrivileged(new PrivilegedExceptionAction<SslContext>() {
+                @Override
+                public SslContext run() throws Exception {
+                    return sslContextBuilder.build();
+                }
+            });
+        } catch (final PrivilegedActionException e) {
+            throw (SSLException) e.getCause();
+        }
+
+        return sslContext;
     }
 }

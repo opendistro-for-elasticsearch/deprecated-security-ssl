@@ -3,8 +3,6 @@
 #                                       Configuration                                       #
 #############################################################################################
 
-#This will likely change with Elasticsearch 2.2, see [PR 14108](https://github.com/elastic/elasticsearch/pull/14108)
-security.manager.enabled: false
 
 #############################################################################################
 # Transport layer SSL                                                                       #

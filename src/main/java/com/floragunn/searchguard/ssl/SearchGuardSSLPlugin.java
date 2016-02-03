@@ -17,8 +17,14 @@
 
 package com.floragunn.searchguard.ssl;
 
+import io.netty.handler.ssl.OpenSsl;
+import io.netty.util.internal.PlatformDependent;
+
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 import java.util.Collection;
 
+import org.elasticsearch.SpecialPermission;
 import org.elasticsearch.common.inject.Module;
 import org.elasticsearch.common.logging.ESLogger;
 import org.elasticsearch.common.logging.Loggers;
@@ -47,6 +53,24 @@ public final class SearchGuardSSLPlugin extends Plugin {
     private final Settings settings;
 
     public SearchGuardSSLPlugin(final Settings settings) {
+
+        final SecurityManager sm = System.getSecurityManager();
+
+        if (sm != null) {
+            sm.checkPermission(new SpecialPermission());
+        }
+
+        // initialize native netty open ssl libs
+
+        AccessController.doPrivileged(new PrivilegedAction<Object>() {
+            @Override
+            public Object run() {
+                PlatformDependent.hasUnsafe();
+                OpenSsl.isAvailable();
+                return null;
+            }
+        });
+
         this.settings = settings;
         client = !"node".equals(this.settings.get(SearchGuardSSLPlugin.CLIENT_TYPE));
         httpSSLEnabled = settings.getAsBoolean(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_ENABLED,
