@@ -32,6 +32,7 @@ securekey.key
 .DS_Store
 data/
 example-pki-scripts/**/*.jks
+example-pki-scripts/**/*.p12
 example-pki-scripts/**/*.pem
 example-pki-scripts/**/db/
 example-pki-scripts/**/*.csr
