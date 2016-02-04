@@ -265,10 +265,11 @@ public class SearchGuardKeyStore {
         if (enforceHTTPClientAuth) {
             sslContextBuilder.trustManager(trustedHTTPCertificates);
         }
-
+        
         final SslContext sslContext = buildSSLContext(sslContextBuilder);
 
         final SSLEngine engine = sslContext.newEngine(PooledByteBufAllocator.DEFAULT);
+        engine.setEnabledProtocols(SSLConfigConstants.getSecureSSLProtocols());
         // engine.setNeedClientAuth(enforceHTTPClientAuth);
         return engine;
 
@@ -290,6 +291,7 @@ public class SearchGuardKeyStore {
         final SslContext sslContext = buildSSLContext(sslContextBuilder);
 
         final SSLEngine engine = sslContext.newEngine(PooledByteBufAllocator.DEFAULT);
+        engine.setEnabledProtocols(SSLConfigConstants.getSecureSSLProtocols());
         // engine.setNeedClientAuth(true);
         return engine;
 
@@ -314,10 +316,12 @@ public class SearchGuardKeyStore {
             final SSLParameters sslParams = new SSLParameters();
             sslParams.setEndpointIdentificationAlgorithm("HTTPS");
             engine.setSSLParameters(sslParams);
-
+            engine.setEnabledProtocols(SSLConfigConstants.getSecureSSLProtocols());
             return engine;
         } else {
-            return sslContext.newEngine(PooledByteBufAllocator.DEFAULT);
+            final SSLEngine engine = sslContext.newEngine(PooledByteBufAllocator.DEFAULT);
+            engine.setEnabledProtocols(SSLConfigConstants.getSecureSSLProtocols());
+            return engine;
         }
 
     }

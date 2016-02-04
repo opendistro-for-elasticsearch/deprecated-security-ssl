@@ -254,4 +254,18 @@ public class SSLTest extends AbstractUnitTest {
         System.out.println("JDK enabled ciphers: " + jdkEnabledCiphers);
         Assert.assertTrue(jdkEnabledCiphers.size() > 0);
     }
+    
+    @Test
+    public void testUnmodifieableCipherProtocolConfig() throws Exception {
+        SSLConfigConstants.getSecureSSLProtocols()[0] = "bogus";
+        Assert.assertEquals("TLSv1.2", SSLConfigConstants.getSecureSSLProtocols()[0]);
+        
+        try {
+            SSLConfigConstants.SECURE_SSL_CIPHERS.set(0, "bogus");
+            Assert.fail();
+        } catch (UnsupportedOperationException e) {
+            //expected
+        }
+    }
+    
 }
