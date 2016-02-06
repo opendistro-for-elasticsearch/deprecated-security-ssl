@@ -1,4 +1,4 @@
-# Search Guard SSL for Elasticsearch 2.2.0
+# Search Guard SSL for Elasticsearch 2
 Elasticsearch SSL for free.
 
 Search Guard SSL is a free and open source plugin for Elasticsearch which provides SSL for Elasticsearch. 
@@ -6,11 +6,8 @@ It does not provide authentication and authorization. For that pls refer to [Sea
 
 ![Logo](https://raw.githubusercontent.com/floragunncom/sg-assets/master/logo/sg_logo_small.jpg) 
 
-[![Build Status](https://travis-ci.org/floragunncom/search-guard-ssl.svg?branch=2.2.0)](https://travis-ci.org/floragunncom/search-guard-ssl) [![Coverage Status](https://coveralls.io/repos/floragunncom/search-guard-ssl/badge.svg?branch=2.2.0)](https://coveralls.io/r/floragunncom/search-guard-ssl?branch=2.2.0)
-
 ##Support
-* Community support available via [google groups](https://groups.google.com/forum/#!forum/search-guard)
-* Commercial support through [floragunn UG](http://floragunn.com) available Februar 2016
+[See wiki](https://github.com/floragunncom/search-guard-ssl/wiki/Support)
 
 ##Features
 * Node-to-node encryption through SSL/TLS (Transport layer)
@@ -20,43 +17,21 @@ It does not provide authentication and authorization. For that pls refer to [Sea
 * Works with Kibana 4, logstash and beats
 
 ##Pre-Installation
-###Check Release Integrity
+###Prerequisites:
+* Java 7 or 8 (Oracle Java 8 recommended)
+* Elasticsearch 2
+* Optional: Tomcat Native and Open SSL, see [wiki](https://github.com/floragunncom/search-guard-ssl/wiki/Open-SSL-setup)
 
-You **must** verify the integrity of the [downloaded file](https://oss.sonatype.org/content/repositories/releases/com/floragunn/search-guard-ssl/2.2.0.5/). We provide PGP signatures for every release file. This signature should be matched against the KEYS file. We also provide MD5 and SHA-1 checksums for every release file. After you download the file, you should calculate a checksum for your download, and make sure it is the same as ours. [Here](http://www.openoffice.org/download/checksums.html) and [here](https://www.apache.org/info/verification.html) are some tips how to verify the pgp signatures.
+###Check Release Integrity
+[See wiki](https://github.com/floragunncom/search-guard-ssl/wiki/Check-Release-Integrity)
 
 ##Installation
-Install it like any other Elasticsearch plugin
+Install it like [any other Elasticsearch plugin](https://www.elastic.co/guide/en/elasticsearch/plugins/2.2/plugin-management.html)
 
-``sudo bin/plugin install com.floragunn/search-guard-ssl/2.2.0.5``
+* ``bin/plugin install com.floragunn/search-guard-ssl/<version>`` OR
+* ``sudo bin/plugin install com.floragunn/search-guard-ssl/<version>``
 
-Accept the following warning with y
-
-	@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-	@     WARNING: plugin requires additional permissions     @
-	@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-	* java.lang.RuntimePermission accessClassInPackage.sun.misc
-	* java.lang.RuntimePermission getClassLoader
-	* java.lang.RuntimePermission loadLibrary.*
-	* java.lang.reflect.ReflectPermission suppressAccessChecks
-	* java.security.SecurityPermission getProperty.ssl.KeyManagerFactory.algorithm
-	See http://docs.oracle.com/javase/8/docs/technotes/guides/security/permissions.html
-	for descriptions of what these permissions allow and the associated risks.
-
-
-Prerequisites:
-
-* Java 7 or 8 (recommended)
-* Elasticsearch 2.2.0
-* Optional: Tomcat Native and Open SSL, see [wiki](https://github.com/floragunncom/search-guard-ssl/wiki)
-
-Build it yourself:
-
-* Install maven 3.1+
-* ``git clone https://github.com/floragunncom/search-guard-ssl.git``
-* ``cd search-guard-ssl``
-* ``git checkout 2.2.0``
-* ``mvn package -DskipTests`` 
-
+To find the latest plugin version which is compatible with your Elasticsearch version pls refer to the [wiki](https://github.com/floragunncom/search-guard-ssl/wiki/Check-Release-Integrity).
 
 ##Configuration
 
@@ -65,20 +40,15 @@ Search Guard SSL configuration is done in elasticsearch.yml. Please refer to [se
 Check your configuration by visiting [https://localhost:9200/_searchguard/sslinfo?pretty](https://localhost:9200/_searchguard/sslinfo?pretty) if you have enabled HTTPS or [http://localhost:9200/_searchguard/sslinfo?pretty](http://localhost:9200/_searchguard/sslinfo?pretty) if HTTPS is not enabled.
 
 For details refer to the [wiki](https://github.com/floragunncom/search-guard-ssl/wiki).
+If you are running Elasticsearch 2.0.x or 2.1.x you to [disable your security manager](https://github.com/floragunncom/search-guard-ssl/wiki/Disable-security-manager).
 
 ###Logging
 Configured in elasticsearch's logging.yml. Nothing special. To enable debug just add
 
 ``logger.com.floragunn.searchguard.ssl: DEBUG``
 
-
 ###SSL Certificates
-* Refer to [example-pki-scripts](example-pki-scripts) how to generate the certificates. It's strongly recommended to use a root certificate.
-* See also [https://www.digitalocean.com/community/tutorials/java-keytool-essentials-working-with-java-keystores](https://www.digitalocean.com/community/tutorials/java-keytool-essentials-working-with-java-keystores)
-* or [https://tomcat.apache.org/tomcat-8.0-doc/ssl-howto.html](https://tomcat.apache.org/tomcat-8.0-doc/ssl-howto.html)
-
-###Update and Upgrade
-TBD
+* Refer to [wiki](https://github.com/floragunncom/search-guard-ssl/wiki/Generate-Keystores) and [example-pki-scripts](example-pki-scripts) how to generate the certificates. It's strongly recommended to use a root certificate.
 
 ###License
 Copyright 2015 floragunn UG (haftungsbeschränkt)
