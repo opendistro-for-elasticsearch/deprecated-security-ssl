@@ -436,7 +436,8 @@
                         <artifactId>maven-gpg-plugin</artifactId>
                         <version>1.6</version>
                         <configuration>
-                            <keyname>51EDB2FE</keyname>
+                            <keyname>${gpg.keyname}</keyname>
+                            <passphraseServerId>${gpg.keyname}</passphraseServerId>
                         </configuration>
                         <executions>
                             <execution>
