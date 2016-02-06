@@ -332,7 +332,7 @@ public class SearchGuardKeyStore {
             log.debug("Open SSL available ciphers " + OpenSsl.availableCipherSuites());
             log.debug("Open SSL ALPN supported " + OpenSsl.isAlpnSupported());
         } else {
-            log.info("Open SSL not available because of " + OpenSsl.unavailabilityCause());
+            log.info("Open SSL not available (this is not an error, we simply fallback to built-in JDK SSL) because of " + OpenSsl.unavailabilityCause());
         }
     }
 

@@ -3,9 +3,14 @@ ES_CONF_DIR=/etc/elasticsearch
 ES_BIN_DIR=/usr/share/elasticsearch/bin
 ES_PLUGIN_DIR=/usr/share/elasticsearch/plugins
 
-cd /vagrant/example-pki-scripts
-echo "Generating SSL certificates"
-./example.sh > /dev/null 2>&1
+if [ ! -f /vagrant/example-pki-scripts/truststore.jks ]
+then
+    cd /vagrant/example-pki-scripts
+    echo "Generating SSL certificates"
+    ./example.sh > /dev/null 2>&1
+fi
+
+
 cd /tmp
 
 NETTY_NATIVE_VERSION=1.1.33.Fork12
@@ -24,5 +29,9 @@ echo "searchguard.ssl.transport.enforce_hostname_verification: false" >> $ES_CON
 echo "searchguard.ssl.http.enabled: true" >> $ES_CONF_DIR/elasticsearch.yml
 echo "searchguard.ssl.http.keystore_filepath: node-0-keystore.jks" >> $ES_CONF_DIR/elasticsearch.yml
 echo "searchguard.ssl.http.truststore_filepath: truststore.jks" >> $ES_CONF_DIR/elasticsearch.yml
+echo "network.host: _eth1_" >> $ES_CONF_DIR/elasticsearch.yml
+echo "discovery.zen.ping.unicast.hosts: 10.0.3.113,10.0.3.112,10.0.3.111" >> $ES_CONF_DIR/elasticsearch.yml
+echo "discovery.zen.ping.multicast.enabled: false" >> $ES_CONF_DIR/elasticsearch.yml
+
 cp /vagrant/example-pki-scripts/node-0-keystore.* $ES_CONF_DIR/
 cp /vagrant/example-pki-scripts/truststore.jks $ES_CONF_DIR/

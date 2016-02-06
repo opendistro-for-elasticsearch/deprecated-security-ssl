@@ -9,8 +9,8 @@ sudo killall -9 java > /dev/null 2>&1
 wget -qO - https://packages.elastic.co/GPG-KEY-elasticsearch | sudo apt-key add - > /dev/null 2>&1
 echo "deb http://packages.elastic.co/elasticsearch/2.x/debian stable main" | sudo tee -a /etc/apt/sources.list.d/elasticsearch-2.x.list > /dev/null 2>&1
 sudo apt-get -yqq update > /dev/null 2>&1
-echo "Install guest additions"
-sudo apt-get -yqq install virtualbox-guest-additions-iso > /dev/null 2>&1
+#echo "Install guest additions"
+#sudo apt-get -yqq install virtualbox-guest-additions-iso > /dev/null 2>&1
 echo "Prepare Java installation"
 echo oracle-java8-installer shared/accepted-oracle-license-v1-1 select true | sudo /usr/bin/debconf-set-selections > /dev/null 2>&1
 sudo apt-get -yqq install curl software-properties-common > /dev/null 2>&1
@@ -39,28 +39,59 @@ echo "Setup search Guard SSL"
 echo "Start Elasticsearch"
 /etc/init.d/elasticsearch restart
 
-while ! nc -z localhost 9200; do   
+IP=$(hostname -I | cut -f2 -d' ')
+
+while ! nc -z $IP 9200; do   
   sleep 0.1 # wait for 1/10 of the second before check again
 done
 
-curl -Ss --insecure https://localhost:9200/_cluster/health?pretty
-curl -Ss --insecure https://127.0.0.1:9200/_searchguard/sslinfo?pretty
+curl -Ss --insecure https://$IP:9200/_cluster/health?pretty
+curl -Ss --insecure https://$IP:9200/_searchguard/sslinfo?pretty
 
 SCRIPT
+#End inline script
 
-
-# Vagrantfile API/syntax version. Don't touch unless you know what you're doing!
 VAGRANTFILE_API_VERSION = "2"
 
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
-  config.vm.box = "ubuntu/trusty64"
-  config.vm.network :forwarded_port, guest: 9200, host: 9200
-  #config.vm.network :forwarded_port, guest: 88, host: 8888, protocol: 'udp'
-  config.vm.network :forwarded_port, guest: 9300, host: 9300
 
-  config.vm.provider :virtualbox do |vb|
-      vb.customize ["modifyvm", :id, "--cpus", "2", "--memory", "2048"]
-      #vb.customize ["modifyvm", :id, "--cpus", "1", "--memory", "1024"]
-  end
-  config.vm.provision "shell", inline: $script
+   config.vm.provision :hosts do |prov|
+        prov.add_host '10.0.3.111', ['es1']
+        prov.add_host '10.0.3.112', ['es2']
+        prov.add_host '10.0.3.113', ['es3']
+   end
+
+   config.vm.define "es1" do |es1|
+        es1.vm.box = "ubuntu/trusty64"
+        es1.vm.hostname = "es1"
+        es1.vm.network "private_network", ip: "10.0.3.111"
+        es1.vm.provision "shell", inline: $script
+        es1.vm.provider "virtualbox" do |v|
+                     v.memory = 768 
+                     v.cpus = 2
+             end
+   end
+
+   config.vm.define "es2" do |es2|
+        es2.vm.box = "ubuntu/trusty64"
+        es2.vm.hostname = "es2"
+        es2.vm.network "private_network", ip: "10.0.3.112"
+        es2.vm.provision "shell", inline: $script
+        es2.vm.provider "virtualbox" do |v|
+                     v.memory = 768 
+                     v.cpus = 2
+             end
+   end
+
+   config.vm.define "es3" do |es3|
+        es3.vm.box = "ubuntu/trusty64"
+        es3.vm.hostname = "es3"
+        es3.vm.network "private_network", ip: "10.0.3.113"
+        es3.vm.provision "shell", inline: $script
+        es3.vm.provider "virtualbox" do |v|
+                     v.memory = 768 
+                     v.cpus = 2
+             end
+   end
+
 end
