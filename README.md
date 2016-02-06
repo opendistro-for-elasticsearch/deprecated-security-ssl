@@ -31,6 +31,19 @@ Install it like [any other Elasticsearch plugin](https://www.elastic.co/guide/en
 * ``bin/plugin install com.floragunn/search-guard-ssl/<version>`` OR
 * ``sudo bin/plugin install com.floragunn/search-guard-ssl/<version>``
 
+Accept the following warning with y (since ES >= 2.2)
+
+	@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+	@     WARNING: plugin requires additional permissions     @
+	@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+	* java.lang.RuntimePermission accessClassInPackage.sun.misc
+	* java.lang.RuntimePermission getClassLoader
+	* java.lang.RuntimePermission loadLibrary.*
+	* java.lang.reflect.ReflectPermission suppressAccessChecks
+	* java.security.SecurityPermission getProperty.ssl.KeyManagerFactory.algorithm
+	See http://docs.oracle.com/javase/8/docs/technotes/guides/security/permissions.html
+	for descriptions of what these permissions allow and the associated risks.
+
 To find the latest plugin version which is compatible with your Elasticsearch version pls refer to the [wiki](https://github.com/floragunncom/search-guard-ssl/wiki/Check-Release-Integrity).
 
 ##Configuration
