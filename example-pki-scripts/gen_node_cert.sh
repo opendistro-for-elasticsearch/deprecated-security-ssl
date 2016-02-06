@@ -18,7 +18,7 @@ keytool -genkey \
         -keypass $KS_PASS \
         -storepass $KS_PASS \
         -dname "CN=$NODE_NAME.example.com, OU=SSL, O=Test, L=Test, C=DE" \
-        -ext san=dns:$NODE_NAME.example.com,ip:10.1.1.1,oid:1.2.3.4.5.5
+        -ext san=dns:$NODE_NAME.example.com,ip:127.0.0.1,oid:1.2.3.4.5.5
 
 echo Generating certificate signing request for node $NODE_NAME
 
@@ -30,7 +30,7 @@ keytool -certreq \
         -keypass $KS_PASS \
         -storepass $KS_PASS \
         -dname "CN=$NODE_NAME.example.com, OU=SSL, O=Test, L=Test, C=DE" \
-        -ext san=dns:$NODE_NAME.example.com,ip:10.1.1.1,oid:1.2.3.4.5.5
+        -ext san=dns:$NODE_NAME.example.com,ip:127.0.0.1,oid:1.2.3.4.5.5
 
 echo Sign certificate request with CA
 openssl ca \
