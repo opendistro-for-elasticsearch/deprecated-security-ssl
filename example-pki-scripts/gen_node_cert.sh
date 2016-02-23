@@ -1,8 +1,16 @@
 #!/bin/bash
 set -e
 NODE_NAME=node-$1
-KS_PASS=$2
-CA_PASS=$3
+
+if [ -z "$3" ] ; then
+  unset CA_PASS KS_PASS
+  read -p "Enter CA pass: " -s CA_PASS ; echo
+  read -p "Enter Keystore pass: " -s KS_PASS ; echo
+ else
+  KS_PASS=$2
+  CA_PASS=$3
+fi
+
 rm -f $NODE_NAME-keystore.jks
 rm -f $NODE_NAME.csr
 rm -f $NODE_NAME-signed.pem
