@@ -1,8 +1,16 @@
 #!/bin/bash
 set -e
 CLIENT_NAME=$1
-KS_PASS=$2
-CA_PASS=$3
+
+if [ -z "$3" ] ; then
+  unset CA_PASS KS_PASS
+  read -p "Enter CA pass: " -s CA_PASS ; echo
+  read -p "Enter Keystore pass: " -s KS_PASS ; echo
+ else
+  KS_PASS=$2
+  CA_PASS=$3
+fi
+
 rm -f $CLIENT_NAME-keystore.jks
 rm -f $CLIENT_NAME.csr
 rm -f $CLIENT_NAME-signed.pem

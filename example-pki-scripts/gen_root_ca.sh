@@ -1,8 +1,16 @@
 #!/bin/bash
 set -e
 rm -rf ca certs* crl *.jks
-CA_PASS=$1
-TS_PASS=$2
+
+if [ -z "$2" ] ; then
+  unset CA_PASS TS_PASS
+  read -p "Enter CA pass: " -s CA_PASS ; echo
+  read -p "Enter Truststore pass: " -s TS_PASS ; echo
+ else
+  CA_PASS=$1
+  TS_PASS=$2
+fi
+
 mkdir -p ca/root-ca/private ca/root-ca/db crl certs
 chmod 700 ca/root-ca/private
 
