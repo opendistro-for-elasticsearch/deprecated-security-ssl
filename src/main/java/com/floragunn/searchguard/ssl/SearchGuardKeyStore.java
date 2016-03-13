@@ -42,7 +42,9 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 
 import javax.crypto.Cipher;
 import javax.net.ssl.SSLContext;
@@ -61,7 +63,6 @@ import org.elasticsearch.env.Environment;
 
 import com.floragunn.searchguard.ssl.util.SSLCertificateHelper;
 import com.floragunn.searchguard.ssl.util.SSLConfigConstants;
-import com.google.common.base.Strings;
 
 public class SearchGuardKeyStore {
 
@@ -70,8 +71,8 @@ public class SearchGuardKeyStore {
             final int aesMaxKeyLength = Cipher.getMaxAllowedKeyLength("AES");
 
             if (aesMaxKeyLength < 256) {
-                log.warn("AES 256 not supported, max key length for AES is " + aesMaxKeyLength
-                        + ". To enable AES 256 install 'Java Cryptography Extension (JCE) Unlimited Strength Jurisdiction Policy Files'");
+                log.info("AES-256 not supported, max key length for AES is " + aesMaxKeyLength+" bit."
+                        + ". That is not an issue, it just limits possible encryption strength. To enable AES 256 install 'Java Cryptography Extension (JCE) Unlimited Strength Jurisdiction Policy Files'");
             }
         } catch (final NoSuchAlgorithmException e) {
             log.error("AES encryption not supported. " + e);
@@ -140,9 +141,19 @@ public class SearchGuardKeyStore {
     }
 
     private void initSSLConfig() {
+        
+        final Environment env = new Environment(settings);
+        log.info("Config directory is {}/, from there the key- and truststore files are resolved relatively", env.configFile().toAbsolutePath());
 
+        StringBuilder sb = new StringBuilder();
+        Map<String, String> settingsAsMap = settings.getAsMap();
+        for(String key: new TreeSet<String>(settingsAsMap.keySet())) {
+            sb.append(key+"="+settingsAsMap.get(key)+System.lineSeparator());
+        }
+        log.info("Effective settings:{}{}",System.lineSeparator(), sb);
+        
         if (transportSSLEnabled) {
-            final Environment env = new Environment(settings);
+            
             final String keystoreFilePath = env.configFile()
                     .resolve(settings.get(SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_KEYSTORE_FILEPATH, "")).toAbsolutePath().toString();
             final String keystoreType = settings.get(SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_KEYSTORE_TYPE, "JKS");
@@ -153,24 +164,19 @@ public class SearchGuardKeyStore {
                     .resolve(settings.get(SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_TRUSTSTORE_FILEPATH, "")).toAbsolutePath()
                     .toString();
 
-            if (Strings.isNullOrEmpty(keystoreFilePath)) {
+            if(settings.get(SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_KEYSTORE_FILEPATH, null) == null) {
                 throw new ElasticsearchException(SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_KEYSTORE_FILEPATH
                         + " must be set if transport ssl is reqested.");
             }
 
-            if (Files.isDirectory(Paths.get(keystoreFilePath), LinkOption.NOFOLLOW_LINKS) || !Files.isReadable(Paths.get(keystoreFilePath))) {
-                throw new ElasticsearchException("No such keystore file " + keystoreFilePath);
-            }
-
-            if (Strings.isNullOrEmpty(truststoreFilePath)) {
+            checkStorePath(keystoreFilePath);
+            
+            if(settings.get(SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_TRUSTSTORE_FILEPATH, null) == null) {
                 throw new ElasticsearchException(SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_TRUSTSTORE_FILEPATH
                         + " must be set if transport ssl is reqested.");
             }
 
-            if (Files.isDirectory(Paths.get(truststoreFilePath), LinkOption.NOFOLLOW_LINKS)
-                    || !Files.isReadable(Paths.get(truststoreFilePath))) {
-                throw new ElasticsearchException("No such truststore file " + truststoreFilePath);
-            }
+            checkStorePath(truststoreFilePath);
 
             final String truststoreType = settings.get(SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_TRUSTSTORE_TYPE, "JKS");
             final String truststorePassword = settings.get(SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_TRUSTSTORE_PASSWORD, "changeit");
@@ -184,6 +190,18 @@ public class SearchGuardKeyStore {
                 transportKeystoreCert = SSLCertificateHelper.exportCertificateChain(ks, keystoreAlias);
                 transportKeystoreKey = SSLCertificateHelper.exportDecryptedKey(ks, keystoreAlias, keystorePassword.toCharArray());
 
+                if(transportKeystoreCert != null && transportKeystoreCert.length > 0) {
+                    
+                    for (int i = 0; i < transportKeystoreCert.length; i++) {
+                        X509Certificate x509Certificate = transportKeystoreCert[i];
+                        
+                        if(x509Certificate != null) {
+                            log.info("Transport keystore subject DN no. {} {}",i,x509Certificate.getSubjectX500Principal());
+                        }
+                    }
+                }
+                
+                
                 final KeyStore ts = KeyStore.getInstance(truststoreType);
                 ts.load(new FileInputStream(new File(truststoreFilePath)), truststorePassword.toCharArray());
 
@@ -198,7 +216,6 @@ public class SearchGuardKeyStore {
         final boolean client = !"node".equals(this.settings.get(SearchGuardSSLPlugin.CLIENT_TYPE));
 
         if (!client && httpSSLEnabled) {
-            final Environment env = new Environment(settings);
             final String keystoreFilePath = env.configFile()
                     .resolve(settings.get(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_KEYSTORE_FILEPATH, "")).toAbsolutePath().toString();
             final String keystoreType = settings.get(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_KEYSTORE_TYPE, "JKS");
@@ -209,25 +226,21 @@ public class SearchGuardKeyStore {
             final String truststoreFilePath = env.configFile()
                     .resolve(settings.get(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_TRUSTSTORE_FILEPATH, "")).toAbsolutePath().toString();
 
-            if (Strings.isNullOrEmpty(keystoreFilePath)) {
+            if(settings.get(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_KEYSTORE_FILEPATH, null) == null) {
                 throw new ElasticsearchException(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_KEYSTORE_FILEPATH
                         + " must be set if https is reqested.");
             }
 
-            if (Files.isDirectory(Paths.get(keystoreFilePath), LinkOption.NOFOLLOW_LINKS) || !Files.isReadable(Paths.get(keystoreFilePath))) {
-                throw new ElasticsearchException("No such keystore file (for https) " + keystoreFilePath);
-            }
+            checkStorePath(keystoreFilePath);
 
-            if (enforceHTTPClientAuth && Strings.isNullOrEmpty(truststoreFilePath)) {
-                throw new ElasticsearchException("{} must not be null or empty if {} is true",
-                        SSLConfigConstants.SEARCHGUARD_SSL_HTTP_TRUSTSTORE_FILEPATH,
-                        SSLConfigConstants.SEARCHGUARD_SSL_HTTP_ENFORCE_CLIENTAUTH);
-            }
-
-            if (enforceHTTPClientAuth
-                    && (Files.isDirectory(Paths.get(truststoreFilePath), LinkOption.NOFOLLOW_LINKS) || !Files.isReadable(Paths
-                            .get(truststoreFilePath)))) {
-                throw new ElasticsearchException("No such truststore file (for https) " + truststoreFilePath);
+            if (enforceHTTPClientAuth) {
+                
+                if(settings.get(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_TRUSTSTORE_FILEPATH, null) == null) {
+                    throw new ElasticsearchException(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_TRUSTSTORE_FILEPATH
+                            + " must be set if http ssl and client auth is reqested.");
+                }
+                
+                checkStorePath(truststoreFilePath);
             }
 
             try {
@@ -238,6 +251,18 @@ public class SearchGuardKeyStore {
                 httpKeystoreCert = SSLCertificateHelper.exportCertificateChain(ks, keystoreAlias);
                 httpKeystoreKey = SSLCertificateHelper.exportDecryptedKey(ks, keystoreAlias, keystorePassword.toCharArray());
 
+                if(httpKeystoreCert != null && httpKeystoreCert.length > 0) {
+                    
+                    for (int i = 0; i < httpKeystoreCert.length; i++) {
+                        X509Certificate x509Certificate = httpKeystoreCert[i];
+                        
+                        if(x509Certificate != null) {
+                            log.info("HTTP keystore subject DN no. {} {}",i,x509Certificate.getSubjectX500Principal());
+                        }
+                    }
+                }
+                
+                
                 if (enforceHTTPClientAuth) {
 
                     final String truststoreType = settings.get(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_TRUSTSTORE_TYPE, "JKS");
@@ -330,7 +355,6 @@ public class SearchGuardKeyStore {
         if (OpenSsl.isAvailable()) {
             log.info("Open SSL " + OpenSsl.versionString() + " available");
             log.debug("Open SSL available ciphers " + OpenSsl.availableCipherSuites());
-            log.debug("Open SSL ALPN supported " + OpenSsl.isAlpnSupported());
         } else {
             log.info("Open SSL not available (this is not an error, we simply fallback to built-in JDK SSL) because of " + OpenSsl.unavailabilityCause());
         }
@@ -394,5 +418,15 @@ public class SearchGuardKeyStore {
         }
 
         return sslContext;
+    }
+    
+    private static void checkStorePath(String keystoreFilePath) {
+        if (Files.isDirectory(Paths.get(keystoreFilePath), LinkOption.NOFOLLOW_LINKS)) {
+            throw new ElasticsearchException("Is a directory: " + keystoreFilePath+" Expected file!");
+        }
+
+        if(!Files.isReadable(Paths.get(keystoreFilePath))) {
+            throw new ElasticsearchException("Unable to read " + keystoreFilePath + " ("+Paths.get(keystoreFilePath)+") Please make sure this files exists and is readable regarding to permissions");
+        }
     }
 }
