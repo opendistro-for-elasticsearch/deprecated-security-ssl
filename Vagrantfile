@@ -66,6 +66,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
         es1.vm.hostname = "es1"
         es1.vm.network "private_network", ip: "10.0.3.111"
         es1.vm.provision "shell", inline: 'echo "export SSLNAME=node-0-keystore.jks" >> ~/.profile'
+        es1.vm.provision "shell", inline: 'echo "export OPENSSL=true" >> ~/.profile'
         es1.vm.provision "shell", inline: $script
         es1.vm.provider "virtualbox" do |v|
                      v.memory = 768 
@@ -78,6 +79,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
         es2.vm.hostname = "es2"
         es2.vm.network "private_network", ip: "10.0.3.112"
         es2.vm.provision "shell", inline: 'echo "export SSLNAME=node-1-keystore.jks" >> ~/.profile'
+        es2.vm.provision "shell", inline: 'echo "export OPENSSL=true" >> ~/.profile'
         es2.vm.provision "shell", inline: $script
         es2.vm.provider "virtualbox" do |v|
                      v.memory = 768 
@@ -90,6 +92,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
         es3.vm.hostname = "es3"
         es3.vm.network "private_network", ip: "10.0.3.113"
         es3.vm.provision "shell", inline: 'echo "export SSLNAME=node-2-keystore.jks" >> ~/.profile'
+        es3.vm.provision "shell", inline: 'echo "export OPENSSL=false" >> ~/.profile'
         es3.vm.provision "shell", inline: $script
         es3.vm.provider "virtualbox" do |v|
                      v.memory = 768 
