@@ -23,15 +23,15 @@ echo "Install netty-tcnative for native Openssl support"
 cp netty-tcnative-$NETTY_NATIVE_VERSION-$NETTY_NATIVE_CLASSIFIER.jar $ES_PLUGIN_DIR/search-guard-ssl/
 
 echo "searchguard.ssl.transport.enabled: true" > $ES_CONF_DIR/elasticsearch.yml
-echo "searchguard.ssl.transport.keystore_filepath: node-0-keystore.jks" >> $ES_CONF_DIR/elasticsearch.yml
+echo "searchguard.ssl.transport.keystore_filepath: $SSLNAME" >> $ES_CONF_DIR/elasticsearch.yml
 echo "searchguard.ssl.transport.truststore_filepath: truststore.jks" >> $ES_CONF_DIR/elasticsearch.yml
 echo "searchguard.ssl.transport.enforce_hostname_verification: false" >> $ES_CONF_DIR/elasticsearch.yml
 echo "searchguard.ssl.http.enabled: true" >> $ES_CONF_DIR/elasticsearch.yml
-echo "searchguard.ssl.http.keystore_filepath: node-0-keystore.jks" >> $ES_CONF_DIR/elasticsearch.yml
+echo "searchguard.ssl.http.keystore_filepath: $SSLNAME" >> $ES_CONF_DIR/elasticsearch.yml
 echo "searchguard.ssl.http.truststore_filepath: truststore.jks" >> $ES_CONF_DIR/elasticsearch.yml
 echo "network.host: _eth1_" >> $ES_CONF_DIR/elasticsearch.yml
 echo "discovery.zen.ping.unicast.hosts: 10.0.3.113,10.0.3.112,10.0.3.111" >> $ES_CONF_DIR/elasticsearch.yml
 echo "discovery.zen.ping.multicast.enabled: false" >> $ES_CONF_DIR/elasticsearch.yml
 
-cp /vagrant/example-pki-scripts/node-0-keystore.* $ES_CONF_DIR/
+cp /vagrant/example-pki-scripts/$SSLNAME $ES_CONF_DIR/
 cp /vagrant/example-pki-scripts/truststore.jks $ES_CONF_DIR/

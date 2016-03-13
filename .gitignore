@@ -38,4 +38,4 @@ example-pki-scripts/**/db/
 example-pki-scripts/**/*.csr
 example-pki-scripts/**/*.crt
 example-pki-scripts/**/*.key
-
+.vagrant/
