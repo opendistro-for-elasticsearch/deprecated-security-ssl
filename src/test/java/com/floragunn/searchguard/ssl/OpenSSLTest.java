@@ -91,7 +91,14 @@ public class OpenSSLTest extends SSLTest {
         Assume.assumeTrue(OpenSsl.isAvailable());
         super.testTransportClientSSLFail();
     }
-
+    
+    @Override
+    @Test
+    public void testHttpsOptionalAuth() throws Exception {
+        Assume.assumeTrue(OpenSsl.isAvailable());
+        super.testHttpsOptionalAuth();
+    }
+    
     @Test
     public void testAvailCiphersOpenSSL() throws Exception {
         Assume.assumeTrue(OpenSsl.isAvailable());
