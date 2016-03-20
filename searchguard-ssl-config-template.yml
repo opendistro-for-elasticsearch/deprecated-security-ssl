@@ -48,8 +48,9 @@
 #searchguard.ssl.http.keystore_alias: my_alias
 # Keystore password (default: changeit)
 #searchguard.ssl.http.keystore_password: changeit
-# Do the clients (typically the browser or the proxy) have to authenticate themself to the http server, default is false
-#searchguard.ssl.http.enforce_clientauth: false
+# Do the clients (typically the browser or the proxy) have to authenticate themself to the http server, default is OPTIONAL
+# To enforce authentication use REQUIRE, to completely disable client certificates use NONE
+#searchguard.ssl.http.clientauth_mode: REQUIRE
 # JKS or PKCS12 (default: JKS)
 #searchguard.ssl.http.truststore_type: PKCS12
 # Relative path to the truststore file (this stores the client certificates), must be placed under the config/ dir

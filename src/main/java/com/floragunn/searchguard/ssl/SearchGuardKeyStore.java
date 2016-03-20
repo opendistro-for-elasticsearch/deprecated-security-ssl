@@ -63,6 +63,7 @@ import org.elasticsearch.env.Environment;
 
 import com.floragunn.searchguard.ssl.util.SSLCertificateHelper;
 import com.floragunn.searchguard.ssl.util.SSLConfigConstants;
+import com.google.common.base.Strings;
 
 public class SearchGuardKeyStore {
 
@@ -92,7 +93,7 @@ public class SearchGuardKeyStore {
     private PrivateKey httpKeystoreKey;
     private X509Certificate[] transportKeystoreCert;
     private PrivateKey transportKeystoreKey;
-    private boolean enforceHTTPClientAuth;
+    private ClientAuth httpClientAuthMode;
     private List<String> enabledCiphersJDKProvider;
     private List<String> enabledCiphersOpenSSLProvider;
 
@@ -221,8 +222,20 @@ public class SearchGuardKeyStore {
             final String keystoreType = settings.get(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_KEYSTORE_TYPE, "JKS");
             final String keystorePassword = settings.get(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_KEYSTORE_PASSWORD, "changeit");
             final String keystoreAlias = settings.get(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_KEYSTORE_ALIAS, null);
-            enforceHTTPClientAuth = settings.getAsBoolean(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_ENFORCE_CLIENTAUTH, false);
+            httpClientAuthMode = ClientAuth.valueOf(settings.get(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_CLIENTAUTH_MODE, ClientAuth.OPTIONAL.toString()));
+            
+            //TODO remove with next version
+            String _enforceHTTPClientAuth = settings.get(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_ENFORCE_CLIENTAUTH);
 
+            if(!Strings.isNullOrEmpty(_enforceHTTPClientAuth)) {
+                log.warn("{} is deprecated and replaced by {}", SSLConfigConstants.SEARCHGUARD_SSL_HTTP_ENFORCE_CLIENTAUTH, SSLConfigConstants.SEARCHGUARD_SSL_HTTP_CLIENTAUTH_MODE);
+                if(Boolean.parseBoolean(_enforceHTTPClientAuth)) {
+                    httpClientAuthMode = ClientAuth.REQUIRE;
+                }
+            }
+
+            log.info("HTTP client auth mode {}", httpClientAuthMode);
+            
             final String truststoreFilePath = env.configFile()
                     .resolve(settings.get(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_TRUSTSTORE_FILEPATH, "")).toAbsolutePath().toString();
 
@@ -233,14 +246,13 @@ public class SearchGuardKeyStore {
 
             checkStorePath(keystoreFilePath);
 
-            if (enforceHTTPClientAuth) {
+            if (httpClientAuthMode == ClientAuth.REQUIRE) {
                 
                 if(settings.get(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_TRUSTSTORE_FILEPATH, null) == null) {
                     throw new ElasticsearchException(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_TRUSTSTORE_FILEPATH
                             + " must be set if http ssl and client auth is reqested.");
                 }
                 
-                checkStorePath(truststoreFilePath);
             }
 
             try {
@@ -263,8 +275,10 @@ public class SearchGuardKeyStore {
                 }
                 
                 
-                if (enforceHTTPClientAuth) {
+                if(settings.get(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_TRUSTSTORE_FILEPATH, null) != null) {
 
+                    checkStorePath(truststoreFilePath);
+                    
                     final String truststoreType = settings.get(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_TRUSTSTORE_TYPE, "JKS");
                     final String truststorePassword = settings.get(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_TRUSTSTORE_PASSWORD, "changeit");
                     final String truststoreAlias = settings.get(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_TRUSTSTORE_ALIAS, null);
@@ -284,10 +298,10 @@ public class SearchGuardKeyStore {
 
         final SslContextBuilder sslContextBuilder = SslContextBuilder.forServer(httpKeystoreKey, httpKeystoreCert)
                 .ciphers(getEnabledSSLCiphers(this.sslHTTPProvider)).applicationProtocolConfig(ApplicationProtocolConfig.DISABLED)
-                .clientAuth(enforceHTTPClientAuth ? ClientAuth.REQUIRE : ClientAuth.NONE) // https://github.com/netty/netty/issues/4722
+                .clientAuth(httpClientAuthMode) // https://github.com/netty/netty/issues/4722
                 .sessionCacheSize(0).sessionTimeout(0).sslProvider(this.sslHTTPProvider);
 
-        if (enforceHTTPClientAuth) {
+        if (trustedHTTPCertificates != null && trustedHTTPCertificates.length > 0) {
             sslContextBuilder.trustManager(trustedHTTPCertificates);
         }
         

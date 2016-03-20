@@ -19,16 +19,16 @@ package com.floragunn.searchguard.ssl.util;
 
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 public final class SSLConfigConstants {
 
     public static final String SEARCHGUARD_SSL_HTTP_ENABLE_OPENSSL_IF_AVAILABLE = "searchguard.ssl.http.enable_openssl_if_available";
     public static final String SEARCHGUARD_SSL_HTTP_ENABLED = "searchguard.ssl.http.enabled";
     public static final boolean SEARCHGUARD_SSL_HTTP_ENABLED_DEFAULT = false;
+    @Deprecated
     public static final String SEARCHGUARD_SSL_HTTP_ENFORCE_CLIENTAUTH = "searchguard.ssl.http.enforce_clientauth";
+    public static final String SEARCHGUARD_SSL_HTTP_CLIENTAUTH_MODE = "searchguard.ssl.http.clientauth_mode";
     public static final String SEARCHGUARD_SSL_HTTP_KEYSTORE_ALIAS = "searchguard.ssl.http.keystore_alias";
     public static final String SEARCHGUARD_SSL_HTTP_KEYSTORE_FILEPATH = "searchguard.ssl.http.keystore_filepath";
     public static final String SEARCHGUARD_SSL_HTTP_KEYSTORE_PASSWORD = "searchguard.ssl.http.keystore_password";

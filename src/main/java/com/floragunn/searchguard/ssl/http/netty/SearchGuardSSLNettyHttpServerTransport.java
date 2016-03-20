@@ -22,8 +22,10 @@ import java.security.cert.X509Certificate;
 import java.util.Arrays;
 
 import javax.net.ssl.SSLEngine;
+import javax.net.ssl.SSLPeerUnverifiedException;
 import javax.security.auth.x500.X500Principal;
 
+import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.ExceptionsHelper;
 import org.elasticsearch.common.inject.Inject;
 import org.elasticsearch.common.logging.ESLogger;
@@ -87,24 +89,31 @@ public class SearchGuardSSLNettyHttpServerTransport extends NettyHttpServerTrans
         final SslHandler sslhandler = (SslHandler) nettyHttpRequest.getChannel().getPipeline().get("ssl_http");
         final SSLEngine engine = sslhandler.getEngine();
 
-        if (engine.getNeedClientAuth()) {
-
-            X500Principal principal;
-
+        if(engine.getNeedClientAuth() || engine.getWantClientAuth()) {
+        
             try {
                 final Certificate[] certs = sslhandler.getEngine().getSession().getPeerCertificates();
 
                 if (certs != null && certs.length > 0 && certs[0] instanceof X509Certificate) {
                     X509Certificate[] x509Certs = Arrays.copyOf(certs, certs.length, X509Certificate[].class);
-                    principal =  x509Certs[0].getSubjectX500Principal();
+                    X500Principal principal =  x509Certs[0].getSubjectX500Principal();
                     request.putInContext("_sg_ssl_principal", principal == null ? null : principal.getName());
-                    request.putInContext("_sg_ssl_peer_certificates",  x509Certs);
+                    request.putInContext("_sg_ssl_peer_certificates", x509Certs);
+                } else if(engine.getNeedClientAuth()) {
+                    throw new ElasticsearchException("No client certificates found but such are needed.");
                 }
 
-            } catch (final Exception e) {
+            } catch(SSLPeerUnverifiedException e) {
+                if(engine.getNeedClientAuth()) {
+                    throw ExceptionsHelper.convertToElastic(e);
+                }
+            }
+            catch (final Exception e) {
                 throw ExceptionsHelper.convertToElastic(e);
             }
-
+           
+        } else {
+            request.putInContext("_sg_ssl_client_auth_none", true);
         }
         
         request.putInContext("_sg_ssl_protocol", sslhandler.getEngine().getSession().getProtocol());
