@@ -67,6 +67,9 @@ import com.google.common.base.Strings;
 
 public class SearchGuardKeyStore {
 
+    private static final String DEFAULT_STORE_TYPE = "JKS";
+    private static final String DEFAULT_STORE_PASSWORD = "changeit"; //#16
+
     private void printJCEWarnings() {
         try {
             final int aesMaxKeyLength = Cipher.getMaxAllowedKeyLength("AES");
@@ -157,8 +160,8 @@ public class SearchGuardKeyStore {
             
             final String keystoreFilePath = env.configFile()
                     .resolve(settings.get(SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_KEYSTORE_FILEPATH, "")).toAbsolutePath().toString();
-            final String keystoreType = settings.get(SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_KEYSTORE_TYPE, "JKS");
-            final String keystorePassword = settings.get(SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_KEYSTORE_PASSWORD, "changeit");
+            final String keystoreType = settings.get(SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_KEYSTORE_TYPE, DEFAULT_STORE_TYPE);
+            final String keystorePassword = settings.get(SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_KEYSTORE_PASSWORD, DEFAULT_STORE_PASSWORD);
             final String keystoreAlias = settings.get(SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_KEYSTORE_ALIAS, null);
 
             final String truststoreFilePath = env.configFile()
@@ -179,17 +182,17 @@ public class SearchGuardKeyStore {
 
             checkStorePath(truststoreFilePath);
 
-            final String truststoreType = settings.get(SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_TRUSTSTORE_TYPE, "JKS");
-            final String truststorePassword = settings.get(SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_TRUSTSTORE_PASSWORD, "changeit");
+            final String truststoreType = settings.get(SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_TRUSTSTORE_TYPE, DEFAULT_STORE_TYPE);
+            final String truststorePassword = settings.get(SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_TRUSTSTORE_PASSWORD, DEFAULT_STORE_PASSWORD);
             final String truststoreAlias = settings.get(SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_TRUSTSTORE_ALIAS, null);
 
             try {
 
                 final KeyStore ks = KeyStore.getInstance(keystoreType);
-                ks.load(new FileInputStream(new File(keystoreFilePath)), keystorePassword.toCharArray());
+                ks.load(new FileInputStream(new File(keystoreFilePath)), keystorePassword == null? null:keystorePassword.toCharArray());
 
                 transportKeystoreCert = SSLCertificateHelper.exportCertificateChain(ks, keystoreAlias);
-                transportKeystoreKey = SSLCertificateHelper.exportDecryptedKey(ks, keystoreAlias, keystorePassword.toCharArray());
+                transportKeystoreKey = SSLCertificateHelper.exportDecryptedKey(ks, keystoreAlias, keystorePassword==null?null:keystorePassword.toCharArray());
 
                 if(transportKeystoreCert != null && transportKeystoreCert.length > 0) {
                     
@@ -204,7 +207,7 @@ public class SearchGuardKeyStore {
                 
                 
                 final KeyStore ts = KeyStore.getInstance(truststoreType);
-                ts.load(new FileInputStream(new File(truststoreFilePath)), truststorePassword.toCharArray());
+                ts.load(new FileInputStream(new File(truststoreFilePath)), truststorePassword==null?null:truststorePassword.toCharArray());
 
                 trustedTransportCertificates = SSLCertificateHelper.exportCertificateChain(ts, truststoreAlias);
 
@@ -219,8 +222,8 @@ public class SearchGuardKeyStore {
         if (!client && httpSSLEnabled) {
             final String keystoreFilePath = env.configFile()
                     .resolve(settings.get(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_KEYSTORE_FILEPATH, "")).toAbsolutePath().toString();
-            final String keystoreType = settings.get(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_KEYSTORE_TYPE, "JKS");
-            final String keystorePassword = settings.get(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_KEYSTORE_PASSWORD, "changeit");
+            final String keystoreType = settings.get(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_KEYSTORE_TYPE, DEFAULT_STORE_TYPE);
+            final String keystorePassword = settings.get(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_KEYSTORE_PASSWORD, DEFAULT_STORE_PASSWORD);
             final String keystoreAlias = settings.get(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_KEYSTORE_ALIAS, null);
             httpClientAuthMode = ClientAuth.valueOf(settings.get(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_CLIENTAUTH_MODE, ClientAuth.OPTIONAL.toString()));
             
@@ -258,10 +261,10 @@ public class SearchGuardKeyStore {
             try {
 
                 final KeyStore ks = KeyStore.getInstance(keystoreType);
-                ks.load(new FileInputStream(new File(keystoreFilePath)), keystorePassword.toCharArray());
+                ks.load(new FileInputStream(new File(keystoreFilePath)), keystorePassword == null? null:keystorePassword.toCharArray());
 
                 httpKeystoreCert = SSLCertificateHelper.exportCertificateChain(ks, keystoreAlias);
-                httpKeystoreKey = SSLCertificateHelper.exportDecryptedKey(ks, keystoreAlias, keystorePassword.toCharArray());
+                httpKeystoreKey = SSLCertificateHelper.exportDecryptedKey(ks, keystoreAlias, keystorePassword==null?null:keystorePassword.toCharArray());
 
                 if(httpKeystoreCert != null && httpKeystoreCert.length > 0) {
                     
@@ -279,12 +282,12 @@ public class SearchGuardKeyStore {
 
                     checkStorePath(truststoreFilePath);
                     
-                    final String truststoreType = settings.get(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_TRUSTSTORE_TYPE, "JKS");
-                    final String truststorePassword = settings.get(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_TRUSTSTORE_PASSWORD, "changeit");
+                    final String truststoreType = settings.get(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_TRUSTSTORE_TYPE, DEFAULT_STORE_TYPE);
+                    final String truststorePassword = settings.get(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_TRUSTSTORE_PASSWORD, DEFAULT_STORE_PASSWORD);
                     final String truststoreAlias = settings.get(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_TRUSTSTORE_ALIAS, null);
 
                     final KeyStore ts = KeyStore.getInstance(truststoreType);
-                    ts.load(new FileInputStream(new File(truststoreFilePath)), truststorePassword.toCharArray());
+                    ts.load(new FileInputStream(new File(truststoreFilePath)), truststorePassword == null?null:truststorePassword.toCharArray());
 
                     trustedHTTPCertificates = SSLCertificateHelper.exportCertificateChain(ts, truststoreAlias);
                 }
