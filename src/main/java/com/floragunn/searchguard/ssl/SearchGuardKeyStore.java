@@ -55,6 +55,7 @@ import javax.net.ssl.SSLParameters;
 import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.ExceptionsHelper;
 import org.elasticsearch.SpecialPermission;
+import org.elasticsearch.common.Strings;
 import org.elasticsearch.common.inject.Inject;
 import org.elasticsearch.common.logging.ESLogger;
 import org.elasticsearch.common.logging.Loggers;
@@ -63,7 +64,6 @@ import org.elasticsearch.env.Environment;
 
 import com.floragunn.searchguard.ssl.util.SSLCertificateHelper;
 import com.floragunn.searchguard.ssl.util.SSLConfigConstants;
-import com.google.common.base.Strings;
 
 public class SearchGuardKeyStore {
 

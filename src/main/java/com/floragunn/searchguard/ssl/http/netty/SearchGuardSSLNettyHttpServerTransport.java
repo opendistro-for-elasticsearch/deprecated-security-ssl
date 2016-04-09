@@ -33,10 +33,12 @@ import org.elasticsearch.common.logging.Loggers;
 import org.elasticsearch.common.network.NetworkService;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.util.BigArrays;
+import org.elasticsearch.common.util.concurrent.ThreadContext;
 import org.elasticsearch.http.HttpChannel;
 import org.elasticsearch.http.HttpRequest;
 import org.elasticsearch.http.netty.NettyHttpRequest;
 import org.elasticsearch.http.netty.NettyHttpServerTransport;
+import org.elasticsearch.threadpool.ThreadPool;
 import org.jboss.netty.channel.ChannelPipeline;
 import org.jboss.netty.channel.ChannelPipelineFactory;
 import org.jboss.netty.handler.ssl.SslHandler;
@@ -46,27 +48,30 @@ import com.floragunn.searchguard.ssl.SearchGuardKeyStore;
 public class SearchGuardSSLNettyHttpServerTransport extends NettyHttpServerTransport {
 
     private final SearchGuardKeyStore sgks;
-
+    private final ThreadContext threadContext;
+    
     @Inject
     public SearchGuardSSLNettyHttpServerTransport(final Settings settings, final NetworkService networkService, final BigArrays bigArrays,
-            final SearchGuardKeyStore sgks) {
-        super(settings, networkService, bigArrays);
+            ThreadPool threadPool, ThreadContext threadContext, final SearchGuardKeyStore sgks) {
+        super(settings, networkService, bigArrays, threadPool);
         this.sgks = sgks;
+        this.threadContext = threadContext;
     }
 
     @Override
     public ChannelPipelineFactory configureServerChannelPipelineFactory() {
-        return new SSLHttpChannelPipelineFactory(this, this.settings, this.detailedErrorsEnabled, sgks);
+        return new SSLHttpChannelPipelineFactory(this, this.settings, this.detailedErrorsEnabled, threadContext, sgks);
     }
 
     protected static class SSLHttpChannelPipelineFactory extends HttpChannelPipelineFactory {
 
         protected final ESLogger log = Loggers.getLogger(this.getClass());
         private final SearchGuardKeyStore sgks;
+        private ThreadContext threadContext;
 
         public SSLHttpChannelPipelineFactory(final NettyHttpServerTransport transport, final Settings settings,
-                final boolean detailedErrorsEnabled, final SearchGuardKeyStore sgks) {
-            super(transport, detailedErrorsEnabled);
+                final boolean detailedErrorsEnabled, ThreadContext threadContext, final SearchGuardKeyStore sgks) {
+            super(transport, detailedErrorsEnabled, threadContext);
             this.sgks = sgks;
         }
 
@@ -97,8 +102,8 @@ public class SearchGuardSSLNettyHttpServerTransport extends NettyHttpServerTrans
                 if (certs != null && certs.length > 0 && certs[0] instanceof X509Certificate) {
                     X509Certificate[] x509Certs = Arrays.copyOf(certs, certs.length, X509Certificate[].class);
                     X500Principal principal =  x509Certs[0].getSubjectX500Principal();
-                    request.putInContext("_sg_ssl_principal", principal == null ? null : principal.getName());
-                    request.putInContext("_sg_ssl_peer_certificates", x509Certs);
+                    this.threadContext.putTransient("_sg_ssl_principal", principal == null ? null : principal.getName());
+                    this.threadContext.putTransient("_sg_ssl_peer_certificates", x509Certs);
                 } else if(engine.getNeedClientAuth()) {
                     throw new ElasticsearchException("No client certificates found but such are needed.");
                 }
@@ -113,11 +118,11 @@ public class SearchGuardSSLNettyHttpServerTransport extends NettyHttpServerTrans
             }
            
         } else {
-            request.putInContext("_sg_ssl_client_auth_none", true);
+            this.threadContext.putTransient("_sg_ssl_client_auth_none", true);
         }
         
-        request.putInContext("_sg_ssl_protocol", sslhandler.getEngine().getSession().getProtocol());
-        request.putInContext("_sg_ssl_cipher", sslhandler.getEngine().getSession().getCipherSuite());
+        this.threadContext.putTransient("_sg_ssl_protocol", sslhandler.getEngine().getSession().getProtocol());
+        this.threadContext.putTransient("_sg_ssl_cipher", sslhandler.getEngine().getSession().getCipherSuite());
 
         super.dispatchRequest(request, channel);
     }

@@ -25,7 +25,7 @@ public class SearchGuardSSLSettingsFilter {
     @Inject
     public SearchGuardSSLSettingsFilter(final SettingsFilter settingsFilter) {
         super();
-        settingsFilter.addFilter("searchguard.ssl.*");
+        //settingsFilter..addFilter("searchguard.ssl.*");
     }
 
 }

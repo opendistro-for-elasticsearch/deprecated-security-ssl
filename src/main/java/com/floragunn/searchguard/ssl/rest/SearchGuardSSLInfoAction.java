@@ -25,6 +25,7 @@ import java.security.cert.X509Certificate;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.common.inject.Inject;
 import org.elasticsearch.common.settings.Settings;
+import org.elasticsearch.common.util.concurrent.ThreadContext;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.rest.BaseRestHandler;
 import org.elasticsearch.rest.BytesRestResponse;
@@ -38,12 +39,14 @@ import com.floragunn.searchguard.ssl.SearchGuardKeyStore;
 public class SearchGuardSSLInfoAction extends BaseRestHandler {
 
     private final SearchGuardKeyStore sgks;
+    private final ThreadContext threadContext;
 
     @Inject
     public SearchGuardSSLInfoAction(final Settings settings, final RestController controller, final Client client,
-            final SearchGuardKeyStore sgks) {
-        super(settings, controller, client);
+            ThreadContext threadContext, final SearchGuardKeyStore sgks) {
+        super(settings, client);
         this.sgks = sgks;
+        this.threadContext = threadContext;
         controller.registerHandler(GET, "/_searchguard/sslinfo", this);
     }
 
@@ -55,13 +58,13 @@ public class SearchGuardSSLInfoAction extends BaseRestHandler {
 
         try {
 
-            final X509Certificate[] certs = request.getFromContext("_sg_ssl_peer_certificates");
+            final X509Certificate[] certs = this.threadContext.getTransient("_sg_ssl_peer_certificates");
             builder.startObject();
 
-            builder.field("principal", request.getFromContext("_sg_ssl_principal"));
+            builder.field("principal", this.threadContext.getTransient("_sg_ssl_principal"));
             builder.field("peer_certificates", certs != null && certs.length > 0 ? certs.length + "" : "0");
-            builder.field("ssl_protocol", request.getFromContext("_sg_ssl_protocol"));
-            builder.field("ssl_cipher", request.getFromContext("_sg_ssl_cipher"));
+            builder.field("ssl_protocol", this.threadContext.getTransient("_sg_ssl_protocol"));
+            builder.field("ssl_cipher", this.threadContext.getTransient("_sg_ssl_cipher"));
             builder.field("ssl_openssl_available", OpenSsl.isAvailable());
             builder.field("ssl_openssl_version", OpenSsl.version());
             builder.field("ssl_openssl_version_string", OpenSsl.versionString());

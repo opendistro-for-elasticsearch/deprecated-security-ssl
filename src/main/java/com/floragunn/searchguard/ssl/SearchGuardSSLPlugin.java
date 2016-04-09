@@ -22,26 +22,28 @@ import io.netty.util.internal.PlatformDependent;
 
 import java.security.AccessController;
 import java.security.PrivilegedAction;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.function.Function;
 
 import org.elasticsearch.SpecialPermission;
 import org.elasticsearch.common.inject.Module;
 import org.elasticsearch.common.logging.ESLogger;
 import org.elasticsearch.common.logging.Loggers;
+import org.elasticsearch.common.network.NetworkModule;
+import org.elasticsearch.common.settings.Setting;
+import org.elasticsearch.common.settings.Setting.Property;
 import org.elasticsearch.common.settings.Settings;
+import org.elasticsearch.common.settings.SettingsModule;
 import org.elasticsearch.env.Environment;
 import org.elasticsearch.env.EnvironmentModule;
-import org.elasticsearch.http.HttpServerModule;
 import org.elasticsearch.plugins.Plugin;
-import org.elasticsearch.rest.RestModule;
-import org.elasticsearch.transport.TransportModule;
 
 import com.floragunn.searchguard.ssl.http.netty.SearchGuardSSLNettyHttpServerTransport;
 import com.floragunn.searchguard.ssl.rest.SearchGuardSSLInfoAction;
 import com.floragunn.searchguard.ssl.transport.SearchGuardSSLNettyTransport;
 import com.floragunn.searchguard.ssl.transport.SearchGuardSSLTransportService;
 import com.floragunn.searchguard.ssl.util.SSLConfigConstants;
-import com.google.common.collect.ImmutableList;
 
 public final class SearchGuardSSLPlugin extends Plugin {
 
@@ -85,36 +87,43 @@ public final class SearchGuardSSLPlugin extends Plugin {
 
     }
 
-    public void onModule(final RestModule module) {
+    public void onModule(final NetworkModule module) {
         if (!client) {
-            module.addRestAction(SearchGuardSSLInfoAction.class);
+            module.registerRestHandler(SearchGuardSSLInfoAction.class);
+            module.registerHttpTransport(name(), SearchGuardSSLNettyHttpServerTransport.class);
+            
         }
-    }
-
-    public void onModule(final HttpServerModule module) {
-        if (!client && httpSSLEnabled) {
-            module.setHttpServerTransport(SearchGuardSSLNettyHttpServerTransport.class, name());
-        }
-    }
-
-    public void onModule(final TransportModule module) {
+        
         if (transportSSLEnabled) {
-            module.setTransport(SearchGuardSSLNettyTransport.class, name());
+            module.registerTransport(name(), SearchGuardSSLNettyTransport.class);
 
             if (!client && !searchGuardPluginAvailable()) {
-                module.setTransportService(SearchGuardSSLTransportService.class, name());
+                module.registerTransportService(name(), SearchGuardSSLTransportService.class);
             }
         }
+        
+        
     }
 
     @Override
     public Collection<Module> nodeModules() {
         if (!client) {
-            return ImmutableList.<Module> of(new SearchGuardSSLModule(settings));
+            return Arrays.asList(new Module[]{new SearchGuardSSLModule(settings)});
 
         } else {
-            return ImmutableList.<Module> of(new SearchGuardSSLModule(settings), new EnvironmentModule(new Environment(settings)));
+            return Arrays.asList(new Module[]{new SearchGuardSSLModule(settings), new EnvironmentModule(new Environment(settings))});
         }
+    }
+    
+    public void onModule(SettingsModule module)
+    {
+      module.registerSetting(Setting.adfixKeySetting("search", "guard", (String)"ups", new Function<String, Object>() {
+          @Override
+        public Object apply(String t) {
+            
+            return "ddd";
+        }
+    }, Property.NodeScope));
     }
 
     @Override

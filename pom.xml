@@ -44,9 +44,17 @@
     </licenses>
 
     <properties>
-        <elasticsearch.version>2.3.1</elasticsearch.version>
+        <elasticsearch.version>5.0.0-alpha1</elasticsearch.version>
         <dependency.locations.enabled>false</dependency.locations.enabled>
     </properties>
+    
+    <repositories>
+    <repository>
+        <id>lucene-snapshot</id>
+        <name>Lucene Snapshot repo</name>
+        <url>http://download.elastic.co/lucenesnapshots/f0aa4fc</url>
+    </repository>
+</repositories>
 
     <scm>
         <url>https://github.com/floragunncom/search-guard-ssl</url>
@@ -221,8 +229,8 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.3</version>
                 <configuration>
-                    <source>1.7</source>
-                    <target>1.7</target>
+                    <source>1.8</source>
+                    <target>1.8</target>
                     <encoding>UTF-8</encoding>
                     <showDeprecation>true</showDeprecation>
                     <showWarnings>true</showWarnings>
