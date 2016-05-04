@@ -1,3 +1,6 @@
+before_install:
+  - sudo apt-get -qq update
+  - sudo apt-get install -y libapr1 openssl
 language: java
 jdk:
 - openjdk7
