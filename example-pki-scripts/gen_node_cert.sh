@@ -28,6 +28,7 @@ keytool -genkey \
         -keyalg    RSA \
         -keysize   2048 \
         -validity  712 \
+        -sigalg SHA256withRSA \
         -keypass $KS_PASS \
         -storepass $KS_PASS \
         -dname "CN=$NODE_NAME.example.com, OU=SSL, O=Test, L=Test, C=DE" \

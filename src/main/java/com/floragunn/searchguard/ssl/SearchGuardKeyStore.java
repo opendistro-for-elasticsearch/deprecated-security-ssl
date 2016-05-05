@@ -43,6 +43,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -237,7 +238,7 @@ public class SearchGuardKeyStore {
                 }
             }
 
-            log.info("HTTP client auth mode {}", httpClientAuthMode);
+            log.info("HTTPS client auth mode {}", httpClientAuthMode);
             
             final String truststoreFilePath = env.configFile()
                     .resolve(settings.get(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_TRUSTSTORE_FILEPATH, "")).toAbsolutePath().toString();
@@ -301,7 +302,7 @@ public class SearchGuardKeyStore {
 
         final SslContextBuilder sslContextBuilder = SslContextBuilder.forServer(httpKeystoreKey, httpKeystoreCert)
                 .ciphers(getEnabledSSLCiphers(this.sslHTTPProvider)).applicationProtocolConfig(ApplicationProtocolConfig.DISABLED)
-                .clientAuth(httpClientAuthMode) // https://github.com/netty/netty/issues/4722
+                .clientAuth(Objects.requireNonNull(httpClientAuthMode)) // https://github.com/netty/netty/issues/4722
                 .sessionCacheSize(0).sessionTimeout(0).sslProvider(this.sslHTTPProvider);
 
         if (trustedHTTPCertificates != null && trustedHTTPCertificates.length > 0) {

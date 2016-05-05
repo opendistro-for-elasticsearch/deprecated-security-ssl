@@ -127,4 +127,10 @@ public class OpenSSLTest extends SSLTest {
         System.out.println("OpenSSL secure ciphers: " + openSSLSecureCiphers);
         Assert.assertTrue(openSSLSecureCiphers.size() > 0);
     }
+    
+    @Test
+    public void testHttpsEnforceFail() throws Exception {
+        Assume.assumeTrue(OpenSsl.isAvailable());
+        super.testHttpsEnforceFail();
+    }
 }

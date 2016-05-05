@@ -168,6 +168,30 @@ public class SSLTest extends AbstractUnitTest {
         Assert.assertTrue(executeSimpleRequest("_nodes/settings?pretty").contains(clustername));
         Assert.assertFalse(executeSimpleRequest("_searchguard/sslinfo?pretty").contains("CN=node-0.example.com,OU=SSL,O=Test,L=Test,C=DE"));
     }
+    
+    @Test
+    public void testHttpsEnforceFail() throws Exception {
+
+        enableHTTPClientSSL = true;
+        trustHTTPServerCertificate = true;
+        sendHTTPClientCertificate = false;
+
+        final Settings settings = Settings.settingsBuilder().put("searchguard.ssl.transport.enabled", false)
+                .put(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_ENABLE_OPENSSL_IF_AVAILABLE, allowOpenSSL)
+                .put(SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_ENABLE_OPENSSL_IF_AVAILABLE, allowOpenSSL)
+                .put(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_KEYSTORE_ALIAS, "node-0").put("searchguard.ssl.http.enabled", true)
+                .put("searchguard.ssl.http.clientauth_mode", "REQUIRE")
+                .put("searchguard.ssl.http.keystore_filepath", getAbsoluteFilePathFromClassPath("node-0-keystore.jks"))
+                .put("searchguard.ssl.http.truststore_filepath", getAbsoluteFilePathFromClassPath("truststore.jks")).build();
+
+        startES(settings);
+        try {
+            executeSimpleRequest("");
+            Assert.fail();
+        } catch (SSLHandshakeException e) {
+            //expected
+        }
+    }
 
     @Test
     public void testHttpsV3Fail() throws Exception {
