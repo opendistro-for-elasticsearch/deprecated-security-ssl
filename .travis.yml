@@ -6,6 +6,9 @@ jdk:
 - openjdk7
 - oraclejdk7
 - oraclejdk8
+env:
+- SG_ALLOW_OPENSSL=true
+- SG_ALLOW_OPENSSL=false
 after_success:
 - mvn clean cobertura:cobertura coveralls:report
 notifications:
