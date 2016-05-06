@@ -107,7 +107,7 @@ public class SearchGuardSSLTransportService extends TransportService {
                 final SslHandler sslhandler = (SslHandler) channel.getPipeline().get("ssl_server");
 
                 if (sslhandler == null) {
-                    final String msg = "No ssl handler found";
+                    final String msg = "No ssl handler found (SG 11)";
                     log.error(msg);
                     final Exception exception = new ElasticsearchException(msg);
                     nettyChannel.sendResponse(exception);
@@ -141,10 +141,10 @@ public class SearchGuardSSLTransportService extends TransportService {
                 nettyChannel.sendResponse(exception);
                 throw exception;
             } catch (final Exception e) {
-                log.error("Unexpected SSL exception (SG 14) due to {}", e, e);
-                final Exception exception = ExceptionsHelper.convertToElastic(e);
-                nettyChannel.sendResponse(exception);
-                throw exception;
+                log.debug("Unexpected but unproblematic exception (SG 14) due to {}", e, e);
+                //final Exception exception = ExceptionsHelper.convertToElastic(e);
+                //nettyChannel.sendResponse(exception);
+                throw e;
             }
         }
 
