@@ -1,8 +1,17 @@
-#!/bin/sh
 #########
 # No magic here, we just install java and openssl
 #########
 $script = <<SCRIPT
+#!/bin/sh
+export ES_VERSION=2.3.2
+export SG_VERSION=2.3.2.9
+export NETTY_NATIVE_VERSION=1.1.33.Fork15
+export NETTY_NATIVE_CLASSIFIER=linux-x86_64
+
+export ES_CONF_DIR=/etc/elasticsearch
+export ES_BIN_DIR=/usr/share/elasticsearch/bin
+export ES_PLUGIN_DIR=/usr/share/elasticsearch/plugins
+
 export DEBIAN_FRONTEND=noninteractive
 echo "Update packages"
 sudo killall -9 java > /dev/null 2>&1
@@ -27,7 +36,7 @@ sudo apt-get -yqq install haveged libapr1 openssl wget git oracle-java8-installe
 # https://www.elastic.co/guide/en/elasticsearch/reference/current/setup-repositories.html
 #########
 echo "Install Elasticsearch"
-sudo apt-get install -yqq elasticsearch=2.2.0 > /dev/null 2>&1
+sudo apt-get install -yqq elasticsearch=$ES_VERSION > /dev/null 2>&1
 
 #########
 # Setup search Guard SSL
