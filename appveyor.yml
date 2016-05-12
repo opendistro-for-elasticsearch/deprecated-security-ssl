@@ -18,7 +18,16 @@ install:
         (new-object System.Net.WebClient).DownloadFile('http://www.us.apache.org/dist/maven/maven-3/3.3.9/binaries/apache-maven-3.3.9-bin.zip', 'C:\maven-bin.zip')
         [System.IO.Compression.ZipFile]::ExtractToDirectory("C:\maven-bin.zip", "C:\maven")
       }
-  - cmd: SET PATH=C:\maven\apache-maven-3.3.9\bin;%JAVA_HOME%\bin;%PATH:C:\Ruby193\bin;=%
+  - ps: |
+      Add-Type -AssemblyName System.IO.Compression.FileSystem
+      if (!(Test-Path -Path "C:\apr" )) {
+        (new-object System.Net.WebClient).DownloadFile('http://www.apache.org/dist/tomcat/tomcat-connectors/native/1.2.7/binaries/tomcat-native-1.2.7-win32-bin.zip', 'C:\apr.zip')
+        [System.IO.Compression.ZipFile]::ExtractToDirectory("C:\apr.zip", "C:\apr")
+      }
+  - ps: Start-FileDownload 'http://slproweb.com/download/Win32OpenSSL-1_0_2a.exe' 
+  - ps: Start-Process "Win32OpenSSL-1_0_2a.exe" -ArgumentList "/silent /verysilent /sp- /suppressmsgboxes" -Wait
+  - ps: Start-FileDownload 'http://www.apache.org/dist/tomcat/tomcat-connectors/native/1.2.7/binaries/tomcat-native-1.2.7-win32-bin.zip'
+  - cmd: SET PATH=C:\apr\bin\x64\;C:\maven\apache-maven-3.3.9\bin;%JAVA_HOME%\bin;%PATH:C:\Ruby193\bin;=%
   - cmd: SET MAVEN_OPTS=-XX:MaxPermSize=2g -Xmx4g
   - cmd: SET JAVA_OPTS=-XX:MaxPermSize=2g -Xmx4g
   - cmd: mvn --version
