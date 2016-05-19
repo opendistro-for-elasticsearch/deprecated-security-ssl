@@ -34,6 +34,19 @@
 # Use native Open SSL instead of JDK SSL if available (default: true)
 #searchguard.ssl.transport.enable_openssl_if_available: false
 
+# Enabled SSL cipher suites for transport protocol (only Java format is supported)
+# WARNING: Expert setting, do only use if you know what you are doing
+# If you set wrong values here this this could be a security risk
+#searchguard.ssl.transport.enabled_ciphers:
+#  - "TLS_DHE_RSA_WITH_AES_256_CBC_SHA"
+#  - "TLS_DHE_DSS_WITH_AES_128_CBC_SHA256"
+  
+# Enabled SSL protocols for transport protocol (only Java format is supported)
+# WARNING: Expert setting, do only use if you know what you are doing
+# If you set wrong values here this this could be a security risk  
+#searchguard.ssl.transport.enabled_protocols:
+#  - "TLSv1.2"
+
 #############################################################################################
 # HTTP/REST layer SSL                                                                       #
 #                                                                                           #
@@ -61,3 +74,16 @@
 #searchguard.ssl.http.truststore_password: changeit
 # Use native Open SSL instead of JDK SSL if available (default: true)
 #searchguard.ssl.http.enable_openssl_if_available: false
+
+# Enabled SSL cipher suites for http protocol (only Java format is supported)
+# WARNING: Expert setting, do only use if you know what you are doing
+# If you set wrong values here this this could be a security risk
+#searchguard.ssl.http.enabled_ciphers:
+#  - "TLS_DHE_RSA_WITH_AES_256_CBC_SHA"
+#  - "TLS_DHE_DSS_WITH_AES_128_CBC_SHA256"
+
+# Enabled SSL protocols for http protocol (only Java format is supported)
+# WARNING: Expert setting, do only use if you know what you are doing
+# If you set wrong values here this this could be a security risk  
+#searchguard.ssl.http.enabled_protocols:
+#  - "TLSv1.2"

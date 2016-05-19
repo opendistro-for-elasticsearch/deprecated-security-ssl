@@ -21,6 +21,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import org.elasticsearch.common.settings.Settings;
+
 public final class SSLConfigConstants {
 
     public static final String SEARCHGUARD_SSL_HTTP_ENABLE_OPENSSL_IF_AVAILABLE = "searchguard.ssl.http.enable_openssl_if_available";
@@ -50,11 +52,29 @@ public final class SSLConfigConstants {
     public static final String SEARCHGUARD_SSL_TRANSPORT_TRUSTSTORE_FILEPATH = "searchguard.ssl.transport.truststore_filepath";
     public static final String SEARCHGUARD_SSL_TRANSPORT_TRUSTSTORE_PASSWORD = "searchguard.ssl.transport.truststore_password";
     public static final String SEARCHGUARD_SSL_TRANSPORT_TRUSTSTORE_TYPE = "searchguard.ssl.transport.truststore_type";
-
+    public static final String SEARCHGUARD_SSL_TRANSPORT_ENABLED_CIPHERS = "searchguard.ssl.transport.enabled_ciphers";
+    public static final String SEARCHGUARD_SSL_TRANSPORT_ENABLED_PROTOCOLS = "searchguard.ssl.transport.enabled_protocols";
+    public static final String SEARCHGUARD_SSL_HTTP_ENABLED_CIPHERS = "searchguard.ssl.http.enabled_ciphers";
+    public static final String SEARCHGUARD_SSL_HTTP_ENABLED_PROTOCOLS = "searchguard.ssl.http.enabled_protocols";
+    
     private static final String[] _SECURE_SSL_PROTOCOLS = {"TLSv1.2", "TLSv1.1"};
     
-    public static final String[] getSecureSSLProtocols()
+    public static final String[] getSecureSSLProtocols(Settings settings, boolean http)
     {
+        String[] configuredProtocols = null;
+        
+        if(settings != null) {
+            if(http) {
+                configuredProtocols = settings.getAsArray(SEARCHGUARD_SSL_HTTP_ENABLED_PROTOCOLS, new String[0]);
+            } else {
+                configuredProtocols = settings.getAsArray(SEARCHGUARD_SSL_TRANSPORT_ENABLED_PROTOCOLS, new String[0]);
+            }
+        }
+        
+        if(configuredProtocols != null && configuredProtocols.length > 0) {
+            return configuredProtocols;
+        }
+        
         return _SECURE_SSL_PROTOCOLS.clone();
     }
     
@@ -130,7 +150,24 @@ public final class SSLConfigConstants {
         };
     // @formatter:on
     
-    public static final List<String> SECURE_SSL_CIPHERS = Collections.unmodifiableList(Arrays.asList(_SECURE_SSL_CIPHERS));
+    public static final List<String> getSecureSSLCiphers(Settings settings, boolean http) {
+        
+        String[] configuredCiphers = null;
+        
+        if(settings != null) {
+            if(http) {
+                configuredCiphers = settings.getAsArray(SEARCHGUARD_SSL_HTTP_ENABLED_CIPHERS, new String[0]);
+            } else {
+                configuredCiphers = settings.getAsArray(SEARCHGUARD_SSL_TRANSPORT_ENABLED_CIPHERS, new String[0]);
+            }
+        }
+        
+        if(configuredCiphers != null && configuredCiphers.length > 0) {
+            return Arrays.asList(configuredCiphers);
+        }
+
+        return Collections.unmodifiableList(Arrays.asList(_SECURE_SSL_CIPHERS));
+    }
     
     private SSLConfigConstants() {
 
