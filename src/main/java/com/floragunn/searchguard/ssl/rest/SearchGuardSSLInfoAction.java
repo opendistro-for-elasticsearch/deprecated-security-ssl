@@ -33,6 +33,7 @@ import org.elasticsearch.rest.RestChannel;
 import org.elasticsearch.rest.RestController;
 import org.elasticsearch.rest.RestRequest;
 import org.elasticsearch.rest.RestStatus;
+import org.elasticsearch.threadpool.ThreadPool;
 
 import com.floragunn.searchguard.ssl.SearchGuardKeyStore;
 
@@ -43,10 +44,10 @@ public class SearchGuardSSLInfoAction extends BaseRestHandler {
 
     @Inject
     public SearchGuardSSLInfoAction(final Settings settings, final RestController controller, final Client client,
-            ThreadContext threadContext, final SearchGuardKeyStore sgks) {
+            ThreadPool threadPool, final SearchGuardKeyStore sgks) {
         super(settings, client);
         this.sgks = sgks;
-        this.threadContext = threadContext;
+        this.threadContext = threadPool.getThreadContext();
         controller.registerHandler(GET, "/_searchguard/sslinfo", this);
     }
 
@@ -57,14 +58,13 @@ public class SearchGuardSSLInfoAction extends BaseRestHandler {
         final XContentBuilder builder = channel.newBuilder();
 
         try {
-
             final X509Certificate[] certs = this.threadContext.getTransient("_sg_ssl_peer_certificates");
             builder.startObject();
 
-            builder.field("principal", this.threadContext.getTransient("_sg_ssl_principal"));
+            builder.field("principal", (String) this.threadContext.getTransient("_sg_ssl_principal"));
             builder.field("peer_certificates", certs != null && certs.length > 0 ? certs.length + "" : "0");
-            builder.field("ssl_protocol", this.threadContext.getTransient("_sg_ssl_protocol"));
-            builder.field("ssl_cipher", this.threadContext.getTransient("_sg_ssl_cipher"));
+            builder.field("ssl_protocol", (String)this.threadContext.getTransient("_sg_ssl_protocol"));
+            builder.field("ssl_cipher", (String)this.threadContext.getTransient("_sg_ssl_cipher"));
             builder.field("ssl_openssl_available", OpenSsl.isAvailable());
             builder.field("ssl_openssl_version", OpenSsl.version());
             builder.field("ssl_openssl_version_string", OpenSsl.versionString());
@@ -77,6 +77,7 @@ public class SearchGuardSSLInfoAction extends BaseRestHandler {
 
             response = new BytesRestResponse(RestStatus.OK, builder);
         } catch (final Exception e1) {
+            logger.error(e1.toString(),e1);
             builder.startObject();
             builder.field("error", e1.toString());
             builder.endObject();

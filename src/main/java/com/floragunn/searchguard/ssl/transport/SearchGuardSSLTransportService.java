@@ -45,23 +45,20 @@ import org.jboss.netty.channel.Channel;
 import org.jboss.netty.handler.ssl.SslHandler;
 
 public class SearchGuardSSLTransportService extends TransportService {
-
-    private final ThreadContext threadContext;
     
     @Inject
-    public SearchGuardSSLTransportService(final Settings settings, final Transport transport, final ThreadPool threadPool, ThreadContext threadContext) {
+    public SearchGuardSSLTransportService(final Settings settings, final Transport transport, final ThreadPool threadPool) {
         super(settings, transport, threadPool);
-        this.threadContext = threadContext;
     }
     
     @Override
     public <Request extends TransportRequest> void registerRequestHandler(String action, Supplier<Request> requestFactory, String executor, TransportRequestHandler<Request> handler) {
-        super.registerRequestHandler(action, requestFactory, executor, new Interceptor<Request>(handler, action, threadContext));
+        super.registerRequestHandler(action, requestFactory, executor, new Interceptor<Request>(handler, action, threadPool));
     }
 
     @Override
     public <Request extends TransportRequest> void registerRequestHandler(String action, Supplier<Request> request, String executor, boolean forceExecution, TransportRequestHandler<Request> handler) {
-        super.registerRequestHandler(action, request, executor, forceExecution, new Interceptor<Request>(handler, action, threadContext));
+        super.registerRequestHandler(action, request, executor, forceExecution, new Interceptor<Request>(handler, action, threadPool));
     }
     
     private class Interceptor<Request extends TransportRequest> implements TransportRequestHandler<Request> {
@@ -69,13 +66,13 @@ public class SearchGuardSSLTransportService extends TransportService {
         private final ESLogger log = Loggers.getLogger(this.getClass());
         private final TransportRequestHandler<Request> handler;
         private final String action;
-        private final ThreadContext threadContext;
+        private final ThreadPool threadPool;
 
-        public Interceptor(final TransportRequestHandler<Request> handler, final String acion, ThreadContext threadContext) {
+        public Interceptor(final TransportRequestHandler<Request> handler, final String acion, ThreadPool threadPool) {
             super();
             this.handler = handler;
             this.action = acion;
-            this.threadContext = threadContext;
+            this.threadPool = threadPool;
         }
         
         @Override
@@ -111,10 +108,10 @@ public class SearchGuardSSLTransportService extends TransportService {
                     X509Certificate[] x509Certs = Arrays.copyOf(certs, certs.length, X509Certificate[].class);
                     addAdditionalContextValues(action, request, x509Certs);
                     principal = x509Certs[0].getSubjectX500Principal();
-                    this.threadContext.putTransient("_sg_ssl_transport_principal", principal == null ? null : principal.getName());
-                    this.threadContext.putTransient("_sg_ssl_transport_peer_certificates", x509Certs);
-                    this.threadContext.putTransient("_sg_ssl_transport_protocol", sslhandler.getEngine().getSession().getProtocol());
-                    this.threadContext.putTransient("_sg_ssl_transport_cipher", sslhandler.getEngine().getSession().getCipherSuite());
+                    this.threadPool.getThreadContext().putTransient("_sg_ssl_transport_principal", principal == null ? null : principal.getName());
+                    this.threadPool.getThreadContext().putTransient("_sg_ssl_transport_peer_certificates", x509Certs);
+                    this.threadPool.getThreadContext().putTransient("_sg_ssl_transport_protocol", sslhandler.getEngine().getSession().getProtocol());
+                    this.threadPool.getThreadContext().putTransient("_sg_ssl_transport_cipher", sslhandler.getEngine().getSession().getCipherSuite());
                     messageReceivedDecorate(request, handler, transportChannel, task);
                 } else {
                     final String msg = "No X509 transport client certificates found (SG 12)";

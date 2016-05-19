@@ -55,7 +55,7 @@ public class SSLTest extends AbstractUnitTest {
         trustHTTPServerCertificate = true;
         sendHTTPClientCertificate = true;
 
-        final Settings settings = Settings.settingsBuilder().put("searchguard.ssl.transport.enabled", false)
+        final Settings settings = Settings.builder().put("searchguard.ssl.transport.enabled", false)
                 .put(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_KEYSTORE_ALIAS, "node-0").put("searchguard.ssl.http.enabled", true)
                 .put(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_ENABLE_OPENSSL_IF_AVAILABLE, allowOpenSSL)
                 .put(SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_ENABLE_OPENSSL_IF_AVAILABLE, allowOpenSSL)
@@ -80,7 +80,7 @@ public class SSLTest extends AbstractUnitTest {
         trustHTTPServerCertificate = true;
         sendHTTPClientCertificate = true;
 
-        final Settings settings = Settings.settingsBuilder().put("searchguard.ssl.transport.enabled", false)
+        final Settings settings = Settings.builder().put("searchguard.ssl.transport.enabled", false)
                 .put(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_KEYSTORE_ALIAS, "node-0").put("searchguard.ssl.http.enabled", true)
                 .put(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_ENABLE_OPENSSL_IF_AVAILABLE, allowOpenSSL)
                 .put(SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_ENABLE_OPENSSL_IF_AVAILABLE, allowOpenSSL)
@@ -103,7 +103,7 @@ public class SSLTest extends AbstractUnitTest {
         trustHTTPServerCertificate = true;
         sendHTTPClientCertificate = true;
 
-        final Settings settings = Settings.settingsBuilder().put("searchguard.ssl.transport.enabled", true)
+        final Settings settings = Settings.builder().put("searchguard.ssl.transport.enabled", true)
                 .put(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_ENABLE_OPENSSL_IF_AVAILABLE, allowOpenSSL)
                 .put(SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_ENABLE_OPENSSL_IF_AVAILABLE, allowOpenSSL)
                 .put(SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_KEYSTORE_ALIAS, "node-0")
@@ -134,7 +134,7 @@ public class SSLTest extends AbstractUnitTest {
         trustHTTPServerCertificate = true;
         sendHTTPClientCertificate = false;
 
-        final Settings settings = Settings.settingsBuilder().put("searchguard.ssl.transport.enabled", false)
+        final Settings settings = Settings.builder().put("searchguard.ssl.transport.enabled", false)
                 .put(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_ENABLE_OPENSSL_IF_AVAILABLE, allowOpenSSL)
                 .put(SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_ENABLE_OPENSSL_IF_AVAILABLE, allowOpenSSL)
                 .put(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_KEYSTORE_ALIAS, "node-0").put("searchguard.ssl.http.enabled", true)
@@ -155,7 +155,7 @@ public class SSLTest extends AbstractUnitTest {
         trustHTTPServerCertificate = true;
         sendHTTPClientCertificate = false;
 
-        final Settings settings = Settings.settingsBuilder().put("searchguard.ssl.transport.enabled", false)
+        final Settings settings = Settings.builder().put("searchguard.ssl.transport.enabled", false)
                 .put(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_ENABLE_OPENSSL_IF_AVAILABLE, allowOpenSSL)
                 .put(SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_ENABLE_OPENSSL_IF_AVAILABLE, allowOpenSSL)
                 .put(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_KEYSTORE_ALIAS, "node-0").put("searchguard.ssl.http.enabled", true)
@@ -178,7 +178,7 @@ public class SSLTest extends AbstractUnitTest {
         sendHTTPClientCertificate = false;
         enableHTTPClientSSLv3Only = true;
 
-        final Settings settings = Settings.settingsBuilder().put("searchguard.ssl.transport.enabled", false)
+        final Settings settings = Settings.builder().put("searchguard.ssl.transport.enabled", false)
                 .put(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_ENABLE_OPENSSL_IF_AVAILABLE, allowOpenSSL)
                 .put(SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_ENABLE_OPENSSL_IF_AVAILABLE, allowOpenSSL)
                 .put(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_KEYSTORE_ALIAS, "node-0").put("searchguard.ssl.http.enabled", true)
@@ -195,7 +195,7 @@ public class SSLTest extends AbstractUnitTest {
     @Test
     public void testTransportClientSSL() throws Exception {
 
-        final Settings settings = Settings.settingsBuilder().put("searchguard.ssl.transport.enabled", true)
+        final Settings settings = Settings.builder().put("searchguard.ssl.transport.enabled", true)
                 .put(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_ENABLE_OPENSSL_IF_AVAILABLE, allowOpenSSL)
                 .put(SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_ENABLE_OPENSSL_IF_AVAILABLE, allowOpenSSL)
                 .put(SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_KEYSTORE_ALIAS, "node-0")
@@ -217,7 +217,7 @@ public class SSLTest extends AbstractUnitTest {
     @Test
     public void testNodeClientSSL() throws Exception {
 
-        final Settings settings = Settings.settingsBuilder().put("searchguard.ssl.transport.enabled", true)
+        final Settings settings = Settings.builder().put("searchguard.ssl.transport.enabled", true)
                 .put(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_ENABLE_OPENSSL_IF_AVAILABLE, allowOpenSSL)
                 .put(SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_ENABLE_OPENSSL_IF_AVAILABLE, allowOpenSSL)
                 .put(SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_KEYSTORE_ALIAS, "node-0")
@@ -242,7 +242,7 @@ public class SSLTest extends AbstractUnitTest {
     public void testTransportClientSSLFail() throws Exception {
         thrown.expect(NoNodeAvailableException.class);
 
-        final Settings settings = Settings.settingsBuilder().put("searchguard.ssl.transport.enabled", true)
+        final Settings settings = Settings.builder().put("searchguard.ssl.transport.enabled", true)
                 .put(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_ENABLE_OPENSSL_IF_AVAILABLE, allowOpenSSL)
                 .put(SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_ENABLE_OPENSSL_IF_AVAILABLE, allowOpenSSL)
                 .put(SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_KEYSTORE_ALIAS, "node-0")

@@ -52,8 +52,7 @@ public final class SearchGuardSSLPlugin extends Plugin {
     private final boolean client;
     private final boolean httpSSLEnabled;
     private final boolean transportSSLEnabled;
-    private final Settings settings;
-
+    private final Settings settings;    
     public SearchGuardSSLPlugin(final Settings settings) {
 
         final SecurityManager sm = System.getSecurityManager();
@@ -75,6 +74,7 @@ public final class SearchGuardSSLPlugin extends Plugin {
 
         this.settings = settings;
         client = !"node".equals(this.settings.get(SearchGuardSSLPlugin.CLIENT_TYPE));
+        
         httpSSLEnabled = settings.getAsBoolean(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_ENABLED,
                 SSLConfigConstants.SEARCHGUARD_SSL_HTTP_ENABLED_DEFAULT);
         transportSSLEnabled = settings.getAsBoolean(SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_ENABLED,
@@ -84,25 +84,21 @@ public final class SearchGuardSSLPlugin extends Plugin {
             log.error("SSL not activated for http and/or transport.");
             System.out.println("SSL not activated for http and/or transport.");
         }
-
+        
     }
 
     public void onModule(final NetworkModule module) {
-        if (!client) {
+        if (!client && httpSSLEnabled) {
             module.registerRestHandler(SearchGuardSSLInfoAction.class);
-            module.registerHttpTransport(name(), SearchGuardSSLNettyHttpServerTransport.class);
-            
+            module.registerHttpTransport(SearchGuardSSLNettyHttpServerTransport.class.toString(), SearchGuardSSLNettyHttpServerTransport.class);
         }
         
         if (transportSSLEnabled) {
-            module.registerTransport(name(), SearchGuardSSLNettyTransport.class);
-
+            module.registerTransport(SearchGuardSSLNettyTransport.class.toString(), SearchGuardSSLNettyTransport.class);
             if (!client && !searchGuardPluginAvailable()) {
-                module.registerTransportService(name(), SearchGuardSSLTransportService.class);
+                module.registerTransportService(SearchGuardSSLTransportService.class.toString(), SearchGuardSSLTransportService.class);
             }
         }
-        
-        
     }
 
     @Override
@@ -116,14 +112,35 @@ public final class SearchGuardSSLPlugin extends Plugin {
     }
     
     public void onModule(SettingsModule module)
-    {
-      module.registerSetting(Setting.adfixKeySetting("search", "guard", (String)"ups", new Function<String, Object>() {
-          @Override
-        public Object apply(String t) {
-            
-            return "ddd";
-        }
-    }, Property.NodeScope));
+    {              
+      module.registerSetting(Setting.boolSetting(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_ENFORCE_CLIENTAUTH, false, Property.NodeScope, Property.Filtered));
+      module.registerSetting(Setting.simpleString(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_CLIENTAUTH_MODE, Property.NodeScope, Property.Filtered));
+      module.registerSetting(Setting.simpleString(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_KEYSTORE_ALIAS, Property.NodeScope, Property.Filtered));
+      module.registerSetting(Setting.simpleString(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_KEYSTORE_FILEPATH, Property.NodeScope, Property.Filtered));
+      module.registerSetting(Setting.simpleString(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_KEYSTORE_PASSWORD, Property.NodeScope, Property.Filtered));
+      module.registerSetting(Setting.simpleString(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_KEYSTORE_TYPE, Property.NodeScope, Property.Filtered));
+      module.registerSetting(Setting.simpleString(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_TRUSTSTORE_ALIAS, Property.NodeScope, Property.Filtered));
+      module.registerSetting(Setting.simpleString(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_TRUSTSTORE_FILEPATH, Property.NodeScope, Property.Filtered));
+      module.registerSetting(Setting.simpleString(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_TRUSTSTORE_PASSWORD, Property.NodeScope, Property.Filtered));
+      module.registerSetting(Setting.simpleString(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_TRUSTSTORE_TYPE, Property.NodeScope, Property.Filtered));
+      module.registerSetting(Setting.boolSetting(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_ENABLE_OPENSSL_IF_AVAILABLE, true, Property.NodeScope, Property.Filtered));
+      module.registerSetting(Setting.boolSetting(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_ENABLED, false, Property.NodeScope, Property.Filtered));
+      module.registerSetting(Setting.boolSetting(SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_ENABLE_OPENSSL_IF_AVAILABLE, true,Property.NodeScope, Property.Filtered));
+      module.registerSetting(Setting.boolSetting(SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_ENABLED, true, Property.NodeScope, Property.Filtered));
+      //module.registerSetting(Setting.simpleString(SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_ENABLED_DEFAULT));
+      module.registerSetting(Setting.boolSetting(SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_ENCFORCE_HOSTNAME_VERIFICATION, true, Property.NodeScope, Property.Filtered));
+      module.registerSetting(Setting.boolSetting(SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_ENCFORCE_HOSTNAME_VERIFICATION_RESOLVE_HOST_NAME, true, Property.NodeScope, Property.Filtered));
+      module.registerSetting(Setting.simpleString(SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_KEYSTORE_ALIAS, Property.NodeScope, Property.Filtered));
+      module.registerSetting(Setting.simpleString(SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_KEYSTORE_FILEPATH, Property.NodeScope, Property.Filtered));
+      module.registerSetting(Setting.simpleString(SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_KEYSTORE_PASSWORD, Property.NodeScope, Property.Filtered));
+      module.registerSetting(Setting.simpleString(SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_KEYSTORE_TYPE, Property.NodeScope, Property.Filtered));
+      module.registerSetting(Setting.simpleString(SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_TRUSTSTORE_ALIAS, Property.NodeScope, Property.Filtered));
+      module.registerSetting(Setting.simpleString(SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_TRUSTSTORE_FILEPATH, Property.NodeScope, Property.Filtered));
+      module.registerSetting(Setting.simpleString(SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_TRUSTSTORE_PASSWORD, Property.NodeScope, Property.Filtered));
+      module.registerSetting(Setting.simpleString(SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_TRUSTSTORE_TYPE, Property.NodeScope, Property.Filtered));
+
+      module.registerSetting(Setting.simpleString("node.client", Property.NodeScope));
+
     }
 
     @Override
@@ -134,6 +151,24 @@ public final class SearchGuardSSLPlugin extends Plugin {
     @Override
     public String name() {
         return "search-guard-ssl";
+    }
+    
+    @Override
+    public Settings additionalSettings() {
+       final Settings.Builder builder = Settings.builder();
+        
+       if(!client && httpSSLEnabled) {
+           builder.put(NetworkModule.HTTP_TYPE_KEY, SearchGuardSSLNettyHttpServerTransport.class.toString());
+       }
+        
+       if (transportSSLEnabled) {
+           builder.put(NetworkModule.TRANSPORT_TYPE_KEY, SearchGuardSSLNettyTransport.class.toString());
+           if (!client && !searchGuardPluginAvailable()) {
+               builder.put(NetworkModule.TRANSPORT_SERVICE_TYPE_KEY, SearchGuardSSLTransportService.class.toString());
+           }
+       }
+        
+        return builder.build();
     }
 
     private boolean searchGuardPluginAvailable() {

@@ -30,6 +30,7 @@ import org.elasticsearch.common.logging.ESLogger;
 import org.elasticsearch.common.network.NetworkService;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.util.BigArrays;
+import org.elasticsearch.indices.breaker.CircuitBreakerService;
 import org.elasticsearch.threadpool.ThreadPool;
 import org.elasticsearch.transport.netty.NettyTransport;
 import org.jboss.netty.channel.ChannelHandlerContext;
@@ -49,8 +50,8 @@ public class SearchGuardSSLNettyTransport extends NettyTransport {
     @Inject
     public SearchGuardSSLNettyTransport(final Settings settings, final ThreadPool threadPool, final NetworkService networkService,
             final BigArrays bigArrays, final Version version, final NamedWriteableRegistry namedWriteableRegistry,
-            final SearchGuardKeyStore sgks) {
-        super(settings, threadPool, networkService, bigArrays, version, namedWriteableRegistry);
+            final SearchGuardKeyStore sgks, CircuitBreakerService cbs) {
+        super(settings, threadPool, networkService, bigArrays, version, namedWriteableRegistry, cbs);
         this.sgks = sgks;
     }
 

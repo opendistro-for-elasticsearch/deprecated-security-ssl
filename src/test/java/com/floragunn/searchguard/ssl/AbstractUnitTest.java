@@ -123,7 +123,7 @@ public abstract class AbstractUnitTest {
     // @formatter:off
     private Settings.Builder getDefaultSettingsBuilder(final int nodenum, final boolean dataNode, final boolean masterNode) {
 
-        return Settings.settingsBuilder()
+        return Settings.builder()
                 .put("node.name", "searchguard_testnode_" + nodenum)
                 .put("node.data", dataNode)
                 .put("node.master", masterNode)

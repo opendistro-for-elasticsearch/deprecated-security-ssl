@@ -50,11 +50,13 @@ public class SearchGuardMessageChannelHandler extends MessageChannelHandler {
             @SuppressWarnings("rawtypes") final TransportResponseHandler handler) {
         super.handleResponse(channel, buffer, handler);
     }
+    
+    
 
     @Override
-    protected String handleRequest(final Channel channel, final StreamInput buffer, final long requestId, final Version version)
-            throws IOException {
-        final String action = super.handleRequest(channel, buffer, requestId, version);
+    protected String handleRequest(Channel channel, Marker marker, StreamInput buffer, long requestId, int messageLengthBytes,
+            Version version) throws IOException {
+        final String action = super.handleRequest(channel, marker, buffer, requestId, messageLengthBytes, version);
         return action;
     }
 
