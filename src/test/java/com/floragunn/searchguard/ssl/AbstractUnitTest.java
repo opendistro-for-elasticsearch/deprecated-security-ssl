@@ -261,7 +261,7 @@ public abstract class AbstractUnitTest {
             response = httpClient.execute(new HttpGet(getHttpServerUri() + "/" + request));
 
             if (response.getStatusLine().getStatusCode() >= 300) {
-                throw new Exception("Statuscode " + response.getStatusLine().getStatusCode());
+                throw new Exception("Statuscode " + response.getStatusLine().getStatusCode()+" - "+response.getStatusLine().getReasonPhrase()+ "-" +IOUtils.toString(response.getEntity().getContent(), StandardCharsets.UTF_8));
             }
 
             return IOUtils.toString(response.getEntity().getContent(), StandardCharsets.UTF_8);

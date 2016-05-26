@@ -213,10 +213,10 @@ public class SearchGuardKeyStore {
             try {
 
                 final KeyStore ks = KeyStore.getInstance(keystoreType);
-                ks.load(new FileInputStream(new File(keystoreFilePath)), keystorePassword == null? null:keystorePassword.toCharArray());
+                ks.load(new FileInputStream(new File(keystoreFilePath)), (keystorePassword == null || keystorePassword.length() == 0) ? null:keystorePassword.toCharArray());
 
                 transportKeystoreCert = SSLCertificateHelper.exportCertificateChain(ks, keystoreAlias);
-                transportKeystoreKey = SSLCertificateHelper.exportDecryptedKey(ks, keystoreAlias, keystorePassword==null?null:keystorePassword.toCharArray());
+                transportKeystoreKey = SSLCertificateHelper.exportDecryptedKey(ks, keystoreAlias, (keystorePassword==null || keystorePassword.length() == 0) ? null:keystorePassword.toCharArray());
 
                 if(transportKeystoreKey == null) {
                     throw new ElasticsearchException("No key found in "+keystoreFilePath+" with alias "+keystoreAlias);
@@ -237,7 +237,7 @@ public class SearchGuardKeyStore {
                 
                 
                 final KeyStore ts = KeyStore.getInstance(truststoreType);
-                ts.load(new FileInputStream(new File(truststoreFilePath)), truststorePassword==null?null:truststorePassword.toCharArray());
+                ts.load(new FileInputStream(new File(truststoreFilePath)), (truststorePassword==null || truststorePassword.length() == 0) ? null:truststorePassword.toCharArray());
 
                 trustedTransportCertificates = SSLCertificateHelper.exportCertificateChain(ts, truststoreAlias);
 
@@ -291,10 +291,10 @@ public class SearchGuardKeyStore {
             try {
 
                 final KeyStore ks = KeyStore.getInstance(keystoreType);
-                ks.load(new FileInputStream(new File(keystoreFilePath)), keystorePassword == null? null:keystorePassword.toCharArray());
+                ks.load(new FileInputStream(new File(keystoreFilePath)), (keystorePassword == null || keystorePassword.length() == 0) ? null:keystorePassword.toCharArray());
 
                 httpKeystoreCert = SSLCertificateHelper.exportCertificateChain(ks, keystoreAlias);
-                httpKeystoreKey = SSLCertificateHelper.exportDecryptedKey(ks, keystoreAlias, keystorePassword==null?null:keystorePassword.toCharArray());
+                httpKeystoreKey = SSLCertificateHelper.exportDecryptedKey(ks, keystoreAlias, (keystorePassword==null || keystorePassword.length() == 0) ? null:keystorePassword.toCharArray());
 
                 if(httpKeystoreKey == null) {
                     throw new ElasticsearchException("No key found in "+keystoreFilePath+" with alias "+keystoreAlias);
@@ -324,7 +324,7 @@ public class SearchGuardKeyStore {
                     final String truststoreAlias = settings.get(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_TRUSTSTORE_ALIAS, null);
 
                     final KeyStore ts = KeyStore.getInstance(truststoreType);
-                    ts.load(new FileInputStream(new File(truststoreFilePath)), truststorePassword == null?null:truststorePassword.toCharArray());
+                    ts.load(new FileInputStream(new File(truststoreFilePath)), (truststorePassword == null || truststorePassword.length() == 0) ?null:truststorePassword.toCharArray());
 
                     trustedHTTPCertificates = SSLCertificateHelper.exportCertificateChain(ts, truststoreAlias);
                 }

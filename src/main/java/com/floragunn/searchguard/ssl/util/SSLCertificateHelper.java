@@ -18,13 +18,11 @@
 package com.floragunn.searchguard.ssl.util;
 
 import java.security.*;
-import java.security.KeyStore.ProtectionParameter;
 import java.security.cert.Certificate;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Enumeration;
-import java.util.Iterator;
 import java.util.List;
 
 import org.elasticsearch.common.Strings;
@@ -113,7 +111,7 @@ public class SSLCertificateHelper {
             throw new KeyStoreException("null alias, current aliases: " + aliases);
         }
 
-        final Key key = ks.getKey(evaluatedAlias, password);
+        final Key key = ks.getKey(evaluatedAlias, (password == null || password.length == 0) ? null:password);
 
         if (key == null) {
             throw new KeyStoreException("no key alias named " + evaluatedAlias);
