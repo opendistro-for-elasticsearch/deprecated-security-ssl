@@ -105,15 +105,17 @@ public class SearchGuardSSLNettyHttpServerTransport extends NettyHttpServerTrans
                     threadContext.putTransient("_sg_ssl_principal", principal == null ? null : principal.getName());
                     threadContext.putTransient("_sg_ssl_peer_certificates", x509Certs);
                 } else if(engine.getNeedClientAuth()) {
-                    throw new ElasticsearchException("No client certificates found but such are needed.");
+                    throw new ElasticsearchException("No client certificates found but such are needed (SG 9).");
                 }
 
             } catch(SSLPeerUnverifiedException e) {
                 if(engine.getNeedClientAuth()) {
+                    logger.error("No client certificates found but such are needed (SG 8).");
                     throw ExceptionsHelper.convertToElastic(e);
                 }
             }
             catch (final Exception e) {
+                logger.error("Unknow error (SG 8) : "+e,e);
                 throw ExceptionsHelper.convertToElastic(e);
             }
            

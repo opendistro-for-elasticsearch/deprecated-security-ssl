@@ -145,9 +145,9 @@ public class SearchGuardSSLNettyTransport extends NettyTransport {
             this.sgks = sgks;
 
             hostnameVerificationEnabled = settings.getAsBoolean(
-                    SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_ENCFORCE_HOSTNAME_VERIFICATION, true);
+                    SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_ENFORCE_HOSTNAME_VERIFICATION, true);
             hostnameVerificationResovleHostName = settings.getAsBoolean(
-                    SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_ENCFORCE_HOSTNAME_VERIFICATION_RESOLVE_HOST_NAME, true);
+                    SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_ENFORCE_HOSTNAME_VERIFICATION_RESOLVE_HOST_NAME, true);
 
             this.nettyLogger = nettyLogger;
         }

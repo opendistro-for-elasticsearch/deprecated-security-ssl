@@ -55,7 +55,7 @@ public class SearchGuardSSLInfoAction extends BaseRestHandler {
     protected void handleRequest(final RestRequest request, final RestChannel channel, final Client client) throws Exception {
 
         BytesRestResponse response = null;
-        final XContentBuilder builder = channel.newBuilder();
+        XContentBuilder builder = channel.newBuilder();
 
         try {
             final X509Certificate[] certs = this.threadContext.getTransient("_sg_ssl_peer_certificates");
@@ -77,7 +77,8 @@ public class SearchGuardSSLInfoAction extends BaseRestHandler {
 
             response = new BytesRestResponse(RestStatus.OK, builder);
         } catch (final Exception e1) {
-            logger.error(e1.toString(),e1);
+            logger.error("Error handle request "+e1, e1);
+            builder = channel.newBuilder();
             builder.startObject();
             builder.field("error", e1.toString());
             builder.endObject();

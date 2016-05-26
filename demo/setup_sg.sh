@@ -1,8 +1,3 @@
-SG_VERSION=2.2.0.6
-ES_CONF_DIR=/etc/elasticsearch
-ES_BIN_DIR=/usr/share/elasticsearch/bin
-ES_PLUGIN_DIR=/usr/share/elasticsearch/plugins
-
 if [ ! -f /vagrant/example-pki-scripts/truststore.jks ]
 then
     cd /vagrant/example-pki-scripts
@@ -10,11 +5,8 @@ then
     ./example.sh > /dev/null 2>&1
 fi
 
-
 cd /tmp
 
-NETTY_NATIVE_VERSION=1.1.33.Fork12
-NETTY_NATIVE_CLASSIFIER=linux-x86_64
 wget -O netty-tcnative-$NETTY_NATIVE_VERSION-$NETTY_NATIVE_CLASSIFIER.jar https://search.maven.org/remotecontent?filepath=io/netty/netty-tcnative/$NETTY_NATIVE_VERSION/netty-tcnative-$NETTY_NATIVE_VERSION-$NETTY_NATIVE_CLASSIFIER.jar > /dev/null 2>&1
 
 echo "Install Search Guard SSL Plugin"

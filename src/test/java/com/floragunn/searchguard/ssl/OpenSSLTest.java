@@ -22,6 +22,7 @@ import io.netty.handler.ssl.OpenSsl;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.elasticsearch.common.settings.Settings;
 import org.junit.Assert;
 import org.junit.Assume;
 import org.junit.Before;
@@ -34,6 +35,14 @@ public class OpenSSLTest extends SSLTest {
     @Before
     public void setup() {
         allowOpenSSL = true;
+    }
+
+    @Test
+    public void testEnsureOpenSSLAvailability() {
+        
+        if(Boolean.parseBoolean(System.getenv("SG_ALLOW_OPENSSL"))) {
+            Assert.assertTrue(String.valueOf(OpenSsl.unavailabilityCause()), OpenSsl.isAvailable());
+        }
     }
 
     @Override
@@ -110,7 +119,7 @@ public class OpenSSLTest extends SSLTest {
         // ADH-AES256-SHA256, ADH-CAMELLIA128-SHA
 
         final Set<String> openSSLSecureCiphers = new HashSet<>();
-        for (final String secure : SSLConfigConstants.SECURE_SSL_CIPHERS) {
+        for (final String secure : SSLConfigConstants.getSecureSSLCiphers(Settings.EMPTY, false)) {
             if (OpenSsl.isCipherSuiteAvailable(secure)) {
                 openSSLSecureCiphers.add(secure);
             }
@@ -119,4 +128,24 @@ public class OpenSSLTest extends SSLTest {
         System.out.println("OpenSSL secure ciphers: " + openSSLSecureCiphers);
         Assert.assertTrue(openSSLSecureCiphers.size() > 0);
     }
+    
+    @Test
+    public void testHttpsEnforceFail() throws Exception {
+        Assume.assumeTrue(OpenSsl.isAvailable());
+        super.testHttpsEnforceFail();
+    }
+
+    @Override
+    public void testCipherAndProtocols() throws Exception {
+        Assume.assumeTrue(OpenSsl.isAvailable());
+        super.testCipherAndProtocols();
+    }
+
+    @Override
+    public void testHttpsAndNodeSSLFailedCipher() throws Exception {
+        Assume.assumeTrue(OpenSsl.isAvailable());
+        super.testHttpsAndNodeSSLFailedCipher();
+    }
+    
+    
 }

@@ -22,6 +22,7 @@ keytool -genkey \
         -keystore  $CLIENT_NAME-keystore.jks \
         -keyalg    RSA \
         -keysize   2048 \
+        -sigalg SHA256withRSA \
         -validity  712 \
         -keypass $KS_PASS \
         -storepass $KS_PASS \

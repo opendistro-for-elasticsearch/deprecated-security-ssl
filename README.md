@@ -31,6 +31,8 @@ Install it like [any other Elasticsearch plugin](https://www.elastic.co/guide/en
 * ``bin/plugin install com.floragunn/search-guard-ssl/<version>`` OR
 * ``sudo bin/plugin install com.floragunn/search-guard-ssl/<version>``
 
+``<version> is for example 2.3.1.8 (NOT v2.3.1.8)``
+
 Accept the following warning with y (since ES >= 2.2)
 
 	@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@

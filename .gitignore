@@ -1,5 +1,9 @@
 target/
 test-output/
+*.tar.gz
+*gen-*conf*
+netty*jar
+
 
 /build.gradle
 *.log

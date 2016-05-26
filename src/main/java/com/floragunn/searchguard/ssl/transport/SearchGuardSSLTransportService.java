@@ -35,6 +35,8 @@ import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.util.concurrent.ThreadContext;
 import org.elasticsearch.tasks.Task;
 import org.elasticsearch.threadpool.ThreadPool;
+import org.elasticsearch.transport.DelegatingTransportChannel;
+import org.elasticsearch.transport.RequestHandlerRegistry;
 import org.elasticsearch.transport.Transport;
 import org.elasticsearch.transport.TransportChannel;
 import org.elasticsearch.transport.TransportRequest;
@@ -82,21 +84,35 @@ public class SearchGuardSSLTransportService extends TransportService {
 
         @Override
         public void messageReceived(final Request request, final TransportChannel transportChannel, Task task) throws Exception {
-
-            if (!(transportChannel instanceof NettyTransportChannel)) {
+        
+            NettyTransportChannel nettyChannel = null;
+            
+            if(transportChannel instanceof DelegatingTransportChannel) {
+                TransportChannel delegatingTransportChannel = ((DelegatingTransportChannel) transportChannel).getChannel();
+                
+                if (delegatingTransportChannel instanceof NettyTransportChannel) {
+                    nettyChannel =  (NettyTransportChannel) delegatingTransportChannel;
+                } 
+            } else {
+                if (transportChannel instanceof NettyTransportChannel) {
+                    nettyChannel =  (NettyTransportChannel) transportChannel;
+                } 
+            }
+            
+            if (nettyChannel == null) {
                 messageReceivedDecorate(request, handler, transportChannel, task);
                 return;
             }
-
+            
             try {
-                final Channel channel = ((NettyTransportChannel) transportChannel).getChannel();
+                final Channel channel = nettyChannel.getChannel();
                 final SslHandler sslhandler = (SslHandler) channel.getPipeline().get("ssl_server");
 
                 if (sslhandler == null) {
-                    final String msg = "No ssl handler found";
+                    final String msg = "No ssl handler found (SG 11)";
                     log.error(msg);
                     final Exception exception = new ElasticsearchException(msg);
-                    transportChannel.sendResponse(exception);
+                    nettyChannel.sendResponse(exception);
                     throw exception;
                 }
 
@@ -117,20 +133,20 @@ public class SearchGuardSSLTransportService extends TransportService {
                     final String msg = "No X509 transport client certificates found (SG 12)";
                     log.error(msg);
                     final Exception exception = new ElasticsearchException(msg);
-                    transportChannel.sendResponse(exception);
+                    nettyChannel.sendResponse(exception);
                     throw exception;
                 }
 
             } catch (final SSLPeerUnverifiedException e) {
                 log.error("Can not verify SSL peer (SG 13) due to {}", e, e);
                 final Exception exception = ExceptionsHelper.convertToElastic(e);
-                transportChannel.sendResponse(exception);
+                nettyChannel.sendResponse(exception);
                 throw exception;
             } catch (final Exception e) {
-                log.error("Unexpected SSL exception (SG 14) due to {}", e, e);
-                final Exception exception = ExceptionsHelper.convertToElastic(e);
-                transportChannel.sendResponse(exception);
-                throw exception;
+                log.debug("Unexpected but unproblematic exception (SG 14) due to {}", e, e);
+                //final Exception exception = ExceptionsHelper.convertToElastic(e);
+                //nettyChannel.sendResponse(exception);
+                throw e;
             }
         }
 
