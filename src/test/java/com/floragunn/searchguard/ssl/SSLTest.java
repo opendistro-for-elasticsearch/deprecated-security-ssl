@@ -19,6 +19,7 @@ package com.floragunn.searchguard.ssl;
 
 import java.net.InetSocketAddress;
 import java.net.SocketException;
+import java.security.Security;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -28,6 +29,7 @@ import javax.net.ssl.SSLEngine;
 import javax.net.ssl.SSLHandshakeException;
 
 import org.apache.http.NoHttpResponseException;
+import org.apache.lucene.util.Constants;
 import org.elasticsearch.ElasticsearchSecurityException;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthRequest;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthResponse;
@@ -81,6 +83,9 @@ public class SSLTest extends AbstractUnitTest {
     
     @Test
     public void testCipherAndProtocols() throws Exception {
+        
+        Security.setProperty("jdk.tls.disabledAlgorithms","");
+        System.out.println("Disabled algos: "+Security.getProperty("jdk.tls.disabledAlgorithms"));
 
         Settings settings = Settings.settingsBuilder().put("searchguard.ssl.transport.enabled", false)
                 .put(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_KEYSTORE_ALIAS, "node-0").put("searchguard.ssl.http.enabled", true)
@@ -97,61 +102,68 @@ public class SSLTest extends AbstractUnitTest {
                 .put("path.home",".")
                 .build();
         
-        String[] enabledCiphers = new SearchGuardKeyStore(settings).createHTTPSSLEngine().getEnabledCipherSuites();
-        String[] enabledProtocols = new SearchGuardKeyStore(settings).createHTTPSSLEngine().getEnabledProtocols();
+        try {
+            String[] enabledCiphers = new SearchGuardKeyStore(settings).createHTTPSSLEngine().getEnabledCipherSuites();
+            String[] enabledProtocols = new SearchGuardKeyStore(settings).createHTTPSSLEngine().getEnabledProtocols();
 
-        if(allowOpenSSL) {
-            Assert.assertEquals(2, enabledProtocols.length); //SSLv2Hello is always enabled when using openssl
-            Assert.assertTrue("SSLv3".equals(enabledProtocols[0]) || "SSLv3".equals(enabledProtocols[1]));
-            Assert.assertEquals(1, enabledCiphers.length);
-            Assert.assertEquals("TLS_RSA_EXPORT_WITH_RC4_40_MD5",enabledCiphers[0]);
-        } else {
-            Assert.assertEquals(1, enabledProtocols.length);
-            Assert.assertEquals("SSLv3", enabledProtocols[0]);
-            Assert.assertEquals(1, enabledCiphers.length);
-            Assert.assertEquals("SSL_RSA_EXPORT_WITH_RC4_40_MD5",enabledCiphers[0]);
-        }
-        
-        settings = Settings.settingsBuilder().put("searchguard.ssl.transport.enabled", true)
-                .put(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_ENABLE_OPENSSL_IF_AVAILABLE, allowOpenSSL)
-                .put(SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_ENABLE_OPENSSL_IF_AVAILABLE, allowOpenSSL)
-                .put("searchguard.ssl.transport.keystore_filepath", getAbsoluteFilePathFromClassPath("node-0-keystore.jks"))
-                .put("searchguard.ssl.transport.truststore_filepath", getAbsoluteFilePathFromClassPath("truststore.jks"))
-                 //WEAK and insecure cipher, do NOT use this, its here for unittesting only!!!
-                .put("searchguard.ssl.transport.enabled_ciphers","SSL_RSA_EXPORT_WITH_RC4_40_MD5")
-                 //WEAK and insecure protocol, do NOT use this, its here for unittesting only!!!
-                .put("searchguard.ssl.transport.enabled_protocols","SSLv3")
-                .put("client.type","node")
-                .put("path.home",".")
-                .build();
-        
-        enabledCiphers = new SearchGuardKeyStore(settings).createServerTransportSSLEngine().getEnabledCipherSuites();
-        enabledProtocols = new SearchGuardKeyStore(settings).createServerTransportSSLEngine().getEnabledProtocols();
+            if(allowOpenSSL) {
+                Assert.assertEquals(2, enabledProtocols.length); //SSLv2Hello is always enabled when using openssl
+                Assert.assertTrue("SSLv3".equals(enabledProtocols[0]) || "SSLv3".equals(enabledProtocols[1]));
+                Assert.assertEquals(1, enabledCiphers.length);
+                Assert.assertEquals("TLS_RSA_EXPORT_WITH_RC4_40_MD5",enabledCiphers[0]);
+            } else {
+                Assert.assertEquals(1, enabledProtocols.length);
+                Assert.assertEquals("SSLv3", enabledProtocols[0]);
+                Assert.assertEquals(1, enabledCiphers.length);
+                Assert.assertEquals("SSL_RSA_EXPORT_WITH_RC4_40_MD5",enabledCiphers[0]);
+            }
+            
+            settings = Settings.settingsBuilder().put("searchguard.ssl.transport.enabled", true)
+                    .put(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_ENABLE_OPENSSL_IF_AVAILABLE, allowOpenSSL)
+                    .put(SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_ENABLE_OPENSSL_IF_AVAILABLE, allowOpenSSL)
+                    .put("searchguard.ssl.transport.keystore_filepath", getAbsoluteFilePathFromClassPath("node-0-keystore.jks"))
+                    .put("searchguard.ssl.transport.truststore_filepath", getAbsoluteFilePathFromClassPath("truststore.jks"))
+                     //WEAK and insecure cipher, do NOT use this, its here for unittesting only!!!
+                    .put("searchguard.ssl.transport.enabled_ciphers","SSL_RSA_EXPORT_WITH_RC4_40_MD5")
+                     //WEAK and insecure protocol, do NOT use this, its here for unittesting only!!!
+                    .put("searchguard.ssl.transport.enabled_protocols","SSLv3")
+                    .put("client.type","node")
+                    .put("path.home",".")
+                    .build();
+            
+            enabledCiphers = new SearchGuardKeyStore(settings).createServerTransportSSLEngine().getEnabledCipherSuites();
+            enabledProtocols = new SearchGuardKeyStore(settings).createServerTransportSSLEngine().getEnabledProtocols();
 
-        if(allowOpenSSL) {
-            Assert.assertEquals(2, enabledProtocols.length); //SSLv2Hello is always enabled when using openssl
-            Assert.assertTrue("SSLv3".equals(enabledProtocols[0]) || "SSLv3".equals(enabledProtocols[1]));
-            Assert.assertEquals(1, enabledCiphers.length);
-            Assert.assertEquals("TLS_RSA_EXPORT_WITH_RC4_40_MD5",enabledCiphers[0]);
-        } else {
-            Assert.assertEquals(1, enabledProtocols.length);
-            Assert.assertEquals("SSLv3", enabledProtocols[0]);
-            Assert.assertEquals(1, enabledCiphers.length);
-            Assert.assertEquals("SSL_RSA_EXPORT_WITH_RC4_40_MD5",enabledCiphers[0]);
-        }
-        enabledCiphers = new SearchGuardKeyStore(settings).createClientTransportSSLEngine(null, -1).getEnabledCipherSuites();
-        enabledProtocols = new SearchGuardKeyStore(settings).createClientTransportSSLEngine(null, -1).getEnabledProtocols();
+            if(allowOpenSSL) {
+                Assert.assertEquals(2, enabledProtocols.length); //SSLv2Hello is always enabled when using openssl
+                Assert.assertTrue("SSLv3".equals(enabledProtocols[0]) || "SSLv3".equals(enabledProtocols[1]));
+                Assert.assertEquals(1, enabledCiphers.length);
+                Assert.assertEquals("TLS_RSA_EXPORT_WITH_RC4_40_MD5",enabledCiphers[0]);
+            } else {
+                Assert.assertEquals(1, enabledProtocols.length);
+                Assert.assertEquals("SSLv3", enabledProtocols[0]);
+                Assert.assertEquals(1, enabledCiphers.length);
+                Assert.assertEquals("SSL_RSA_EXPORT_WITH_RC4_40_MD5",enabledCiphers[0]);
+            }
+            enabledCiphers = new SearchGuardKeyStore(settings).createClientTransportSSLEngine(null, -1).getEnabledCipherSuites();
+            enabledProtocols = new SearchGuardKeyStore(settings).createClientTransportSSLEngine(null, -1).getEnabledProtocols();
 
-        if(allowOpenSSL) {
-            Assert.assertEquals(2, enabledProtocols.length); //SSLv2Hello is always enabled when using openssl
-            Assert.assertTrue("SSLv3".equals(enabledProtocols[0]) || "SSLv3".equals(enabledProtocols[1]));
-            Assert.assertEquals(1, enabledCiphers.length);
-            Assert.assertEquals("TLS_RSA_EXPORT_WITH_RC4_40_MD5",enabledCiphers[0]);
-        } else {
-            Assert.assertEquals(1, enabledProtocols.length);
-            Assert.assertEquals("SSLv3", enabledProtocols[0]);
-            Assert.assertEquals(1, enabledCiphers.length);
-            Assert.assertEquals("SSL_RSA_EXPORT_WITH_RC4_40_MD5",enabledCiphers[0]);
+            if(allowOpenSSL) {
+                Assert.assertEquals(2, enabledProtocols.length); //SSLv2Hello is always enabled when using openssl
+                Assert.assertTrue("SSLv3".equals(enabledProtocols[0]) || "SSLv3".equals(enabledProtocols[1]));
+                Assert.assertEquals(1, enabledCiphers.length);
+                Assert.assertEquals("TLS_RSA_EXPORT_WITH_RC4_40_MD5",enabledCiphers[0]);
+            } else {
+                Assert.assertEquals(1, enabledProtocols.length);
+                Assert.assertEquals("SSLv3", enabledProtocols[0]);
+                Assert.assertEquals(1, enabledCiphers.length);
+                Assert.assertEquals("SSL_RSA_EXPORT_WITH_RC4_40_MD5",enabledCiphers[0]);
+            }
+        } catch (ElasticsearchSecurityException e) {
+            System.out.println("EXPECTED for "+System.getProperty("java.specification.version")+": "+e.toString());
+            Assert.assertTrue(Constants.JRE_IS_MINIMUM_JAVA8);
+            Assert.assertTrue(e.toString().contains("no valid cipher suites"));
+            
         }
     }
     
