@@ -251,7 +251,11 @@ public class SSLTest extends AbstractUnitTest {
             startES(settings);
             Assert.fail();
         } catch (ElasticsearchSecurityException e) {
-            Assert.assertTrue(e.toString().contains("no valid cipher"));
+            if(allowOpenSSL) {
+                Assert.assertTrue(e.toString(), e.toString().contains("failed to set cipher suite"));
+            } else {
+                Assert.assertTrue(e.toString(), e.toString().contains("no valid cipher"));
+            }
         }
     }
 
