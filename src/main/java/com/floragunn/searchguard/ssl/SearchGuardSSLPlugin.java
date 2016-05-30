@@ -50,6 +50,7 @@ public final class SearchGuardSSLPlugin extends Plugin {
     private final boolean client;
     private final boolean httpSSLEnabled;
     private final boolean transportSSLEnabled;
+    private boolean searchGuardPluginAvailable;
     private final Settings settings;
 
     public SearchGuardSSLPlugin(final Settings settings) {
@@ -70,6 +71,15 @@ public final class SearchGuardSSLPlugin extends Plugin {
                 return null;
             }
         });
+        
+        try {
+            getClass().getClassLoader().loadClass("com.floragunn.searchguard.SearchGuardPlugin");
+            searchGuardPluginAvailable = true;
+            log.info("Search Guard 2 plugin also available");
+        } catch (final ClassNotFoundException cnfe) {
+            searchGuardPluginAvailable = false;
+            log.info("Search Guard 2 plugin not available");
+        }
 
         this.settings = settings;
         client = !"node".equals(this.settings.get(SearchGuardSSLPlugin.CLIENT_TYPE));
@@ -92,7 +102,7 @@ public final class SearchGuardSSLPlugin extends Plugin {
     }
 
     public void onModule(final HttpServerModule module) {
-        if (!client && httpSSLEnabled) {
+        if (!client && httpSSLEnabled && !searchGuardPluginAvailable) {
             module.setHttpServerTransport(SearchGuardSSLNettyHttpServerTransport.class, name());
         }
     }
@@ -101,7 +111,7 @@ public final class SearchGuardSSLPlugin extends Plugin {
         if (transportSSLEnabled) {
             module.setTransport(SearchGuardSSLNettyTransport.class, name());
 
-            if (!client && !searchGuardPluginAvailable()) {
+            if (!client && !searchGuardPluginAvailable) {
                 module.setTransportService(SearchGuardSSLTransportService.class, name());
             }
         }
@@ -111,7 +121,6 @@ public final class SearchGuardSSLPlugin extends Plugin {
     public Collection<Module> nodeModules() {
         if (!client) {
             return ImmutableList.<Module> of(new SearchGuardSSLModule(settings));
-
         } else {
             return ImmutableList.<Module> of(new SearchGuardSSLModule(settings), new EnvironmentModule(new Environment(settings)));
         }
@@ -125,14 +134,5 @@ public final class SearchGuardSSLPlugin extends Plugin {
     @Override
     public String name() {
         return "search-guard-ssl";
-    }
-
-    private boolean searchGuardPluginAvailable() {
-        try {
-            getClass().getClassLoader().loadClass("com.floragunn.searchguard.SearchGuardPlugin");
-            return true;
-        } catch (final ClassNotFoundException cnfe) {
-            return false;
-        }
     }
 }

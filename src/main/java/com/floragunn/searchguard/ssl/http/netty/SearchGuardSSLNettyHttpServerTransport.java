@@ -22,6 +22,8 @@ import java.security.cert.X509Certificate;
 import java.util.Arrays;
 
 import javax.net.ssl.SSLEngine;
+import javax.net.ssl.SSLException;
+import javax.net.ssl.SSLHandshakeException;
 import javax.net.ssl.SSLPeerUnverifiedException;
 import javax.security.auth.x500.X500Principal;
 
@@ -37,8 +39,11 @@ import org.elasticsearch.http.HttpChannel;
 import org.elasticsearch.http.HttpRequest;
 import org.elasticsearch.http.netty.NettyHttpRequest;
 import org.elasticsearch.http.netty.NettyHttpServerTransport;
+import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.channel.ChannelPipeline;
 import org.jboss.netty.channel.ChannelPipelineFactory;
+import org.jboss.netty.channel.ExceptionEvent;
+import org.jboss.netty.handler.ssl.NotSslRecordException;
 import org.jboss.netty.handler.ssl.SslHandler;
 
 import com.floragunn.searchguard.ssl.SearchGuardKeyStore;
@@ -57,6 +62,29 @@ public class SearchGuardSSLNettyHttpServerTransport extends NettyHttpServerTrans
     @Override
     public ChannelPipelineFactory configureServerChannelPipelineFactory() {
         return new SSLHttpChannelPipelineFactory(this, this.settings, this.detailedErrorsEnabled, sgks);
+    }
+
+    @Override
+    protected void exceptionCaught(ChannelHandlerContext ctx, ExceptionEvent e) throws Exception {
+        if(this.lifecycle.started()) {
+            
+            final Throwable cause = e.getCause();
+            if(cause instanceof NotSslRecordException) {
+                logger.warn("Someone speaks plaintext instead of ssl, will close the channel");
+                ctx.getChannel().close();
+                return;
+            } else if (cause instanceof SSLException) {
+                logger.error("SSL Problem "+cause.getMessage(),cause);
+                ctx.getChannel().close();
+                return;
+            } else if (cause instanceof SSLHandshakeException) {
+                logger.error("Problem during handshake "+cause.getMessage());
+                ctx.getChannel().close();
+                return;
+            }
+        }
+        
+        super.exceptionCaught(ctx, e);
     }
 
     protected static class SSLHttpChannelPipelineFactory extends HttpChannelPipelineFactory {
@@ -100,17 +128,21 @@ public class SearchGuardSSLNettyHttpServerTransport extends NettyHttpServerTrans
                     request.putInContext("_sg_ssl_principal", principal == null ? null : principal.getName());
                     request.putInContext("_sg_ssl_peer_certificates", x509Certs);
                 } else if(engine.getNeedClientAuth()) {
-                    throw new ElasticsearchException("No client certificates found but such are needed (SG 9).");
+                    ElasticsearchException ex = new ElasticsearchException("No client certificates found but such are needed (SG 9).");
+                    errorThrown(ex, nettyHttpRequest);
+                    throw ex;
                 }
 
             } catch(SSLPeerUnverifiedException e) {
                 if(engine.getNeedClientAuth()) {
                     logger.error("No client certificates found but such are needed (SG 8).");
+                    errorThrown(e, nettyHttpRequest);
                     throw ExceptionsHelper.convertToElastic(e);
                 }
             }
             catch (final Exception e) {
                 logger.error("Unknow error (SG 8) : "+e,e);
+                errorThrown(e, nettyHttpRequest);
                 throw ExceptionsHelper.convertToElastic(e);
             }
            
@@ -122,6 +154,10 @@ public class SearchGuardSSLNettyHttpServerTransport extends NettyHttpServerTrans
         request.putInContext("_sg_ssl_cipher", sslhandler.getEngine().getSession().getCipherSuite());
 
         super.dispatchRequest(request, channel);
+    }
+    
+    protected void errorThrown(Throwable t, final NettyHttpRequest request) {
+        // no-op
     }
 
 }

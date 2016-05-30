@@ -19,6 +19,9 @@ package com.floragunn.searchguard.ssl.transport;
 
 import java.io.IOException;
 
+import javax.net.ssl.SSLException;
+import javax.net.ssl.SSLHandshakeException;
+
 import org.elasticsearch.Version;
 import org.elasticsearch.common.io.stream.StreamInput;
 import org.elasticsearch.common.logging.ESLogger;
@@ -30,7 +33,9 @@ import org.jboss.netty.channel.ChannelFuture;
 import org.jboss.netty.channel.ChannelFutureListener;
 import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.channel.ChannelStateEvent;
+import org.jboss.netty.channel.ExceptionEvent;
 import org.jboss.netty.channel.MessageEvent;
+import org.jboss.netty.handler.ssl.NotSslRecordException;
 import org.jboss.netty.handler.ssl.SslHandler;
 
 public class SearchGuardMessageChannelHandler extends MessageChannelHandler {
@@ -82,4 +87,23 @@ public class SearchGuardMessageChannelHandler extends MessageChannelHandler {
         });
     }
 
+    @Override
+    public void exceptionCaught(ChannelHandlerContext ctx, ExceptionEvent e) throws Exception {    
+        final Throwable cause = e.getCause();
+        if(cause instanceof NotSslRecordException) {
+            logger.warn("Someone speaks plaintext instead of ssl, will close the channel");
+            ctx.getChannel().close();
+            return;
+        } else if (cause instanceof SSLException) {
+            logger.error("SSL Problem "+cause.getMessage(),cause);
+            ctx.getChannel().close();
+            return;
+        } else if (cause instanceof SSLHandshakeException) {
+            logger.error("Problem during handshake "+cause.getMessage());
+            ctx.getChannel().close();
+            return;
+        }
+        
+        super.exceptionCaught(ctx, e);
+    }
 }

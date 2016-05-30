@@ -34,7 +34,6 @@ import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.tasks.Task;
 import org.elasticsearch.threadpool.ThreadPool;
 import org.elasticsearch.transport.DelegatingTransportChannel;
-import org.elasticsearch.transport.RequestHandlerRegistry;
 import org.elasticsearch.transport.Transport;
 import org.elasticsearch.transport.TransportChannel;
 import org.elasticsearch.transport.TransportRequest;
@@ -131,17 +130,20 @@ public class SearchGuardSSLTransportService extends TransportService {
                     final String msg = "No X509 transport client certificates found (SG 12)";
                     log.error(msg);
                     final Exception exception = new ElasticsearchException(msg);
+                    errorThrown(exception, request, action);
                     nettyChannel.sendResponse(exception);
                     throw exception;
                 }
 
             } catch (final SSLPeerUnverifiedException e) {
                 log.error("Can not verify SSL peer (SG 13) due to {}", e, e);
+                errorThrown(e, request, action);
                 final Exception exception = ExceptionsHelper.convertToElastic(e);
                 nettyChannel.sendResponse(exception);
                 throw exception;
             } catch (final Exception e) {
-                log.debug("Unexpected but unproblematic exception (SG 14) due to {}", e, e);
+                log.debug("Unexpected but unproblematic exception (SG 14) for '{}' due to {}", action, e.getMessage());
+                errorThrown(e, request, action);
                 //final Exception exception = ExceptionsHelper.convertToElastic(e);
                 //nettyChannel.sendResponse(exception);
                 throw e;
@@ -157,5 +159,9 @@ public class SearchGuardSSLTransportService extends TransportService {
     
     protected void messageReceivedDecorate(final TransportRequest request, final TransportRequestHandler handler, final TransportChannel transportChannel, Task task) throws Exception {
         handler.messageReceived(request, transportChannel, task);
+    }
+    
+    protected void errorThrown(Throwable t, final TransportRequest request, String action) {
+        // no-op
     }
 }
