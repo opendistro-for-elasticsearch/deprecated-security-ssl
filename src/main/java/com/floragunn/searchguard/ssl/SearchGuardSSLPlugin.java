@@ -24,7 +24,6 @@ import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.function.Function;
 
 import org.elasticsearch.SpecialPermission;
 import org.elasticsearch.common.inject.Module;
@@ -52,7 +51,9 @@ public final class SearchGuardSSLPlugin extends Plugin {
     private final boolean client;
     private final boolean httpSSLEnabled;
     private final boolean transportSSLEnabled;
-    private final Settings settings;    
+    private boolean searchGuardPluginAvailable;
+    private final Settings settings;
+
     public SearchGuardSSLPlugin(final Settings settings) {
 
         final SecurityManager sm = System.getSecurityManager();
@@ -71,6 +72,15 @@ public final class SearchGuardSSLPlugin extends Plugin {
                 return null;
             }
         });
+        
+        try {
+            getClass().getClassLoader().loadClass("com.floragunn.searchguard.SearchGuardPlugin");
+            searchGuardPluginAvailable = true;
+            log.info("Search Guard 2 plugin also available");
+        } catch (final ClassNotFoundException cnfe) {
+            searchGuardPluginAvailable = false;
+            log.info("Search Guard 2 plugin not available");
+        }
 
         this.settings = settings;
         client = !"node".equals(this.settings.get(SearchGuardSSLPlugin.CLIENT_TYPE));
@@ -95,7 +105,7 @@ public final class SearchGuardSSLPlugin extends Plugin {
         
         if (transportSSLEnabled) {
             module.registerTransport(SearchGuardSSLNettyTransport.class.toString(), SearchGuardSSLNettyTransport.class);
-            if (!client && !searchGuardPluginAvailable()) {
+            if (!client && !searchGuardPluginAvailable) {
                 module.registerTransportService(SearchGuardSSLTransportService.class.toString(), SearchGuardSSLTransportService.class);
             }
         }
@@ -105,7 +115,6 @@ public final class SearchGuardSSLPlugin extends Plugin {
     public Collection<Module> nodeModules() {
         if (!client) {
             return Arrays.asList(new Module[]{new SearchGuardSSLModule(settings)});
-
         } else {
             return Arrays.asList(new Module[]{new SearchGuardSSLModule(settings), new EnvironmentModule(new Environment(settings))});
         }
@@ -152,7 +161,7 @@ public final class SearchGuardSSLPlugin extends Plugin {
     public String name() {
         return "search-guard-ssl";
     }
-    
+
     @Override
     public Settings additionalSettings() {
        final Settings.Builder builder = Settings.builder();
@@ -163,20 +172,11 @@ public final class SearchGuardSSLPlugin extends Plugin {
         
        if (transportSSLEnabled) {
            builder.put(NetworkModule.TRANSPORT_TYPE_KEY, SearchGuardSSLNettyTransport.class.toString());
-           if (!client && !searchGuardPluginAvailable()) {
+           if (!client && !searchGuardPluginAvailable) {
                builder.put(NetworkModule.TRANSPORT_SERVICE_TYPE_KEY, SearchGuardSSLTransportService.class.toString());
            }
        }
         
         return builder.build();
-    }
-
-    private boolean searchGuardPluginAvailable() {
-        try {
-            getClass().getClassLoader().loadClass("com.floragunn.searchguard.SearchGuardPlugin");
-            return true;
-        } catch (final ClassNotFoundException cnfe) {
-            return false;
-        }
     }
 }
