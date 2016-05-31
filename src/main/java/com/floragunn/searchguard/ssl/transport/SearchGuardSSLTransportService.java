@@ -20,7 +20,6 @@ package com.floragunn.searchguard.ssl.transport;
 import java.security.cert.Certificate;
 import java.security.cert.X509Certificate;
 import java.util.Arrays;
-import java.util.concurrent.Callable;
 import java.util.function.Supplier;
 
 import javax.net.ssl.SSLPeerUnverifiedException;
@@ -28,11 +27,11 @@ import javax.security.auth.x500.X500Principal;
 
 import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.ExceptionsHelper;
+import org.elasticsearch.cluster.ClusterName;
 import org.elasticsearch.common.inject.Inject;
 import org.elasticsearch.common.logging.ESLogger;
 import org.elasticsearch.common.logging.Loggers;
 import org.elasticsearch.common.settings.Settings;
-import org.elasticsearch.common.util.concurrent.ThreadContext;
 import org.elasticsearch.tasks.Task;
 import org.elasticsearch.threadpool.ThreadPool;
 import org.elasticsearch.transport.DelegatingTransportChannel;
@@ -48,18 +47,19 @@ import org.jboss.netty.handler.ssl.SslHandler;
 public class SearchGuardSSLTransportService extends TransportService {
     
     @Inject
-    public SearchGuardSSLTransportService(final Settings settings, final Transport transport, final ThreadPool threadPool) {
-        super(settings, transport, threadPool);
+    public SearchGuardSSLTransportService(final Settings settings, final Transport transport, final ThreadPool threadPool, ClusterName clusterName) {
+        super(settings, transport, threadPool, clusterName);
     }
     
     @Override
     public <Request extends TransportRequest> void registerRequestHandler(String action, Supplier<Request> requestFactory, String executor, TransportRequestHandler<Request> handler) {
         super.registerRequestHandler(action, requestFactory, executor, new Interceptor<Request>(handler, action, threadPool));
     }
+    
 
     @Override
-    public <Request extends TransportRequest> void registerRequestHandler(String action, Supplier<Request> request, String executor, boolean forceExecution, TransportRequestHandler<Request> handler) {
-        super.registerRequestHandler(action, request, executor, forceExecution, new Interceptor<Request>(handler, action, threadPool));
+    public <Request extends TransportRequest> void registerRequestHandler(String action, Supplier<Request> request, String executor, boolean forceExecution, boolean canTripCircuitBreaker, TransportRequestHandler<Request> handler) {
+        super.registerRequestHandler(action, request, executor, forceExecution, canTripCircuitBreaker, new Interceptor<Request>(handler, action, threadPool));
     }
     
     private class Interceptor<Request extends TransportRequest> implements TransportRequestHandler<Request> {

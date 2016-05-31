@@ -27,6 +27,7 @@ import java.net.URL;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.security.KeyStore;
+import java.util.List;
 
 import javax.net.ssl.SSLContext;
 
@@ -211,10 +212,9 @@ public abstract class AbstractUnitTest {
 
             final NodesInfoResponse res = esNode1.client().admin().cluster().nodesInfo(new NodesInfoRequest()).actionGet();
 
-            final NodeInfo[] nodes = res.getNodes();
+            final List<NodeInfo> nodes = res.getNodes();
 
-            for (int i = 0; i < nodes.length; i++) {
-                final NodeInfo nodeInfo = nodes[i];
+            for (NodeInfo nodeInfo: nodes) {
                 if (nodeInfo.getHttp() != null && nodeInfo.getHttp().address() != null) {
                     final InetSocketTransportAddress is = (InetSocketTransportAddress) nodeInfo.getHttp().address().publishAddress();
                     httpPort = is.getPort();
