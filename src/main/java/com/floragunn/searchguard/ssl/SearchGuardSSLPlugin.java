@@ -74,10 +74,14 @@ public final class SearchGuardSSLPlugin extends Plugin {
         
         try {
             getClass().getClassLoader().loadClass("com.floragunn.searchguard.SearchGuardPlugin");
-            searchGuardPluginAvailable = true;
-            log.info("Search Guard 2 plugin also available");
+            searchGuardPluginAvailable = settings.getAsArray("searchguard.authcz.admin_dn", new String[0]).length > 0;
         } catch (final ClassNotFoundException cnfe) {
             searchGuardPluginAvailable = false;
+        }
+        
+        if(searchGuardPluginAvailable) {
+            log.info("Search Guard 2 plugin also available");
+        } else {
             log.info("Search Guard 2 plugin not available");
         }
 
