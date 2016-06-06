@@ -148,8 +148,8 @@ public class SearchGuardKeyStore {
                 getEnabledSSLCiphers(sslTransportServerProvider, false));
         log.info("sslHTTPProvider:{} with ciphers {}", sslHTTPProvider, getEnabledSSLCiphers(sslHTTPProvider, true));
         
-        log.info("sslTransport protocols {}", SSLConfigConstants.getSecureSSLProtocols(settings, false));
-        log.info("sslHTTP protocols {}", SSLConfigConstants.getSecureSSLProtocols(settings, true));
+        log.info("sslTransport protocols {}", Arrays.asList(SSLConfigConstants.getSecureSSLProtocols(settings, false)));
+        log.info("sslHTTP protocols {}", Arrays.asList(SSLConfigConstants.getSecureSSLProtocols(settings, true)));
         
         
         if(transportSSLEnabled && (getEnabledSSLCiphers(sslTransportClientProvider, false).isEmpty()
@@ -284,13 +284,11 @@ public class SearchGuardKeyStore {
             httpClientAuthMode = ClientAuth.valueOf(settings.get(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_CLIENTAUTH_MODE, ClientAuth.OPTIONAL.toString()));
             
             //TODO remove with next version
-            String _enforceHTTPClientAuth = settings.get(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_ENFORCE_CLIENTAUTH);
+            String _enforceHTTPClientAuth = settings.get("searchguard.ssl.http.enforce_clientauth");
 
-            if(!Strings.isNullOrEmpty(_enforceHTTPClientAuth)) {
-                log.warn("{} is deprecated and replaced by {}", SSLConfigConstants.SEARCHGUARD_SSL_HTTP_ENFORCE_CLIENTAUTH, SSLConfigConstants.SEARCHGUARD_SSL_HTTP_CLIENTAUTH_MODE);
-                if(Boolean.parseBoolean(_enforceHTTPClientAuth)) {
-                    httpClientAuthMode = ClientAuth.REQUIRE;
-                }
+            if(_enforceHTTPClientAuth != null) {
+                log.error("{} is deprecated and replaced by {}", "searchguard.ssl.http.enforce_clientauth", SSLConfigConstants.SEARCHGUARD_SSL_HTTP_CLIENTAUTH_MODE);
+                throw new RuntimeException("searchguard.ssl.http.enforce_clientauth is deprecated");
             }
 
             log.info("HTTPS client auth mode {}", httpClientAuthMode);
