@@ -126,7 +126,6 @@ public final class SearchGuardSSLPlugin extends Plugin {
     
     public void onModule(SettingsModule module)
     {              
-      module.registerSetting(Setting.boolSetting(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_ENFORCE_CLIENTAUTH, false, Property.NodeScope, Property.Filtered));
       module.registerSetting(Setting.simpleString(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_CLIENTAUTH_MODE, Property.NodeScope, Property.Filtered));
       module.registerSetting(Setting.simpleString(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_KEYSTORE_ALIAS, Property.NodeScope, Property.Filtered));
       module.registerSetting(Setting.simpleString(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_KEYSTORE_FILEPATH, Property.NodeScope, Property.Filtered));
