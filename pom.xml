@@ -45,6 +45,8 @@
 
     <properties>
         <elasticsearch.version>5.0.0-alpha3</elasticsearch.version>
+        <netty.version>4.0.37.Final</netty.version>
+        <netty-native.version>1.1.33.Fork17</netty-native.version>
         <dependency.locations.enabled>false</dependency.locations.enabled>
     </properties>
     
@@ -96,7 +98,7 @@
         <dependency>
           <groupId>io.netty</groupId>
           <artifactId>netty-handler</artifactId>
-          <version>4.0.37.Final</version>
+          <version>${netty.version}</version>
           <scope>compile</scope>
         </dependency>
 
@@ -104,7 +106,7 @@
         <dependency>
           <groupId>io.netty</groupId>
           <artifactId>netty-tcnative</artifactId>
-          <version>1.1.33.Fork17</version>
+          <version>${netty-native.version}</version>
           <classifier>${os.detected.classifier}</classifier>
           <scope>provided</scope>
         </dependency>
