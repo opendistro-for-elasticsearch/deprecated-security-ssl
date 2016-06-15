@@ -28,6 +28,7 @@ import org.elasticsearch.Version;
 import org.elasticsearch.common.inject.Inject;
 import org.elasticsearch.common.io.stream.NamedWriteableRegistry;
 import org.elasticsearch.common.logging.ESLogger;
+import org.elasticsearch.common.logging.Loggers;
 import org.elasticsearch.common.network.NetworkService;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.util.BigArrays;
@@ -122,6 +123,7 @@ public class SearchGuardSSLNettyTransport extends NettyTransport {
     }
 
     protected static class ClientSSLHandler extends SimpleChannelHandler {
+        private final ESLogger log = Loggers.getLogger(this.getClass());
         private final boolean hostnameVerificationEnabled;
         private final boolean hostnameVerificationResovleHostName;
         private final SearchGuardKeyStore sgks;
@@ -152,6 +154,10 @@ public class SearchGuardSSLNettyTransport extends NettyTransport {
                         hostname = inetSocketAddress.getHostString();
                     }
 
+                    if(log.isDebugEnabled()) {
+                        log.debug("Hostname of peer is {} with hostnameVerificationResovleHostName: {}", hostname, hostnameVerificationResovleHostName);
+                    }
+                    
                     engine = sgks.createClientTransportSSLEngine(hostname, inetSocketAddress.getPort());
                 } else {
                     engine = sgks.createClientTransportSSLEngine(null, -1);
