@@ -23,7 +23,7 @@
 #searchguard.ssl.transport.truststore_type: PKCS12
 # Relative path to the truststore file (mandatory, this stores the client/root certificates), must be placed under the config/ dir
 #searchguard.ssl.transport.truststore_filepath: truststore.jks
-# Alias name (default: first alias which could be found)
+# Alias name (default: trust all aliases)
 #searchguard.ssl.transport.truststore_alias: my_alias
 # Truststore password (default: changeit)
 #searchguard.ssl.transport.truststore_password: changeit

@@ -42,10 +42,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import java.util.TreeSet;
 
 import javax.crypto.Cipher;
 import javax.net.ssl.SSLContext;
@@ -174,13 +172,6 @@ public class SearchGuardKeyStore {
         
         final Environment env = new Environment(settings);
         log.info("Config directory is {}/, from there the key- and truststore files are resolved relatively", env.configFile().toAbsolutePath());
-
-        StringBuilder sb = new StringBuilder();
-        Map<String, String> settingsAsMap = settings.getAsMap();
-        for(String key: new TreeSet<String>(settingsAsMap.keySet())) {
-            sb.append(key+"="+settingsAsMap.get(key)+System.lineSeparator());
-        }
-        log.info("Effective settings:{}{}",System.lineSeparator(), sb);
         
         if (transportSSLEnabled) {
             

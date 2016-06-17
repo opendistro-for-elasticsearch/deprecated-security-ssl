@@ -10,6 +10,7 @@ cd /tmp
 wget -O netty-tcnative-$NETTY_NATIVE_VERSION-$NETTY_NATIVE_CLASSIFIER.jar https://search.maven.org/remotecontent?filepath=io/netty/netty-tcnative/$NETTY_NATIVE_VERSION/netty-tcnative-$NETTY_NATIVE_VERSION-$NETTY_NATIVE_CLASSIFIER.jar > /dev/null 2>&1
 
 echo "Install Search Guard SSL Plugin"
+sudo $ES_BIN_DIR/plugin remove search-guard-ssl 2>&1
 sudo $ES_BIN_DIR/plugin install com.floragunn/search-guard-ssl/$SG_VERSION 2>&1
 echo "Install netty-tcnative for native Openssl support"
 cp netty-tcnative-$NETTY_NATIVE_VERSION-$NETTY_NATIVE_CLASSIFIER.jar $ES_PLUGIN_DIR/search-guard-ssl/
