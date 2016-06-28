@@ -43,6 +43,8 @@ import org.elasticsearch.transport.netty.NettyTransportChannel;
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.handler.ssl.SslHandler;
 
+import com.floragunn.searchguard.ssl.util.HeaderHelper;
+
 public class SearchGuardSSLTransportService extends TransportService {
 
     @Inject
@@ -82,7 +84,9 @@ public class SearchGuardSSLTransportService extends TransportService {
         @Override
         public void messageReceived(final Request request, final TransportChannel transportChannel, Task task) throws Exception {
         
-            NettyTransportChannel nettyChannel = null;
+            HeaderHelper.checkSGHeader(request);
+            
+            NettyTransportChannel nettyChannel = null;            
             
             if(transportChannel instanceof DelegatingTransportChannel) {
                 TransportChannel delegatingTransportChannel = ((DelegatingTransportChannel) transportChannel).getChannel();

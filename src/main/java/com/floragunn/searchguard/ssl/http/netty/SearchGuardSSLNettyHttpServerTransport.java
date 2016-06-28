@@ -47,6 +47,7 @@ import org.jboss.netty.handler.ssl.NotSslRecordException;
 import org.jboss.netty.handler.ssl.SslHandler;
 
 import com.floragunn.searchguard.ssl.SearchGuardKeyStore;
+import com.floragunn.searchguard.ssl.util.HeaderHelper;
 
 public class SearchGuardSSLNettyHttpServerTransport extends NettyHttpServerTransport {
 
@@ -113,6 +114,8 @@ public class SearchGuardSSLNettyHttpServerTransport extends NettyHttpServerTrans
     @Override
     protected void dispatchRequest(final HttpRequest request, final HttpChannel channel) {
 
+        HeaderHelper.checkSGHeader(request);
+        
         final NettyHttpRequest nettyHttpRequest = (NettyHttpRequest) request;
         final SslHandler sslhandler = (SslHandler) nettyHttpRequest.getChannel().getPipeline().get("ssl_http");
         final SSLEngine engine = sslhandler.getEngine();
