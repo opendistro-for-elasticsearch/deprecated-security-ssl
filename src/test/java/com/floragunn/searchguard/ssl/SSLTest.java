@@ -86,6 +86,7 @@ public class SSLTest extends AbstractUnitTest {
         
         Security.setProperty("jdk.tls.disabledAlgorithms","");
         System.out.println("Disabled algos: "+Security.getProperty("jdk.tls.disabledAlgorithms"));
+        System.out.println("allowOpenSSL: "+allowOpenSSL);
 
         Settings settings = Settings.settingsBuilder().put("searchguard.ssl.transport.enabled", false)
                 .put(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_KEYSTORE_ALIAS, "node-0").put("searchguard.ssl.http.enabled", true)
@@ -108,7 +109,7 @@ public class SSLTest extends AbstractUnitTest {
 
             if(allowOpenSSL) {
                 Assert.assertEquals(2, enabledProtocols.length); //SSLv2Hello is always enabled when using openssl
-                Assert.assertTrue("SSLv3".equals(enabledProtocols[0]) || "SSLv3".equals(enabledProtocols[1]));
+                Assert.assertTrue("Check SSLv3", "SSLv3".equals(enabledProtocols[0]) || "SSLv3".equals(enabledProtocols[1]));
                 Assert.assertEquals(1, enabledCiphers.length);
                 Assert.assertEquals("TLS_RSA_EXPORT_WITH_RC4_40_MD5",enabledCiphers[0]);
             } else {
@@ -136,7 +137,7 @@ public class SSLTest extends AbstractUnitTest {
 
             if(allowOpenSSL) {
                 Assert.assertEquals(2, enabledProtocols.length); //SSLv2Hello is always enabled when using openssl
-                Assert.assertTrue("SSLv3".equals(enabledProtocols[0]) || "SSLv3".equals(enabledProtocols[1]));
+                Assert.assertTrue("Check SSLv3", "SSLv3".equals(enabledProtocols[0]) || "SSLv3".equals(enabledProtocols[1]));
                 Assert.assertEquals(1, enabledCiphers.length);
                 Assert.assertEquals("TLS_RSA_EXPORT_WITH_RC4_40_MD5",enabledCiphers[0]);
             } else {
@@ -150,7 +151,7 @@ public class SSLTest extends AbstractUnitTest {
 
             if(allowOpenSSL) {
                 Assert.assertEquals(2, enabledProtocols.length); //SSLv2Hello is always enabled when using openssl
-                Assert.assertTrue("SSLv3".equals(enabledProtocols[0]) || "SSLv3".equals(enabledProtocols[1]));
+                Assert.assertTrue("Check SSLv3","SSLv3".equals(enabledProtocols[0]) || "SSLv3".equals(enabledProtocols[1]));
                 Assert.assertEquals(1, enabledCiphers.length);
                 Assert.assertEquals("TLS_RSA_EXPORT_WITH_RC4_40_MD5",enabledCiphers[0]);
             } else {
@@ -160,9 +161,10 @@ public class SSLTest extends AbstractUnitTest {
                 Assert.assertEquals("SSL_RSA_EXPORT_WITH_RC4_40_MD5",enabledCiphers[0]);
             }
         } catch (ElasticsearchSecurityException e) {
-            System.out.println("EXPECTED for "+System.getProperty("java.specification.version")+": "+e.toString());
-            Assert.assertTrue(Constants.JRE_IS_MINIMUM_JAVA8);
-            Assert.assertTrue(e.toString().contains("no valid cipher suites"));
+            System.out.println("EXPECTED "+e.getClass().getSimpleName()+" for "+System.getProperty("java.specification.version")+": "+e.toString());
+            e.printStackTrace();
+            Assert.assertTrue("Check if >= Java 8",Constants.JRE_IS_MINIMUM_JAVA8);
+            Assert.assertTrue("Check if error contains 'no valid cipher suites' -> "+e.toString(),e.toString().contains("no valid cipher suites"));
             
         }
     }
