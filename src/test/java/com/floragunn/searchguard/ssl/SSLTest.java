@@ -163,9 +163,12 @@ public class SSLTest extends AbstractUnitTest {
         } catch (ElasticsearchSecurityException e) {
             System.out.println("EXPECTED "+e.getClass().getSimpleName()+" for "+System.getProperty("java.specification.version")+": "+e.toString());
             e.printStackTrace();
-            Assert.assertTrue("Check if >= Java 8",Constants.JRE_IS_MINIMUM_JAVA8);
-            Assert.assertTrue("Check if error contains 'no valid cipher suites' -> "+e.toString(),e.toString().contains("no valid cipher suites"));
-            
+            Assert.assertTrue("Check if error contains 'no valid cipher suites' -> "+e.toString(),e.toString().contains("no valid cipher suites")
+                    || e.toString().contains("failed to set cipher suite")
+                    || e.toString().contains("Unable to configure permitted SSL ciphers")
+                    || e.toString().contains("OPENSSL_internal:NO_CIPHER_MATCH")
+                   );
+            Assert.assertTrue("Check if >= Java 8 and no openssl",allowOpenSSL?true:Constants.JRE_IS_MINIMUM_JAVA8 );        
         }
     }
     

@@ -357,7 +357,7 @@ public class SearchGuardKeyStore {
                 httpSslContext = buildSSLContext(sslContextBuilder);        
                 
             } catch (final Exception e) {
-                throw new ElasticsearchSecurityException("Error while initializing HTP SSL layer: "+e.toString(), e);
+                throw new ElasticsearchSecurityException("Error while initializing HTTP SSL layer: "+e.toString(), e);
             }
         }
     }
