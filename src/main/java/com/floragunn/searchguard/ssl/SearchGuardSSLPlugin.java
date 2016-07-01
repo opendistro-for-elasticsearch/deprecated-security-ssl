@@ -62,11 +62,10 @@ public final class SearchGuardSSLPlugin extends Plugin {
         }
 
         // initialize native netty open ssl libs
-
         AccessController.doPrivileged(new PrivilegedAction<Object>() {
             @Override
             public Object run() {
-                PlatformDependent.hasUnsafe();
+                PlatformDependent.newFixedMpscQueue(1);
                 OpenSsl.isAvailable();
                 return null;
             }
