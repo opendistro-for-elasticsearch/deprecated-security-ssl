@@ -1,4 +1,4 @@
-# Search Guard SSL for Elasticsearch 2
+# Search Guard SSL for Elasticsearch 5
 Elasticsearch SSL for free.
 
 Search Guard SSL is a free and open source plugin for Elasticsearch which provides SSL for Elasticsearch. 
