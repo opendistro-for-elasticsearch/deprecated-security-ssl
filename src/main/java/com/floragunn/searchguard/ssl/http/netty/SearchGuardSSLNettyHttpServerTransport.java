@@ -118,6 +118,9 @@ public class SearchGuardSSLNettyHttpServerTransport extends NettyHttpServerTrans
     @Override
     protected void dispatchRequest(RestRequest request, RestChannel channel) {
 
+        //TODO 5.0 - check headers
+        //HeaderHelper.checkSGHeader(request);
+        
         final NettyHttpRequest nettyHttpRequest = (NettyHttpRequest) request;
         final SslHandler sslhandler = (SslHandler) nettyHttpRequest.getChannel().getPipeline().get("ssl_http");
         final SSLEngine engine = sslhandler.getEngine();

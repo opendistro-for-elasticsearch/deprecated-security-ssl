@@ -133,7 +133,6 @@ public abstract class AbstractUnitTest {
                 //.put("path.work", "data/work")
                 .put("path.logs", "data/logs")
                 .put("path.conf", "data/config")
-                .put("path.plugins", "data/plugins")
                 //.put("index.number_of_shards", "1")
                 //.put("index.number_of_replicas", "0")
                 .put("http.enabled", !dataNode)

@@ -217,13 +217,14 @@ public class SearchGuardKeyStore {
                 
                 if(transportKeystoreCert != null && transportKeystoreCert.length > 0) {
                     
-                    for (int i = 0; i < transportKeystoreCert.length; i++) {
+                    //TODO create sensitive log property
+                    /*for (int i = 0; i < transportKeystoreCert.length; i++) {
                         X509Certificate x509Certificate = transportKeystoreCert[i];
                         
                         if(x509Certificate != null) {
                             log.info("Transport keystore subject DN no. {} {}",i,x509Certificate.getSubjectX500Principal());
                         }
-                    }
+                    }*/
                 } else {
                     throw new ElasticsearchException("No certificates found in "+keystoreFilePath+" with alias "+keystoreAlias);
                 }
@@ -259,7 +260,7 @@ public class SearchGuardKeyStore {
                 transportClientSslContext = buildSSLContext(sslClientContextBuilder);
                 
             } catch (final Exception e) {
-                throw new ElasticsearchSecurityException(e.toString(), e);
+                throw new ElasticsearchSecurityException("Error while initializing transport SSL layer: "+e.toString(), e);
             }
 
         }
@@ -318,13 +319,14 @@ public class SearchGuardKeyStore {
                 
                 if(httpKeystoreCert != null && httpKeystoreCert.length > 0) {
                     
-                    for (int i = 0; i < httpKeystoreCert.length; i++) {
+                    //TODO create sensitive log property
+                    /*for (int i = 0; i < httpKeystoreCert.length; i++) {
                         X509Certificate x509Certificate = httpKeystoreCert[i];
                         
                         if(x509Certificate != null) {
                             log.info("HTTP keystore subject DN no. {} {}",i,x509Certificate.getSubjectX500Principal());
                         }
-                    }
+                    }*/
                 } else {
                     throw new ElasticsearchException("No certificates found in "+keystoreFilePath+" with alias "+keystoreAlias);
                 }
@@ -356,7 +358,7 @@ public class SearchGuardKeyStore {
                 httpSslContext = buildSSLContext(sslContextBuilder);        
                 
             } catch (final Exception e) {
-                throw new ElasticsearchSecurityException(e.toString(), e);
+                throw new ElasticsearchSecurityException("Error while initializing HTTP SSL layer: "+e.toString(), e);
             }
         }
     }

@@ -24,7 +24,6 @@ import javax.net.ssl.SSLException;
 import javax.net.ssl.SSLHandshakeException;
 
 import org.elasticsearch.ExceptionsHelper;
-import org.elasticsearch.Version;
 import org.elasticsearch.common.inject.Inject;
 import org.elasticsearch.common.io.stream.NamedWriteableRegistry;
 import org.elasticsearch.common.logging.ESLogger;
@@ -79,9 +78,9 @@ public class SearchGuardSSLNettyTransport extends NettyTransport {
 
     @Inject
     public SearchGuardSSLNettyTransport(final Settings settings, final ThreadPool threadPool, final NetworkService networkService,
-            final BigArrays bigArrays, final Version version, final NamedWriteableRegistry namedWriteableRegistry,
+            final BigArrays bigArrays, final NamedWriteableRegistry namedWriteableRegistry,
             final SearchGuardKeyStore sgks, CircuitBreakerService cbs) {
-        super(settings, threadPool, networkService, bigArrays, version, namedWriteableRegistry, cbs);
+        super(settings, threadPool, networkService, bigArrays, namedWriteableRegistry, cbs);
         this.sgks = sgks;
     }
 
@@ -156,7 +155,7 @@ public class SearchGuardSSLNettyTransport extends NettyTransport {
                     }
 
                     if(log.isDebugEnabled()) {
-                        log.debug("Hostname of peer is {} with hostnameVerificationResovleHostName: {}", hostname, hostnameVerificationResovleHostName);
+                        log.debug("Hostname of peer is {} ({}/{}) with hostnameVerificationResovleHostName: {}", hostname, inetSocketAddress.getHostName(), inetSocketAddress.getHostString(), hostnameVerificationResovleHostName);
                     }
                     
                     engine = sgks.createClientTransportSSLEngine(hostname, inetSocketAddress.getPort());

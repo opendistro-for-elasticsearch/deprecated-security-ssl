@@ -27,7 +27,6 @@ import javax.security.auth.x500.X500Principal;
 
 import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.ExceptionsHelper;
-import org.elasticsearch.cluster.ClusterName;
 import org.elasticsearch.common.inject.Inject;
 import org.elasticsearch.common.logging.ESLogger;
 import org.elasticsearch.common.logging.Loggers;
@@ -47,8 +46,8 @@ import org.jboss.netty.handler.ssl.SslHandler;
 public class SearchGuardSSLTransportService extends TransportService {
     
     @Inject
-    public SearchGuardSSLTransportService(final Settings settings, final Transport transport, final ThreadPool threadPool, ClusterName clusterName) {
-        super(settings, transport, threadPool, clusterName);
+    public SearchGuardSSLTransportService(final Settings settings, final Transport transport, final ThreadPool threadPool) {
+        super(settings, transport, threadPool);
     }
     
     @Override
@@ -84,7 +83,10 @@ public class SearchGuardSSLTransportService extends TransportService {
         @Override
         public void messageReceived(final Request request, final TransportChannel transportChannel, Task task) throws Exception {
         
-            NettyTransportChannel nettyChannel = null;
+            //TODO 5.0 - check headers
+            //HeaderHelper.checkSGHeader(request);
+            
+            NettyTransportChannel nettyChannel = null;            
             
             if(transportChannel instanceof DelegatingTransportChannel) {
                 TransportChannel delegatingTransportChannel = ((DelegatingTransportChannel) transportChannel).getChannel();
