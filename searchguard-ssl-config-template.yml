@@ -29,7 +29,7 @@
 #searchguard.ssl.transport.truststore_password: changeit
 # Enforce hostname verification (default: true)
 #searchguard.ssl.transport.enforce_hostname_verification: true
-# If hostname verification specify if hostname should be resolved (default: true)
+# If hostname verification is enabled specify if hostname should be resolved (default: true)
 #searchguard.ssl.transport.resolve_hostname: true
 # Use native Open SSL instead of JDK SSL if available (default: true)
 #searchguard.ssl.transport.enable_openssl_if_available: false

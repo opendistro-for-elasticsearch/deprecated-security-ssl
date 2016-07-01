@@ -155,7 +155,7 @@ public class SearchGuardSSLNettyTransport extends NettyTransport {
                     }
 
                     if(log.isDebugEnabled()) {
-                        log.debug("Hostname of peer is {} with hostnameVerificationResovleHostName: {}", hostname, hostnameVerificationResovleHostName);
+                        log.debug("Hostname of peer is {} ({}/{}) with hostnameVerificationResovleHostName: {}", hostname, inetSocketAddress.getHostName(), inetSocketAddress.getHostString(), hostnameVerificationResovleHostName);
                     }
                     
                     engine = sgks.createClientTransportSSLEngine(hostname, inetSocketAddress.getPort());
