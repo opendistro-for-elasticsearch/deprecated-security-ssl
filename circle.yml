@@ -1,7 +1,7 @@
 general:
   branches:
     only:
-      - master
+      - 5.0.0
       
 machine:
   java:
@@ -9,6 +9,6 @@ machine:
 
 deployment:
   deploysnap:
-    branch: master
+    branch: 5.0.0
     commands:
       - mvn deploy -DskipTests -s settings.xml
