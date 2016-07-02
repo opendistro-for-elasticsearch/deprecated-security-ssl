@@ -45,7 +45,7 @@
 
     <properties>
         <elasticsearch.version>2.3.3</elasticsearch.version>
-        <netty.version>4.0.37</netty.version>
+        <netty.version>4.0.37.Final</netty.version>
         <netty-native.version>1.1.33.Fork18</netty-native.version>
         <dependency.locations.enabled>false</dependency.locations.enabled>
     </properties>
