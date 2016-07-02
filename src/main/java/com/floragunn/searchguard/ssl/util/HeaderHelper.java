@@ -46,12 +46,12 @@ public class HeaderHelper {
     }
 
     public static void checkSGHeader(final TransportMessage<?> request) {
-        if (request != null) {
+        /*if (request != null) {
             for (final String header : request.getHeaders()) {
                 if (header != null && header.trim().toLowerCase().startsWith(SG_CONFIG_PREFIX.toLowerCase())) {
                     throw new ElasticsearchSecurityException("invalid header found");
                 }
             }
-        }
+        }*/
     }
 }
