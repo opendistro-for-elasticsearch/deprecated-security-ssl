@@ -26,6 +26,7 @@ import org.elasticsearch.Version;
 import org.elasticsearch.common.io.stream.StreamInput;
 import org.elasticsearch.common.logging.ESLogger;
 import org.elasticsearch.transport.TransportResponseHandler;
+import org.elasticsearch.transport.TransportSettings;
 import org.elasticsearch.transport.netty.MessageChannelHandler;
 import org.elasticsearch.transport.netty.NettyTransport;
 import org.jboss.netty.channel.Channel;
@@ -41,8 +42,7 @@ import org.jboss.netty.handler.ssl.SslHandler;
 public class SearchGuardMessageChannelHandler extends MessageChannelHandler {
 
     public SearchGuardMessageChannelHandler(final NettyTransport transport, final ESLogger logger) {
-        super(transport, logger, "");
-        // TODO check profileName
+        super(transport, logger, TransportSettings.DEFAULT_PROFILE);
     }
 
     @Override
