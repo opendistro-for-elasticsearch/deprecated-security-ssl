@@ -147,6 +147,9 @@ public class SearchGuardSSLTransportService extends TransportService {
                 throw exception;
             } catch (final Exception e) {
                 log.debug("Unexpected but unproblematic exception (SG 14) for '{}' due to {}", action, e.getMessage());
+                if(log.isTraceEnabled()) {
+                    log.trace("Unexpected but unproblematic exception (SG 14) for '{}' due to {}", e, action, e.getMessage());
+                }
                 errorThrown(e, request, action);
                 //final Exception exception = ExceptionsHelper.convertToElastic(e);
                 //nettyChannel.sendResponse(exception);
