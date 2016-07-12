@@ -43,6 +43,7 @@ import com.floragunn.searchguard.ssl.transport.SearchGuardSSLNettyTransport;
 import com.floragunn.searchguard.ssl.transport.SearchGuardSSLTransportService;
 import com.floragunn.searchguard.ssl.util.SSLConfigConstants;
 
+//For ES5 this class has only effect when SSL only plugin is installed
 public final class SearchGuardSSLPlugin extends Plugin {
 
     private final ESLogger log = Loggers.getLogger(this.getClass());
@@ -50,7 +51,6 @@ public final class SearchGuardSSLPlugin extends Plugin {
     private final boolean client;
     private final boolean httpSSLEnabled;
     private final boolean transportSSLEnabled;
-    private boolean searchGuardPluginAvailable;
     private final Settings settings;
 
     public SearchGuardSSLPlugin(final Settings settings) {
@@ -70,19 +70,6 @@ public final class SearchGuardSSLPlugin extends Plugin {
                 return null;
             }
         });
-        
-        try {
-            getClass().getClassLoader().loadClass("com.floragunn.searchguard.SearchGuardPlugin");
-            searchGuardPluginAvailable = settings.getAsArray("searchguard.authcz.admin_dn", new String[0]).length > 0;
-        } catch (final ClassNotFoundException cnfe) {
-            searchGuardPluginAvailable = false;
-        }
-        
-        if(searchGuardPluginAvailable) {
-            log.info("Search Guard 2 plugin also available");
-        } else {
-            log.info("Search Guard 2 plugin not available");
-        }
 
         this.settings = settings;
         client = !"node".equals(this.settings.get(SearchGuardSSLPlugin.CLIENT_TYPE));
@@ -102,15 +89,12 @@ public final class SearchGuardSSLPlugin extends Plugin {
     public void onModule(final NetworkModule module) {
         if (!client && httpSSLEnabled) {
             module.registerRestHandler(SearchGuardSSLInfoAction.class);
-            
-            if(!searchGuardPluginAvailable) {
-                module.registerHttpTransport(SearchGuardSSLNettyHttpServerTransport.class.toString(), SearchGuardSSLNettyHttpServerTransport.class);
-            }
+            module.registerHttpTransport(SearchGuardSSLNettyHttpServerTransport.class.toString(), SearchGuardSSLNettyHttpServerTransport.class);
         }
         
         if (transportSSLEnabled) {
             module.registerTransport(SearchGuardSSLNettyTransport.class.toString(), SearchGuardSSLNettyTransport.class);
-            if (!client && !searchGuardPluginAvailable) {
+            if (!client) {
                 module.registerTransportService(SearchGuardSSLTransportService.class.toString(), SearchGuardSSLTransportService.class);
             }
         }
@@ -168,13 +152,13 @@ public final class SearchGuardSSLPlugin extends Plugin {
     public Settings additionalSettings() {
        final Settings.Builder builder = Settings.builder();
         
-       if(!client && httpSSLEnabled && !searchGuardPluginAvailable) {
+       if(!client && httpSSLEnabled) {
            builder.put(NetworkModule.HTTP_TYPE_KEY, SearchGuardSSLNettyHttpServerTransport.class.toString());
        }
         
        if (transportSSLEnabled) {
            builder.put(NetworkModule.TRANSPORT_TYPE_KEY, SearchGuardSSLNettyTransport.class.toString());
-           if (!client && !searchGuardPluginAvailable) {
+           if (!client) {
                builder.put(NetworkModule.TRANSPORT_SERVICE_TYPE_KEY, SearchGuardSSLTransportService.class.toString());
            }
        }
