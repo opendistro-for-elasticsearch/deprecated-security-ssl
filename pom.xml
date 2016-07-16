@@ -93,16 +93,7 @@
           <version>${netty.version}</version>
           <scope>compile</scope>
         </dependency>
-
-        <!-- Optional, for native Open SSL support -->
-        <dependency>
-          <groupId>io.netty</groupId>
-          <artifactId>netty-tcnative</artifactId>
-          <version>${netty-native.version}</version>
-          <classifier>${os.detected.classifier}</classifier>
-          <scope>provided</scope>
-        </dependency>
-
+       
         <!-- Only test scoped dependencies hereafter -->
 
         <dependency>
@@ -456,5 +447,40 @@
                 </plugins>
             </build>
         </profile>
-    </profiles>
+        <profile>
+          <id>mac-openssl</id>
+          <activation>
+            <os>
+              <family>mac</family>
+            </os>
+          </activation>
+          <dependencies>
+            <!-- Optional, for native Open SSL support -->
+            <dependency>
+              <groupId>io.netty</groupId>
+              <artifactId>netty-tcnative</artifactId>
+              <version>${netty-native.version}</version>
+              <classifier>${os.detected.classifier}</classifier>
+              <scope>provided</scope>
+            </dependency>
+          </dependencies>
+        </profile>
+        <profile>
+          <id>linux-openssl</id>
+          <activation>
+            <os>
+              <name>Linux</name>
+            </os>
+          </activation>
+          <dependencies>
+            <dependency>
+              <groupId>com.floragunn</groupId>
+              <artifactId>netty-tcnative-openssl-static-sg</artifactId>
+              <version>1.1.33.Fork19</version>
+              <classifier>${os.detected.classifier}</classifier>
+              <scope>provided</scope>
+            </dependency>
+          </dependencies>
+        </profile>
+    </profiles>         
 </project>
