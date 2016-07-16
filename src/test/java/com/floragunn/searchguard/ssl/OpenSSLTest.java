@@ -87,21 +87,21 @@ public class OpenSSLTest extends SSLTest {
     }
 
     @Override
-    @Test
+    @Test(timeout=40000)
     public void testTransportClientSSL() throws Exception {
         Assume.assumeTrue(OpenSsl.isAvailable());
         super.testTransportClientSSL();
     }
 
     @Override
-    @Test
+    @Test(timeout=40000)
     public void testNodeClientSSL() throws Exception {
         Assume.assumeTrue(OpenSsl.isAvailable());
         super.testNodeClientSSL();
     }
 
     @Override
-    @Test
+    @Test(timeout=40000)
     public void testTransportClientSSLFail() throws Exception {
         Assume.assumeTrue(OpenSsl.isAvailable());
         super.testTransportClientSSLFail();

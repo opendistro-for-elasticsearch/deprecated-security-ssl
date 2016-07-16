@@ -374,12 +374,23 @@ public class SSLTest extends AbstractUnitTest {
                 .put("searchguard.ssl.transport.resolve_hostname", false).build();
 
         startES(settings);
+        
+        log.debug("Elasticsearch started");
 
         final Settings tcSettings = Settings.builder().put("cluster.name", clustername).put("path.home", ".").put(settings).build();
 
         try (TransportClient tc = TransportClient.builder().settings(tcSettings).addPlugin(SearchGuardSSLPlugin.class).build()) {
+            
+            log.debug("TransportClient built, connect now to {}:{}", nodeHost, nodePort);
+            
             tc.addTransportAddress(new InetSocketTransportAddress(new InetSocketAddress(nodeHost, nodePort)));
+            
+            log.debug("TransportClient connected");
+            
             Assert.assertEquals(3, tc.admin().cluster().nodesInfo(new NodesInfoRequest()).actionGet().getNodes().length);
+            
+            log.debug("NodesInfoRequest asserted");
+            
         }
     }
 
@@ -395,7 +406,7 @@ public class SSLTest extends AbstractUnitTest {
                 .put("searchguard.ssl.transport.enforce_hostname_verification", false)
                 .put("searchguard.ssl.transport.resolve_hostname", false).build();
 
-        startES(settings);
+        startES(settings);      
 
         final Settings tcSettings = Settings.builder().put("cluster.name", clustername).put("node.client", true).put("path.home", ".")
                 .put(settings)// -----
