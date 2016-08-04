@@ -129,7 +129,7 @@ public class SearchGuardSSLTransportService extends TransportService {
                     request.putInContext("_sg_ssl_transport_peer_certificates", x509Certs);
                     request.putInContext("_sg_ssl_transport_protocol", sslhandler.getEngine().getSession().getProtocol());
                     request.putInContext("_sg_ssl_transport_cipher", sslhandler.getEngine().getSession().getCipherSuite());
-                    messageReceivedDecorate(request, handler, nettyChannel, task);
+                    messageReceivedDecorate(request, handler, transportChannel, task);
                 } else {
                     final String msg = "No X509 transport client certificates found (SG 12)";
                     log.error(msg);
