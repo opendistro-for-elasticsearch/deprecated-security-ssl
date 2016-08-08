@@ -34,8 +34,12 @@ import org.elasticsearch.ElasticsearchSecurityException;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthRequest;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthResponse;
 import org.elasticsearch.action.admin.cluster.node.info.NodesInfoRequest;
+import org.elasticsearch.action.index.IndexRequest;
+import org.elasticsearch.action.search.SearchRequest;
+import org.elasticsearch.action.support.WriteRequest.RefreshPolicy;
 import org.elasticsearch.client.transport.NoNodeAvailableException;
 import org.elasticsearch.client.transport.TransportClient;
+import org.elasticsearch.cluster.health.ClusterHealthStatus;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
 import org.elasticsearch.common.unit.TimeValue;
@@ -374,12 +378,26 @@ public class SSLTest extends AbstractUnitTest {
                 .put("searchguard.ssl.transport.resolve_hostname", false).build();
 
         startES(settings);
+        
+        log.debug("Elasticsearch started");
 
         final Settings tcSettings = Settings.builder().put("cluster.name", clustername).put("path.home", ".").put(settings).build();
 
         try (TransportClient tc = TransportClient.builder().settings(tcSettings).addPlugin(SearchGuardSSLPlugin.class).build()) {
+            
+            log.debug("TransportClient built, connect now to {}:{}", nodeHost, nodePort);
+            
             tc.addTransportAddress(new InetSocketTransportAddress(new InetSocketAddress(nodeHost, nodePort)));
-            Assert.assertEquals(3, tc.admin().cluster().nodesInfo(new NodesInfoRequest()).actionGet().getNodes().size());
+            Assert.assertEquals(3, tc.admin().cluster().nodesInfo(new NodesInfoRequest()).actionGet().getNodes().size());            
+            log.debug("TransportClient connected");           
+            Assert.assertEquals("test", tc.index(new IndexRequest("test","test").setRefreshPolicy(RefreshPolicy.IMMEDIATE).source("{\"a\":5}")).actionGet().getIndex());            
+            log.debug("Index created");           
+            Assert.assertEquals(1L, tc.search(new SearchRequest("test")).actionGet().getHits().getTotalHits());
+            log.debug("Search done");
+            Assert.assertEquals(3, tc.admin().cluster().health(new ClusterHealthRequest("test")).actionGet().getNumberOfNodes());
+            log.debug("ClusterHealth done");            
+            //Assert.assertEquals(3, tc.admin().cluster().nodesInfo(new NodesInfoRequest()).actionGet().getNodes().length);           
+            //log.debug("NodesInfoRequest asserted");
         }
     }
 
@@ -395,7 +413,7 @@ public class SSLTest extends AbstractUnitTest {
                 .put("searchguard.ssl.transport.enforce_hostname_verification", false)
                 .put("searchguard.ssl.transport.resolve_hostname", false).build();
 
-        startES(settings);
+        startES(settings);      
 
         final Settings tcSettings = Settings.builder().put("cluster.name", clustername).put("node.client", true).put("path.home", ".")
                 .put(settings)// -----
