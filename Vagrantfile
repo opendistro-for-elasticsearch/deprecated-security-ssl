@@ -3,8 +3,8 @@
 #########
 $script = <<SCRIPT
 #!/bin/sh
-export ES_VERSION=2.3.3
-export SG_VERSION=2.3.3.11
+export ES_VERSION=2.3.5
+export SG_VERSION=2.3.5.15
 export NETTY_NATIVE_VERSION=1.1.33.Fork17
 export NETTY_NATIVE_CLASSIFIER=linux-x86_64
 
