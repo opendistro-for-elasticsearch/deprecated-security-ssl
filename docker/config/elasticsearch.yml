@@ -1,0 +1,17 @@
+network.host: DYN
+
+searchguard.ssl.transport.enabled: true
+searchguard.ssl.transport.keystore_filepath: DYN
+searchguard.ssl.transport.truststore_filepath: truststore.jks
+searchguard.ssl.transport.enforce_hostname_verification: true
+searchguard.ssl.transport.resolve_hostname: true
+searchguard.ssl.transport.enable_openssl_if_available: true
+searchguard.ssl.http.enabled: true
+searchguard.ssl.http.keystore_filepath: DYN
+searchguard.ssl.http.truststore_filepath: truststore.jks
+searchguard.ssl.http.enable_openssl_if_available: true
+searchguard.ssl.http.clientauth_mode: REQUIRE
+discovery.zen.ping.unicast.hosts: sgssl-0.example.com,sgssl-1.example.com,sgssl-2.example.com
+discovery.zen.ping.multicast.enabled: false
+
+#DYN -> see elasticsearch.sh
