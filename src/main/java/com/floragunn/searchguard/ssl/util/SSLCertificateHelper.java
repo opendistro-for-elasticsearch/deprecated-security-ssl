@@ -61,11 +61,11 @@ public class SSLCertificateHelper {
                 Certificate[] certs = ks.getCertificateChain(_alias);
                 if(certs != null && certs.length > 0) {
                     trustedCerts.addAll(Arrays.asList(certs));
-                }
-                
-                Certificate cert = ks.getCertificate(_alias);
-                if(cert != null) {
-                    trustedCerts.add(cert);
+                } else {
+                    Certificate cert = ks.getCertificate(_alias);
+                    if(cert != null) {
+                        trustedCerts.add(cert);
+                    }
                 }
             }
             
@@ -74,11 +74,11 @@ public class SSLCertificateHelper {
             Certificate[] certs = ks.getCertificateChain(alias);
             if(certs != null && certs.length > 0) {
                 trustedCerts.addAll(Arrays.asList(certs));
-            }
-            
-            Certificate cert = ks.getCertificate(alias);
-            if(cert != null) {
-                trustedCerts.add(cert);
+            } else {
+                Certificate cert = ks.getCertificate(alias);
+                if(cert != null) {
+                    trustedCerts.add(cert);
+                }
             }
         }
         
