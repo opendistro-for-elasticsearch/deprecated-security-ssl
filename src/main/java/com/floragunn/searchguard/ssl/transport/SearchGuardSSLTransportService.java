@@ -59,9 +59,15 @@ public class SearchGuardSSLTransportService extends TransportService {
     }
 
     @Override
-    public <Request extends TransportRequest> void registerRequestHandler(final String action, final Class<Request> request,
-            final String executor, final boolean forceExecution, final TransportRequestHandler<Request> handler) {
-        super.registerRequestHandler(action, request, executor, forceExecution, new Interceptor<Request>(handler, action));
+    public <Request extends TransportRequest> void registerRequestHandler(String action, Callable<Request> requestFactory, String executor,
+            boolean forceExecution, boolean canTripCircuitBreaker, TransportRequestHandler<Request> handler) {
+        super.registerRequestHandler(action, requestFactory, executor, forceExecution, canTripCircuitBreaker, new Interceptor<Request>(handler, action));
+    }
+
+    @Override
+    public <Request extends TransportRequest> void registerRequestHandler(String action, Class<Request> request, String executor,
+            boolean forceExecution, boolean canTripCircuitBreaker, TransportRequestHandler<Request> handler) {
+        super.registerRequestHandler(action, request, executor, forceExecution, canTripCircuitBreaker, new Interceptor<Request>(handler, action));
     }
 
     private class Interceptor<Request extends TransportRequest> extends TransportRequestHandler<Request> {
