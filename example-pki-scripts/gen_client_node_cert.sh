@@ -61,8 +61,10 @@ cat ca/chain-ca.pem $CLIENT_NAME-signed.pem | keytool \
 
 keytool -importkeystore -srckeystore $CLIENT_NAME-keystore.jks -srcstorepass $KS_PASS -srcstoretype JKS -deststoretype PKCS12 -deststorepass $KS_PASS -destkeystore $CLIENT_NAME-keystore.p12
 
-openssl pkcs12 -in $CLIENT_NAME-keystore.p12 -out $CLIENT_NAME.key.pem -nocerts -nodes -passin pass:$KS_PASS
-openssl pkcs12 -in $CLIENT_NAME-keystore.p12 -out $CLIENT_NAME.crt.pem -clcerts -nokeys -passin pass:$KS_PASS
+openssl pkcs12 -in "$CLIENT_NAME-keystore.p12" -out "$CLIENT_NAME.all.pem" -nodes -passin "pass:$KS_PASS"
+openssl pkcs12 -in "$CLIENT_NAME-keystore.p12" -out "$CLIENT_NAME.key.pem" -nocerts -nodes -passin pass:$KS_PASS
+openssl pkcs12 -in "$CLIENT_NAME-keystore.p12" -out "$CLIENT_NAME.crt.pem" -clcerts -nokeys -passin pass:$KS_PASS
+cat "$CLIENT_NAME.crt.pem" ca/chain-ca.pem  > "$CLIENT_NAME.crtfull.pem"
 
 echo All done for $CLIENT_NAME
 	
