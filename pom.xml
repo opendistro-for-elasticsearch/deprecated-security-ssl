@@ -16,7 +16,7 @@
 
     <groupId>com.floragunn</groupId>
     <artifactId>search-guard-ssl</artifactId>
-    <version>5.0.0-alpha5-13a-SNAPSHOT</version>
+    <version>5.0.0-alpha5-16a-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>Search Guard SSL</name>
@@ -44,7 +44,7 @@
     </licenses>
 
     <properties>
-        <elasticsearch.version>5.0.0-alpha4</elasticsearch.version>
+        <elasticsearch.version>5.0.0-alpha5</elasticsearch.version>
         <netty.version>4.0.37.Final</netty.version>
         <netty-native.version>1.1.33.Fork18</netty-native.version>
         <dependency.locations.enabled>false</dependency.locations.enabled>

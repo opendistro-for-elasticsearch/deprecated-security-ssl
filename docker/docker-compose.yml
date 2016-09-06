@@ -1,0 +1,50 @@
+version: '2'
+services:
+  sgssl-0.example.com:
+    build:
+      context: .
+      args:
+        SG_HOST: sgssl-0.example.com
+    environment:
+    - SG_HOST=sgssl-0.example.com
+    ports:
+    - "9200:9200"
+    - "9300:9300"
+    hostname: sgssl-0.example.com
+    networks:
+      1back:
+        ipv4_address: 172.16.0.1
+  sgssl-1.example.com:
+    build:
+      context: .
+      args:
+        SG_HOST: sgssl-1.example.com
+    environment:
+    - SG_HOST=sgssl-1.example.com
+    ports:
+    - "9201:9200"
+    hostname: sgssl-1.example.com
+    networks:
+      1back:
+        ipv4_address: 172.16.0.2
+  sgssl-2.example.com:
+    build:
+      context: .
+      args:
+        SG_HOST: sgssl-2.example.com
+    environment:
+    - SG_HOST=sgssl-2.example.com
+    ports:
+    - "9202:9200"
+    hostname: sgssl-2.example.com
+    networks:
+      1back:
+        ipv4_address: 172.16.0.3
+networks:
+    1back:
+        driver: bridge
+        ipam:
+          driver: default
+          config:
+          - subnet: 172.16.0.0/24
+            gateway: 172.16.0.254
