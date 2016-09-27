@@ -47,6 +47,7 @@ public class SSLCertificateHelper {
         }
         
         if(log.isDebugEnabled()) {
+            log.debug("Keystore has {} entries/aliases", ks.size());
             for (String _alias: aliases) {
                 log.debug("Alias {}: is a certificate entry?{}/is a key entry?{}", _alias, ks.isCertificateEntry(_alias), ks.isKeyEntry(_alias));
             }
@@ -87,6 +88,10 @@ public class SSLCertificateHelper {
             if (c != null && c instanceof X509Certificate)
             {
                 x509Certificates.add((X509Certificate) c);
+            } else {
+                if(log.isDebugEnabled()) {
+                    log.debug("No X509 Certificate or null certificate: {}",c);
+                }
             }
         }
         
