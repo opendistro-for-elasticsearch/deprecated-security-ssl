@@ -54,10 +54,9 @@ import javax.net.ssl.SSLParameters;
 import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.ElasticsearchSecurityException;
 import org.elasticsearch.SpecialPermission;
-import org.elasticsearch.common.Strings;
 import org.elasticsearch.common.inject.Inject;
-import org.elasticsearch.common.logging.ESLogger;
-import org.elasticsearch.common.logging.Loggers;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.env.Environment;
 
@@ -83,7 +82,7 @@ public class SearchGuardKeyStore {
     }
 
     private final Settings settings;
-    private final ESLogger log = Loggers.getLogger(this.getClass());
+    private final Logger log = LogManager.getLogger(this.getClass());
     public final SslProvider sslHTTPProvider;
     public final SslProvider sslTransportServerProvider;
     public final SslProvider sslTransportClientProvider;

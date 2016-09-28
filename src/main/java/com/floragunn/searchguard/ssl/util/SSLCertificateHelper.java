@@ -30,13 +30,13 @@ import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.List;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.elasticsearch.common.Strings;
-import org.elasticsearch.common.logging.ESLogger;
-import org.elasticsearch.common.logging.Loggers;
 
 public class SSLCertificateHelper {
 
-    private static final ESLogger log = Loggers.getLogger(SSLCertificateHelper.class);
+    private static final Logger log = LogManager.getLogger(SSLCertificateHelper.class);
     
     public static X509Certificate[] exportCertificateChain(final KeyStore ks, final String alias) throws KeyStoreException {
         final Enumeration<String> e = ks.aliases();
@@ -47,6 +47,7 @@ public class SSLCertificateHelper {
         }
         
         if(log.isDebugEnabled()) {
+            log.debug("Keystore has {} entries/aliases", ks.size());
             for (String _alias: aliases) {
                 log.debug("Alias {}: is a certificate entry?{}/is a key entry?{}", _alias, ks.isCertificateEntry(_alias), ks.isKeyEntry(_alias));
             }
@@ -87,6 +88,10 @@ public class SSLCertificateHelper {
             if (c != null && c instanceof X509Certificate)
             {
                 x509Certificates.add((X509Certificate) c);
+            } else {
+                if(log.isDebugEnabled()) {
+                    log.debug("No X509 Certificate or null certificate: {}",c);
+                }
             }
         }
         

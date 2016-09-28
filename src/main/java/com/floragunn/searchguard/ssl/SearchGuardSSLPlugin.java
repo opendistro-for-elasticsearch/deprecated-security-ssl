@@ -23,35 +23,64 @@ import io.netty.util.internal.PlatformDependent;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.elasticsearch.SpecialPermission;
+import org.elasticsearch.client.Client;
+import org.elasticsearch.cluster.service.ClusterService;
 import org.elasticsearch.common.inject.Module;
-import org.elasticsearch.common.logging.ESLogger;
-import org.elasticsearch.common.logging.Loggers;
 import org.elasticsearch.common.network.NetworkModule;
 import org.elasticsearch.common.settings.Setting;
 import org.elasticsearch.common.settings.Setting.Property;
 import org.elasticsearch.common.settings.Settings;
+import org.elasticsearch.plugins.ActionPlugin;
 import org.elasticsearch.plugins.Plugin;
+import org.elasticsearch.rest.RestHandler;
+import org.elasticsearch.script.ScriptService;
+import org.elasticsearch.search.SearchRequestParsers;
+import org.elasticsearch.threadpool.ThreadPool;
+import org.elasticsearch.watcher.ResourceWatcherService;
 
 import com.floragunn.searchguard.ssl.http.netty.SearchGuardSSLNettyHttpServerTransport;
 import com.floragunn.searchguard.ssl.rest.SearchGuardSSLInfoAction;
 import com.floragunn.searchguard.ssl.transport.SearchGuardSSLNettyTransport;
-import com.floragunn.searchguard.ssl.transport.SearchGuardSSLTransportService;
+import com.floragunn.searchguard.ssl.transport.SearchGuardSSLTransportInterceptor;
 import com.floragunn.searchguard.ssl.util.SSLConfigConstants;
 
 //For ES5 this class has only effect when SSL only plugin is installed
-public final class SearchGuardSSLPlugin extends Plugin {
+public final class SearchGuardSSLPlugin extends Plugin implements ActionPlugin {
 
-    private final ESLogger log = Loggers.getLogger(this.getClass());
+    private final Logger log = LogManager.getLogger(this.getClass());
     static final String CLIENT_TYPE = "client.type";
     private final boolean client;
     private final boolean httpSSLEnabled;
     private final boolean transportSSLEnabled;
     private final Settings settings;
+    private Holder<ThreadPool> threadPoolHolder = new Holder<ThreadPool>();
+    
+    public static class Holder<T> {
+        private volatile T value;
+        private AtomicBoolean isSet = new AtomicBoolean();
+
+        public T getValue() {
+            return value;
+        }
+
+        public void setValue(T value) {
+            if(value != null && !isSet.getAndSet(true)) {
+                this.value = value;
+            }
+        }
+
+        @Override
+        public String toString() {
+            return "Holder [value=" + value + ", isSet=" + isSet + "]";
+        }
+    }
 
     public SearchGuardSSLPlugin(final Settings settings) {
 
@@ -85,31 +114,43 @@ public final class SearchGuardSSLPlugin extends Plugin {
         }
         
     }
+    
+    
+
+    @Override
+    public List<Class<? extends RestHandler>> getRestHandlers() {
+        List<Class<? extends RestHandler>> handlers = new ArrayList<Class<? extends RestHandler>>(1);
+        if (!client && httpSSLEnabled) {
+            handlers.add(SearchGuardSSLInfoAction.class);
+        }
+        return handlers;
+    }
 
     public void onModule(final NetworkModule module) {
         if (!client && httpSSLEnabled) {
-            module.registerRestHandler(SearchGuardSSLInfoAction.class);
-            module.registerHttpTransport(SearchGuardSSLNettyHttpServerTransport.class.toString(), SearchGuardSSLNettyHttpServerTransport.class);
+            module.registerHttpTransport("com.floragunn.searchguard.ssl.http.netty.SearchGuardSSLNettyHttpServerTransport", SearchGuardSSLNettyHttpServerTransport.class);
         }
         
         if (transportSSLEnabled) {
-            module.registerTransport(SearchGuardSSLNettyTransport.class.toString(), SearchGuardSSLNettyTransport.class);
+            module.registerTransport("com.floragunn.searchguard.ssl.http.netty.SearchGuardSSLNettyTransport", SearchGuardSSLNettyTransport.class);
             if (!client) {
-                module.registerTransportService(SearchGuardSSLTransportService.class.toString(), SearchGuardSSLTransportService.class);
+                module.addTransportInterceptor(new SearchGuardSSLTransportInterceptor(settings, threadPoolHolder));
             }
         }
     }
 
     @Override
-    public Collection<Module> nodeModules() {
-        return Arrays.asList(new Module[]{new SearchGuardSSLModule(settings)});
-        
-        /*
-        if (!client) {
-            return Arrays.asList(new Module[]{new SearchGuardSSLModule(settings)});
-        } else {
-            return Arrays.asList(new Module[]{new SearchGuardSSLModule(settings), new EnvironmentModule(new Environment(settings))});
-        }*/
+    public Collection<Object> createComponents(Client client, ClusterService clusterService, ThreadPool threadPool,
+            ResourceWatcherService resourceWatcherService, ScriptService scriptService, SearchRequestParsers searchRequestParsers) {
+        threadPoolHolder.setValue(threadPool);
+        return super.createComponents(client, clusterService, threadPool, resourceWatcherService, scriptService, searchRequestParsers);
+    }
+
+    @Override
+    public Collection<Module> createGuiceModules() {
+        List<Module> modules = new ArrayList<Module>(1);
+        modules.add(new SearchGuardSSLModule(settings));     
+        return modules;
     }
     
     @Override
@@ -144,6 +185,7 @@ public final class SearchGuardSSLPlugin extends Plugin {
         settings.add(Setting.simpleString(SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_ENABLED_PROTOCOLS, Property.NodeScope, Property.Filtered));
         
         settings.add(Setting.simpleString("node.client", Property.NodeScope));
+        settings.add(Setting.simpleString("node.local", Property.NodeScope));
         return settings;
     }
 
@@ -153,13 +195,13 @@ public final class SearchGuardSSLPlugin extends Plugin {
        final Settings.Builder builder = Settings.builder();
         
        if(!client && httpSSLEnabled) {
-           builder.put(NetworkModule.HTTP_TYPE_KEY, SearchGuardSSLNettyHttpServerTransport.class.toString());
+           builder.put(NetworkModule.HTTP_TYPE_KEY, "com.floragunn.searchguard.ssl.http.netty.SearchGuardSSLNettyHttpServerTransport");
        }
         
        if (transportSSLEnabled) {
-           builder.put(NetworkModule.TRANSPORT_TYPE_KEY, SearchGuardSSLNettyTransport.class.toString());
+           builder.put(NetworkModule.TRANSPORT_TYPE_KEY, "com.floragunn.searchguard.ssl.http.netty.SearchGuardSSLNettyTransport");
            if (!client) {
-               builder.put(NetworkModule.TRANSPORT_SERVICE_TYPE_KEY, SearchGuardSSLTransportService.class.toString());
+               //builder.put(NetworkModule.TRANSPORT_SERVICE_TYPE_KEY, SearchGuardSSLTransportInterceptor.class.toString());
            }
        }
         

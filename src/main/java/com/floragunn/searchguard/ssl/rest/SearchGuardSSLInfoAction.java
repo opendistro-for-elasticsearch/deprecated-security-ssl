@@ -19,14 +19,21 @@ package com.floragunn.searchguard.ssl.rest;
 
 import static org.elasticsearch.rest.RestRequest.Method.GET;
 import io.netty.handler.ssl.OpenSsl;
+import io.netty.handler.ssl.SslHandler;
 
+import java.security.cert.Certificate;
 import java.security.cert.X509Certificate;
+import java.util.Arrays;
 
-import org.elasticsearch.client.Client;
+import javax.security.auth.x500.X500Principal;
+
+import org.elasticsearch.ElasticsearchException;
+import org.elasticsearch.client.node.NodeClient;
 import org.elasticsearch.common.inject.Inject;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.util.concurrent.ThreadContext;
 import org.elasticsearch.common.xcontent.XContentBuilder;
+import org.elasticsearch.http.netty4.Netty4HttpRequest;
 import org.elasticsearch.rest.BaseRestHandler;
 import org.elasticsearch.rest.BytesRestResponse;
 import org.elasticsearch.rest.RestChannel;
@@ -36,35 +43,39 @@ import org.elasticsearch.rest.RestStatus;
 import org.elasticsearch.threadpool.ThreadPool;
 
 import com.floragunn.searchguard.ssl.SearchGuardKeyStore;
+import com.floragunn.searchguard.ssl.util.SSLRequestHelper;
+import com.floragunn.searchguard.ssl.util.SSLRequestHelper.SSLInfo;
 
 public class SearchGuardSSLInfoAction extends BaseRestHandler {
 
     private final SearchGuardKeyStore sgks;
-    private final ThreadContext threadContext;
+    //private final ThreadContext threadContext;
 
     @Inject
-    public SearchGuardSSLInfoAction(final Settings settings, final RestController controller, final Client client,
+    public SearchGuardSSLInfoAction(final Settings settings, final RestController controller,
             ThreadPool threadPool, final SearchGuardKeyStore sgks) {
-        super(settings, client);
+        super(settings);
         this.sgks = sgks;
-        this.threadContext = threadPool.getThreadContext();
+        //this.threadContext = threadPool.getThreadContext();
         controller.registerHandler(GET, "/_searchguard/sslinfo", this);
     }
-
+    
     @Override
-    protected void handleRequest(final RestRequest request, final RestChannel channel, final Client client) throws Exception {
-
+    public void handleRequest(RestRequest request, RestChannel channel, NodeClient client) throws Exception {
         BytesRestResponse response = null;
         XContentBuilder builder = channel.newBuilder();
-
+      
         try {
-            final X509Certificate[] certs = this.threadContext.getTransient("_sg_ssl_peer_certificates");
+            
+            SSLInfo sslInfo = SSLRequestHelper.getSSLInfo(request);
+            X509Certificate[] certs = sslInfo.getX509Certs();
+
             builder.startObject();
 
-            builder.field("principal", (String) this.threadContext.getTransient("_sg_ssl_principal"));
+            builder.field("principal", sslInfo.getPrincipal());
             builder.field("peer_certificates", certs != null && certs.length > 0 ? certs.length + "" : "0");
-            builder.field("ssl_protocol", (String)this.threadContext.getTransient("_sg_ssl_protocol"));
-            builder.field("ssl_cipher", (String)this.threadContext.getTransient("_sg_ssl_cipher"));
+            builder.field("ssl_protocol", sslInfo.getProtocol());
+            builder.field("ssl_cipher", sslInfo.getCipher());
             builder.field("ssl_openssl_available", OpenSsl.isAvailable());
             builder.field("ssl_openssl_version", OpenSsl.version());
             builder.field("ssl_openssl_version_string", OpenSsl.versionString());

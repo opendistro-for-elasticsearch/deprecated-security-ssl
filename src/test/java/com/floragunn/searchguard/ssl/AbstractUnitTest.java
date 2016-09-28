@@ -27,6 +27,8 @@ import java.net.URL;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.security.KeyStore;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 
 import javax.net.ssl.SSLContext;
@@ -48,14 +50,18 @@ import org.elasticsearch.action.admin.cluster.node.info.NodeInfo;
 import org.elasticsearch.action.admin.cluster.node.info.NodesInfoRequest;
 import org.elasticsearch.action.admin.cluster.node.info.NodesInfoResponse;
 import org.elasticsearch.client.Client;
+import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.cluster.health.ClusterHealthStatus;
-import org.elasticsearch.common.logging.ESLogger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.elasticsearch.common.logging.Loggers;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
 import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.node.Node;
 import org.elasticsearch.node.PluginAwareNode;
+import org.elasticsearch.plugins.Plugin;
+import org.elasticsearch.transport.Netty4Plugin;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -140,11 +146,15 @@ public abstract class AbstractUnitTest {
                 .put("cluster.routing.allocation.disk.watermark.low","1mb")
                 .put("http.cors.enabled", true)
                 .put("node.local", false)
+                .put("transport.type.default", "netty4")
+                .put("node.max_local_storage_nodes", 3)
                 .put("path.home",".");
+        
+        
     }
     // @formatter:on
 
-    protected final ESLogger log = Loggers.getLogger(this.getClass());
+    protected final Logger log = LogManager.getLogger(this.getClass());
 
     protected final String getHttpServerUri() {
         final String address = "http" + (enableHTTPClientSSL ? "s" : "") + "://" + httpHost + ":" + httpPort;
@@ -157,11 +167,11 @@ public abstract class AbstractUnitTest {
         FileUtils.deleteDirectory(new File("data"));
 
         esNode1 = new PluginAwareNode(getDefaultSettingsBuilder(1, false, true).put(
-                settings == null ? Settings.Builder.EMPTY_SETTINGS : settings).build(), SearchGuardSSLPlugin.class);
+                settings == null ? Settings.Builder.EMPTY_SETTINGS : settings).build(), Netty4Plugin.class, SearchGuardSSLPlugin.class);
         esNode2 = new PluginAwareNode(getDefaultSettingsBuilder(2, true, true).put(
-                settings == null ? Settings.Builder.EMPTY_SETTINGS : settings).build(), SearchGuardSSLPlugin.class);
+                settings == null ? Settings.Builder.EMPTY_SETTINGS : settings).build(), Netty4Plugin.class, SearchGuardSSLPlugin.class);
         esNode3 = new PluginAwareNode(getDefaultSettingsBuilder(3, true, false).put(
-                settings == null ? Settings.Builder.EMPTY_SETTINGS : settings).build(), SearchGuardSSLPlugin.class);
+                settings == null ? Settings.Builder.EMPTY_SETTINGS : settings).build(), Netty4Plugin.class, SearchGuardSSLPlugin.class);
 
         esNode1.start();
         esNode2.start();
@@ -319,5 +329,24 @@ public abstract class AbstractUnitTest {
         hcb.setDefaultSocketConfig(SocketConfig.custom().setSoTimeout(60 * 1000).build());
 
         return hcb.build();
+    }
+    
+    protected Collection<Class<? extends Plugin>> asCollection(Class<? extends Plugin>... plugins) {
+        return Arrays.asList(plugins);
+    }
+    
+    protected class TransportClientImpl extends TransportClient {
+
+        public TransportClientImpl(Settings settings, Collection<Class<? extends Plugin>> plugins) {
+            super(settings, plugins);
+            // TODO Auto-generated constructor stub
+        }
+
+        public TransportClientImpl(Settings settings, Settings defaultSettings, Collection<Class<? extends Plugin>> plugins) {
+            super(settings, defaultSettings, plugins);
+            // TODO Auto-generated constructor stub
+        }
+        
+        
     }
 }

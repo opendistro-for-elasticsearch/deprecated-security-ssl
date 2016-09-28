@@ -16,7 +16,7 @@
 
     <groupId>com.floragunn</groupId>
     <artifactId>search-guard-ssl</artifactId>
-    <version>5.0.0-alpha5-16a-SNAPSHOT</version>
+    <version>5.0.0-beta1-16a-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>Search Guard SSL</name>
@@ -44,26 +44,17 @@
     </licenses>
 
     <properties>
-        <elasticsearch.version>5.0.0-alpha5</elasticsearch.version>
-        <netty.version>4.0.37.Final</netty.version>
-        <netty-native.version>1.1.33.Fork18</netty-native.version>
+        <elasticsearch.version>5.0.0-beta1</elasticsearch.version>
+        <netty-native.version>1.1.33.Fork20</netty-native.version>
         <dependency.locations.enabled>false</dependency.locations.enabled>
     </properties>
-    
-    <repositories>
-    <repository>
-        <id>lucene-snapshot</id>
-        <name>Lucene Snapshot repo</name>
-        <url>http://download.elastic.co/lucenesnapshots/f0aa4fc</url>
-    </repository>
-</repositories>
 
     <scm>
         <url>https://github.com/floragunncom/search-guard-ssl</url>
         <connection>scm:git:git@github.com:floragunncom/search-guard-ssl.git</connection>
         <developerConnection>scm:git:git@github.com:floragunncom/search-guard-ssl.git</developerConnection>
       <tag>HEAD</tag>
-  </scm>
+    </scm>
 
     <issueManagement>
         <system>GitHub</system>
@@ -94,16 +85,23 @@
             <version>${elasticsearch.version}</version>
             <scope>provided</scope>
         </dependency>
-
+        
+        <!-- https://mvnrepository.com/artifact/org.apache.logging.log4j/log4j-core -->
         <dependency>
-          <groupId>io.netty</groupId>
-          <artifactId>netty-handler</artifactId>
-          <version>${netty.version}</version>
-          <scope>compile</scope>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-core</artifactId>
+            <version>2.6.2</version>
+            <scope>provided</scope>
+        </dependency>
+
+         <!-- https://mvnrepository.com/artifact/org.elasticsearch.plugin/transport-netty4-client -->
+        <dependency>
+            <groupId>org.elasticsearch.plugin</groupId>
+            <artifactId>transport-netty4-client</artifactId>
+            <version>5.0.0-beta1</version>
         </dependency>
 
         <!-- Only test scoped dependencies hereafter -->
-
         <dependency>
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
@@ -125,12 +123,12 @@
             <scope>test</scope>
         </dependency>
         
-        <dependency>
+        <!-- <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-log4j12</artifactId>
             <version>1.7.7</version>
             <scope>test</scope>
-        </dependency>
+        </dependency> -->
 
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>

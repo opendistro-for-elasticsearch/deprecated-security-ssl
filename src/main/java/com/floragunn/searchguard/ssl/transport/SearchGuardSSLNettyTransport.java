@@ -17,37 +17,36 @@
 
 package com.floragunn.searchguard.ssl.transport;
 
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelHandler;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.ChannelOutboundHandlerAdapter;
+import io.netty.channel.ChannelPromise;
+import io.netty.handler.ssl.SslHandler;
+
 import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 
 import javax.net.ssl.SSLEngine;
 import javax.net.ssl.SSLException;
-import javax.net.ssl.SSLHandshakeException;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.elasticsearch.ExceptionsHelper;
 import org.elasticsearch.common.inject.Inject;
 import org.elasticsearch.common.io.stream.NamedWriteableRegistry;
-import org.elasticsearch.common.logging.ESLogger;
-import org.elasticsearch.common.logging.Loggers;
 import org.elasticsearch.common.network.NetworkService;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.util.BigArrays;
 import org.elasticsearch.indices.breaker.CircuitBreakerService;
 import org.elasticsearch.threadpool.ThreadPool;
-import org.elasticsearch.transport.netty.NettyTransport;
-import org.jboss.netty.channel.ChannelHandlerContext;
-import org.jboss.netty.channel.ChannelPipeline;
-import org.jboss.netty.channel.ChannelPipelineFactory;
-import org.jboss.netty.channel.ChannelStateEvent;
-import org.jboss.netty.channel.ExceptionEvent;
-import org.jboss.netty.channel.SimpleChannelHandler;
-import org.jboss.netty.handler.ssl.NotSslRecordException;
-import org.jboss.netty.handler.ssl.SslHandler;
+import org.elasticsearch.transport.netty4.Netty4Transport;
 
 import com.floragunn.searchguard.ssl.SearchGuardKeyStore;
 import com.floragunn.searchguard.ssl.util.SSLConfigConstants;
 
-public class SearchGuardSSLNettyTransport extends NettyTransport {
-
+public class SearchGuardSSLNettyTransport extends Netty4Transport {
+/*
     @Override
     protected void exceptionCaught(ChannelHandlerContext ctx, ExceptionEvent e) throws Exception {
         if(this.lifecycle.started()) {
@@ -72,61 +71,49 @@ public class SearchGuardSSLNettyTransport extends NettyTransport {
         }
         
         super.exceptionCaught(ctx, e);
-    }
+    }*/
 
     private final SearchGuardKeyStore sgks;
 
     @Inject
     public SearchGuardSSLNettyTransport(final Settings settings, final ThreadPool threadPool, final NetworkService networkService,
             final BigArrays bigArrays, final NamedWriteableRegistry namedWriteableRegistry,
-            final SearchGuardKeyStore sgks, CircuitBreakerService cbs) {
-        super(settings, threadPool, networkService, bigArrays, namedWriteableRegistry, cbs);
+            final CircuitBreakerService circuitBreakerService, final SearchGuardKeyStore sgks) {
+        super(settings, threadPool, networkService, bigArrays, namedWriteableRegistry, circuitBreakerService);
         this.sgks = sgks;
     }
 
     @Override
-    public ChannelPipelineFactory configureClientChannelPipelineFactory() {
-        logger.debug("Node client configured for SSL");
-        return new SSLClientChannelPipelineFactory(this, this.settings, this.logger, sgks);
+    protected ChannelHandler getServerChannelInitializer(String name, Settings remoteAddress) {
+        return new SSLServerChannelInitializer(name, remoteAddress);
     }
 
     @Override
-    public ChannelPipelineFactory configureServerChannelPipelineFactory(final String name, final Settings settings) {
-        logger.debug("Node server configured for SSL");
-        return new SSLServerChannelPipelineFactory(this, name, settings, this.settings, this.logger, sgks);
+    protected ChannelHandler getClientChannelInitializer() {
+        return new SSLClientChannelInitializer();
     }
 
-    protected static class SSLServerChannelPipelineFactory extends ServerChannelPipelineFactory {
+    protected class SSLServerChannelInitializer extends Netty4Transport.ServerChannelInitializer {
 
-        private final ESLogger nettyLogger;
-        private final SearchGuardKeyStore sgks;
-
-        public SSLServerChannelPipelineFactory(final NettyTransport nettyTransport, final String name, final Settings sslsettings,
-                final Settings essettings, final ESLogger nettyLogger, final SearchGuardKeyStore sgks) {
-            super(nettyTransport, name, sslsettings);
-            this.sgks = sgks;
-            this.nettyLogger = nettyLogger;
-
+        public SSLServerChannelInitializer(String name, Settings profileSettings) {
+            super(name, profileSettings);
         }
 
         @Override
-        public ChannelPipeline getPipeline() throws Exception {
-            final ChannelPipeline pipeline = super.getPipeline();
+        protected void initChannel(Channel ch) throws Exception {
+            super.initChannel(ch);
             final SslHandler sslHandler = new SslHandler(sgks.createServerTransportSSLEngine());
-            sslHandler.setEnableRenegotiation(false);
-            pipeline.addFirst("ssl_server", sslHandler);
-            pipeline.replace("dispatcher", "dispatcher", new SearchGuardMessageChannelHandler(nettyTransport, nettyLogger));
-
-            return pipeline;
+            //sslHandler.setEnableRenegotiation(false);
+            ch.pipeline().addFirst("ssl_server", sslHandler);
         }
-
     }
 
-    protected static class ClientSSLHandler extends SimpleChannelHandler {
-        private final ESLogger log = Loggers.getLogger(this.getClass());
+    protected static class ClientSSLHandler extends ChannelOutboundHandlerAdapter {
+        private final Logger log = LogManager.getLogger(this.getClass());
+        private final SearchGuardKeyStore sgks;
         private final boolean hostnameVerificationEnabled;
         private final boolean hostnameVerificationResovleHostName;
-        private final SearchGuardKeyStore sgks;
+        
 
         private ClientSSLHandler(final SearchGuardKeyStore sgks, final boolean hostnameVerificationEnabled,
                 final boolean hostnameVerificationResovleHostName) {
@@ -135,18 +122,12 @@ public class SearchGuardSSLNettyTransport extends NettyTransport {
             this.hostnameVerificationResovleHostName = hostnameVerificationResovleHostName;
         }
 
-        //TODO check if we need to implement these:
         @Override
-        public void exceptionCaught(ChannelHandlerContext ctx, ExceptionEvent e) throws Exception {            
-            super.exceptionCaught(ctx, e);
-        }
-
-        @Override
-        public void connectRequested(final ChannelHandlerContext ctx, final ChannelStateEvent event) {
+        public void connect(ChannelHandlerContext ctx, SocketAddress remoteAddress, SocketAddress localAddress, ChannelPromise promise) throws Exception {
             SSLEngine engine = null;
             try {
                 if (hostnameVerificationEnabled) {
-                    final InetSocketAddress inetSocketAddress = (InetSocketAddress) event.getValue();
+                    final InetSocketAddress inetSocketAddress = (InetSocketAddress) remoteAddress;
                     String hostname = null;
                     if (hostnameVerificationResovleHostName) {
                         hostname = inetSocketAddress.getHostName();
@@ -165,41 +146,29 @@ public class SearchGuardSSLNettyTransport extends NettyTransport {
             } catch (final SSLException e) {
                 throw ExceptionsHelper.convertToElastic(e);
             }
-
             final SslHandler sslHandler = new SslHandler(engine);
-            sslHandler.setEnableRenegotiation(false);
-            ctx.getPipeline().replace(this, "ssl_client", sslHandler);
-            ctx.sendDownstream(event);
+            //sslHandler.renegotiate().setEnableRenegotiation(false);
+            ctx.pipeline().replace(this, "ssl_client", sslHandler);
+            super.connect(ctx, remoteAddress, localAddress, promise);
         }
     }
 
-    protected static class SSLClientChannelPipelineFactory extends ClientChannelPipelineFactory {
+    protected class SSLClientChannelInitializer extends Netty4Transport.ClientChannelInitializer {
         private final boolean hostnameVerificationEnabled;
         private final boolean hostnameVerificationResovleHostName;
-        private final ESLogger nettyLogger;
-        private final SearchGuardKeyStore sgks;
 
-        public SSLClientChannelPipelineFactory(final NettyTransport nettyTransport, final Settings settings, final ESLogger nettyLogger,
-                final SearchGuardKeyStore sgks) {
-            super(nettyTransport);
-            this.sgks = sgks;
-
+        public SSLClientChannelInitializer() {
             hostnameVerificationEnabled = settings.getAsBoolean(
                     SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_ENFORCE_HOSTNAME_VERIFICATION, true);
             hostnameVerificationResovleHostName = settings.getAsBoolean(
                     SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_ENFORCE_HOSTNAME_VERIFICATION_RESOLVE_HOST_NAME, true);
-
-            this.nettyLogger = nettyLogger;
         }
 
         @Override
-        public ChannelPipeline getPipeline() throws Exception {
-            final ChannelPipeline pipeline = super.getPipeline();
-            pipeline.addFirst("client_ssl_handler", new ClientSSLHandler(sgks, hostnameVerificationEnabled,
+        protected void initChannel(Channel ch) throws Exception {
+            super.initChannel(ch);
+            ch.pipeline().addFirst("client_ssl_handler", new ClientSSLHandler(sgks, hostnameVerificationEnabled,
                     hostnameVerificationResovleHostName));
-            pipeline.replace("dispatcher", "dispatcher", new SearchGuardMessageChannelHandler(nettyTransport, nettyLogger));
-            return pipeline;
         }
-
     }
 }

@@ -17,6 +17,12 @@
 
 package com.floragunn.searchguard.ssl.http.netty;
 
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelHandler;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.handler.ssl.NotSslRecordException;
+import io.netty.handler.ssl.SslHandler;
+
 import java.security.cert.Certificate;
 import java.security.cert.X509Certificate;
 import java.util.Arrays;
@@ -28,29 +34,24 @@ import javax.net.ssl.SSLPeerUnverifiedException;
 import javax.security.auth.x500.X500Principal;
 
 import org.elasticsearch.ElasticsearchException;
+import org.elasticsearch.ElasticsearchSecurityException;
 import org.elasticsearch.ExceptionsHelper;
 import org.elasticsearch.common.inject.Inject;
-import org.elasticsearch.common.logging.ESLogger;
-import org.elasticsearch.common.logging.Loggers;
 import org.elasticsearch.common.network.NetworkService;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.util.BigArrays;
 import org.elasticsearch.common.util.concurrent.ThreadContext;
-import org.elasticsearch.http.netty.NettyHttpRequest;
-import org.elasticsearch.http.netty.NettyHttpServerTransport;
+import org.elasticsearch.http.netty4.Netty4HttpRequest;
+import org.elasticsearch.http.netty4.Netty4HttpServerTransport;
 import org.elasticsearch.rest.RestChannel;
 import org.elasticsearch.rest.RestRequest;
+import org.elasticsearch.rest.RestStatus;
 import org.elasticsearch.threadpool.ThreadPool;
-import org.jboss.netty.channel.ChannelHandlerContext;
-import org.jboss.netty.channel.ChannelPipeline;
-import org.jboss.netty.channel.ChannelPipelineFactory;
-import org.jboss.netty.channel.ExceptionEvent;
-import org.jboss.netty.handler.ssl.NotSslRecordException;
-import org.jboss.netty.handler.ssl.SslHandler;
 
 import com.floragunn.searchguard.ssl.SearchGuardKeyStore;
+import com.floragunn.searchguard.ssl.util.SSLRequestHelper;
 
-public class SearchGuardSSLNettyHttpServerTransport extends NettyHttpServerTransport {
+public class SearchGuardSSLNettyHttpServerTransport extends Netty4HttpServerTransport {
 
     private final SearchGuardKeyStore sgks;
     private final ThreadContext threadContext;
@@ -64,107 +65,62 @@ public class SearchGuardSSLNettyHttpServerTransport extends NettyHttpServerTrans
     }
 
     @Override
-    public ChannelPipelineFactory configureServerChannelPipelineFactory() {
-        return new SSLHttpChannelPipelineFactory(this, this.settings, this.detailedErrorsEnabled, threadPool, sgks);
+    public ChannelHandler configureServerChannelHandler() {
+        return new SSLHttpChannelHandler(this, sgks);
     }
 
     @Override
-    protected void exceptionCaught(ChannelHandlerContext ctx, ExceptionEvent e) throws Exception {
+    protected void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
         if(this.lifecycle.started()) {
             
-            final Throwable cause = e.getCause();
             if(cause instanceof NotSslRecordException) {
                 logger.warn("Someone speaks plaintext instead of ssl, will close the channel");
-                ctx.getChannel().close();
+                ctx.channel().close();
                 return;
             } else if (cause instanceof SSLException) {
                 logger.error("SSL Problem "+cause.getMessage(),cause);
-                ctx.getChannel().close();
+                ctx.channel().close();
                 return;
             } else if (cause instanceof SSLHandshakeException) {
                 logger.error("Problem during handshake "+cause.getMessage());
-                ctx.getChannel().close();
+                ctx.channel().close();
                 return;
             }
         }
         
-        super.exceptionCaught(ctx, e);
+        super.exceptionCaught(ctx, cause);
     }
 
-    protected static class SSLHttpChannelPipelineFactory extends HttpChannelPipelineFactory {
-
-        protected final ESLogger log = Loggers.getLogger(this.getClass());
-        private final SearchGuardKeyStore sgks;
+    protected class SSLHttpChannelHandler extends Netty4HttpServerTransport.HttpChannelHandler {
         
-
-        public SSLHttpChannelPipelineFactory(final NettyHttpServerTransport transport, final Settings settings,
-                final boolean detailedErrorsEnabled, ThreadPool threadPool, final SearchGuardKeyStore sgks) {
-            super(transport, detailedErrorsEnabled, threadPool.getThreadContext());
-            this.sgks = sgks;
+        protected SSLHttpChannelHandler(Netty4HttpServerTransport transport, final SearchGuardKeyStore sgks) {
+            super(transport, SearchGuardSSLNettyHttpServerTransport.this.detailedErrorsEnabled, SearchGuardSSLNettyHttpServerTransport.this.threadContext);
         }
 
         @Override
-        public ChannelPipeline getPipeline() throws Exception {
-            log.trace("SslHandler configured and added to netty pipeline");
-
-            final ChannelPipeline pipeline = super.getPipeline();
-            final SslHandler sslHandler = new SslHandler(sgks.createHTTPSSLEngine());
-            sslHandler.setEnableRenegotiation(false);
-            pipeline.addFirst("ssl_http", sslHandler);
-            return pipeline;
+        protected void initChannel(Channel ch) throws Exception {
+            super.initChannel(ch);
+            final SslHandler sslHandler = new SslHandler(SearchGuardSSLNettyHttpServerTransport.this.sgks.createHTTPSSLEngine());
+            ch.pipeline().addFirst("ssl_http", sslHandler);
         }
     }
 
     @Override
-    protected void dispatchRequest(RestRequest request, RestChannel channel) {
-
-        //TODO 5.0 - check headers
-        //HeaderHelper.checkSGHeader(request);
-        
-        final NettyHttpRequest nettyHttpRequest = (NettyHttpRequest) request;
-        final SslHandler sslhandler = (SslHandler) nettyHttpRequest.getChannel().getPipeline().get("ssl_http");
-        final SSLEngine engine = sslhandler.getEngine();
-
-        if(engine.getNeedClientAuth() || engine.getWantClientAuth()) {
-        
-            try {
-                final Certificate[] certs = sslhandler.getEngine().getSession().getPeerCertificates();
-
-                if (certs != null && certs.length > 0 && certs[0] instanceof X509Certificate) {
-                    X509Certificate[] x509Certs = Arrays.copyOf(certs, certs.length, X509Certificate[].class);
-                    X500Principal principal =  x509Certs[0].getSubjectX500Principal();
-                    threadContext.putTransient("_sg_ssl_principal", principal == null ? null : principal.getName());
-                    threadContext.putTransient("_sg_ssl_peer_certificates", x509Certs);
-                } else if(engine.getNeedClientAuth()) {
-                    ElasticsearchException ex = new ElasticsearchException("No client certificates found but such are needed (SG 9).");
-                    errorThrown(ex, nettyHttpRequest);
-                    throw ex;
-                }
-
-            } catch(SSLPeerUnverifiedException e) {
-                if(engine.getNeedClientAuth()) {
-                    logger.error("No client certificates found but such are needed (SG 8).");
-                    errorThrown(e, nettyHttpRequest);
-                    throw ExceptionsHelper.convertToElastic(e);
-                }
+    protected void dispatchRequest(final RestRequest request, final RestChannel channel) {
+        try {
+            if(SSLRequestHelper.getSSLInfo(request) == null) {
+                logger.error("Not an SSL request");
+                throw new ElasticsearchSecurityException("Not an SSL request", RestStatus.INTERNAL_SERVER_ERROR);
             }
-            catch (final Exception e) {
-                logger.error("Unknow error (SG 8) : "+e,e);
-                errorThrown(e, nettyHttpRequest);
-                throw ExceptionsHelper.convertToElastic(e);
-            }
-           
-        } else {
-            threadContext.putTransient("_sg_ssl_client_auth_none", true);
+        } catch (SSLPeerUnverifiedException e) {
+            logger.error("No client certificates found but such are needed (SG 8).");
+            errorThrown(e, request);
+            throw ExceptionsHelper.convertToElastic(e);
         }
-        
-        threadContext.putTransient("_sg_ssl_protocol", sslhandler.getEngine().getSession().getProtocol());
-        threadContext.putTransient("_sg_ssl_cipher", sslhandler.getEngine().getSession().getCipherSuite());
-        
         super.dispatchRequest(request, channel);
     }
     
-    protected void errorThrown(Throwable t, final NettyHttpRequest request) {
+    protected void errorThrown(Throwable t, final RestRequest request) {
         // no-op
     }
 
