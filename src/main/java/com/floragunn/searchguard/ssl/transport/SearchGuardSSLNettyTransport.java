@@ -22,6 +22,7 @@ import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelOutboundHandlerAdapter;
 import io.netty.channel.ChannelPromise;
+import io.netty.handler.ssl.NotSslRecordException;
 import io.netty.handler.ssl.SslHandler;
 
 import java.net.InetSocketAddress;
@@ -29,6 +30,7 @@ import java.net.SocketAddress;
 
 import javax.net.ssl.SSLEngine;
 import javax.net.ssl.SSLException;
+import javax.net.ssl.SSLHandshakeException;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -46,32 +48,6 @@ import com.floragunn.searchguard.ssl.SearchGuardKeyStore;
 import com.floragunn.searchguard.ssl.util.SSLConfigConstants;
 
 public class SearchGuardSSLNettyTransport extends Netty4Transport {
-/*
-    @Override
-    protected void exceptionCaught(ChannelHandlerContext ctx, ExceptionEvent e) throws Exception {
-        if(this.lifecycle.started()) {
-            
-            final Throwable cause = e.getCause();
-            if(cause instanceof NotSslRecordException) {
-                logger.warn("Someone speaks plaintext instead of ssl, will close the channel");
-                ctx.getChannel().close();
-                disconnectFromNodeChannel(ctx.getChannel(), e.getCause());
-                return;
-            } else if (cause instanceof SSLException) {
-                logger.error("SSL Problem "+cause.getMessage(),cause);
-                ctx.getChannel().close();
-                disconnectFromNodeChannel(ctx.getChannel(), e.getCause());
-                return;
-            } else if (cause instanceof SSLHandshakeException) {
-                logger.error("Problem during handshake "+cause.getMessage());
-                ctx.getChannel().close();
-                disconnectFromNodeChannel(ctx.getChannel(), e.getCause());
-                return;
-            }
-        }
-        
-        super.exceptionCaught(ctx, e);
-    }*/
 
     private final SearchGuardKeyStore sgks;
 
@@ -103,8 +79,29 @@ public class SearchGuardSSLNettyTransport extends Netty4Transport {
         protected void initChannel(Channel ch) throws Exception {
             super.initChannel(ch);
             final SslHandler sslHandler = new SslHandler(sgks.createServerTransportSSLEngine());
-            //sslHandler.setEnableRenegotiation(false);
             ch.pipeline().addFirst("ssl_server", sslHandler);
+        }
+        
+        @Override
+        public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+            if(SearchGuardSSLNettyTransport.this.lifecycle.started()) {
+                
+                if(cause instanceof NotSslRecordException) {
+                    logger.warn("Someone speaks plaintext instead of ssl, will close the channel");
+                    ctx.channel().close();
+                    return;
+                } else if (cause instanceof SSLException) {
+                    logger.error("SSL Problem "+cause.getMessage(),cause);
+                    ctx.channel().close();
+                    return;
+                } else if (cause instanceof SSLHandshakeException) {
+                    logger.error("Problem during handshake "+cause.getMessage());
+                    ctx.channel().close();
+                    return;
+                }
+            }
+            
+            super.exceptionCaught(ctx, cause);
         }
     }
 
@@ -147,7 +144,6 @@ public class SearchGuardSSLNettyTransport extends Netty4Transport {
                 throw ExceptionsHelper.convertToElastic(e);
             }
             final SslHandler sslHandler = new SslHandler(engine);
-            //sslHandler.renegotiate().setEnableRenegotiation(false);
             ctx.pipeline().replace(this, "ssl_client", sslHandler);
             super.connect(ctx, remoteAddress, localAddress, promise);
         }
@@ -169,6 +165,28 @@ public class SearchGuardSSLNettyTransport extends Netty4Transport {
             super.initChannel(ch);
             ch.pipeline().addFirst("client_ssl_handler", new ClientSSLHandler(sgks, hostnameVerificationEnabled,
                     hostnameVerificationResovleHostName));
+        }
+        
+        @Override
+        public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+            if(SearchGuardSSLNettyTransport.this.lifecycle.started()) {
+                
+                if(cause instanceof NotSslRecordException) {
+                    logger.warn("Someone speaks plaintext instead of ssl, will close the channel");
+                    ctx.channel().close();
+                    return;
+                } else if (cause instanceof SSLException) {
+                    logger.error("SSL Problem "+cause.getMessage(),cause);
+                    ctx.channel().close();
+                    return;
+                } else if (cause instanceof SSLHandshakeException) {
+                    logger.error("Problem during handshake "+cause.getMessage());
+                    ctx.channel().close();
+                    return;
+                }
+            }
+            
+            super.exceptionCaught(ctx, cause);
         }
     }
 }

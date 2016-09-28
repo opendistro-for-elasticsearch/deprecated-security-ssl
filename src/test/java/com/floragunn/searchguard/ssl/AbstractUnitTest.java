@@ -38,12 +38,15 @@ import org.apache.commons.io.IOUtils;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.config.SocketConfig;
+import org.apache.http.conn.ssl.NoopHostnameVerifier;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
-import org.apache.http.conn.ssl.SSLContextBuilder;
-import org.apache.http.conn.ssl.SSLContexts;
+import org.apache.http.ssl.SSLContextBuilder;
+import org.apache.http.ssl.SSLContexts;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.HttpClients;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.elasticsearch.ElasticsearchTimeoutException;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthResponse;
 import org.elasticsearch.action.admin.cluster.node.info.NodeInfo;
@@ -52,9 +55,6 @@ import org.elasticsearch.action.admin.cluster.node.info.NodesInfoResponse;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.cluster.health.ClusterHealthStatus;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.elasticsearch.common.logging.Loggers;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
 import org.elasticsearch.common.unit.TimeValue;
@@ -300,10 +300,10 @@ public abstract class AbstractUnitTest {
             final KeyStore keyStore = KeyStore.getInstance("JKS");
             keyStore.load(new FileInputStream(getAbsoluteFilePathFromClassPath("node-0-keystore.jks")), "changeit".toCharArray());
 
-            final SSLContextBuilder sslContextbBuilder = SSLContexts.custom().useTLS();
+            final SSLContextBuilder sslContextbBuilder = SSLContexts.custom().useProtocol("TLS");
 
             if (trustHTTPServerCertificate) {
-                sslContextbBuilder.loadTrustMaterial(myTrustStore);
+                sslContextbBuilder.loadTrustMaterial(myTrustStore, null);
             }
 
             if (sendHTTPClientCertificate) {
@@ -319,9 +319,8 @@ public abstract class AbstractUnitTest {
             } else {
                 protocols = new String[] { "TLSv1", "TLSv1.1", "TLSv1.2" };
             }
-
-            final SSLConnectionSocketFactory sslsf = new SSLConnectionSocketFactory(sslContext, protocols, null,
-                    SSLConnectionSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
+            
+            final SSLConnectionSocketFactory sslsf = new SSLConnectionSocketFactory(sslContext, protocols, null, NoopHostnameVerifier.INSTANCE);
 
             hcb.setSSLSocketFactory(sslsf);
         }
@@ -339,14 +338,10 @@ public abstract class AbstractUnitTest {
 
         public TransportClientImpl(Settings settings, Collection<Class<? extends Plugin>> plugins) {
             super(settings, plugins);
-            // TODO Auto-generated constructor stub
         }
 
         public TransportClientImpl(Settings settings, Settings defaultSettings, Collection<Class<? extends Plugin>> plugins) {
             super(settings, defaultSettings, plugins);
-            // TODO Auto-generated constructor stub
-        }
-        
-        
+        }       
     }
 }

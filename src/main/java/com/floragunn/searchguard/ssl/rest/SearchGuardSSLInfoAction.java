@@ -19,21 +19,13 @@ package com.floragunn.searchguard.ssl.rest;
 
 import static org.elasticsearch.rest.RestRequest.Method.GET;
 import io.netty.handler.ssl.OpenSsl;
-import io.netty.handler.ssl.SslHandler;
 
-import java.security.cert.Certificate;
 import java.security.cert.X509Certificate;
-import java.util.Arrays;
 
-import javax.security.auth.x500.X500Principal;
-
-import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.client.node.NodeClient;
 import org.elasticsearch.common.inject.Inject;
 import org.elasticsearch.common.settings.Settings;
-import org.elasticsearch.common.util.concurrent.ThreadContext;
 import org.elasticsearch.common.xcontent.XContentBuilder;
-import org.elasticsearch.http.netty4.Netty4HttpRequest;
 import org.elasticsearch.rest.BaseRestHandler;
 import org.elasticsearch.rest.BytesRestResponse;
 import org.elasticsearch.rest.RestChannel;

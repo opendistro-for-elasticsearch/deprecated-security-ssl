@@ -22,8 +22,6 @@ import java.net.SocketException;
 import java.security.Security;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 
 import javax.net.ssl.SSLContext;
@@ -41,13 +39,11 @@ import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.support.WriteRequest.RefreshPolicy;
 import org.elasticsearch.client.transport.NoNodeAvailableException;
 import org.elasticsearch.client.transport.TransportClient;
-import org.elasticsearch.cluster.health.ClusterHealthStatus;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
 import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.node.Node;
 import org.elasticsearch.node.PluginAwareNode;
-import org.elasticsearch.plugins.Plugin;
 import org.elasticsearch.transport.Netty4Plugin;
 import org.junit.Assert;
 import org.junit.Rule;
@@ -400,8 +396,8 @@ public class SSLTest extends AbstractUnitTest {
             log.debug("Search done");
             Assert.assertEquals(3, tc.admin().cluster().health(new ClusterHealthRequest("test")).actionGet().getNumberOfNodes());
             log.debug("ClusterHealth done");            
-            //Assert.assertEquals(3, tc.admin().cluster().nodesInfo(new NodesInfoRequest()).actionGet().getNodes().length);           
-            //log.debug("NodesInfoRequest asserted");
+            Assert.assertEquals(3, tc.admin().cluster().nodesInfo(new NodesInfoRequest()).actionGet().getNodes().size());           
+            log.debug("NodesInfoRequest asserted");
         }
     }
 

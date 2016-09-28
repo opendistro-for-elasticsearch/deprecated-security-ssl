@@ -83,6 +83,14 @@ public final class SearchGuardSSLPlugin extends Plugin implements ActionPlugin {
     }
 
     public SearchGuardSSLPlugin(final Settings settings) {
+        
+        String rejectClientInitiatedRenegotiation = System.getProperty("jdk.tls.rejectClientInitiatedRenegotiation");
+        
+        if(!Boolean.parseBoolean(rejectClientInitiatedRenegotiation)) {
+            log.info("Consider setting -Djdk.tls.rejectClientInitiatedRenegotiation=true to prevent DoS attacks through client side initiated TLS renegotiation.");
+        } else {
+            log.debug("Client side initiated TLS renegotiation disabled. This can prevent DoS attacks. (jdk.tls.rejectClientInitiatedRenegotiation is true).");
+        }
 
         final SecurityManager sm = System.getSecurityManager();
 
