@@ -1,4 +1,4 @@
-# Search Guard SSL for Elasticsearch 5-alpha4
+# Search Guard SSL for Elasticsearch 5.0.0-beta1
 Elasticsearch SSL for free.
 
 Search Guard SSL is a free and open source plugin for Elasticsearch which provides SSL for Elasticsearch. 
@@ -10,11 +10,11 @@ It does not provide authentication and authorization. For that pls refer to [Sea
 * Node-to-node encryption through SSL/TLS (Transport layer)
 * Secure REST layer through HTTPS (SSL/TLS)
 * Supports JDK SSL and Open SSL
-* Only external dependency is Netty 4 (and Tomcat Native if Open SSL is used)
-* Works with Kibana 4, logstash and beats
+* Only external dependency is netty tcnative if Open SSL is used
+* Works with Kibana, logstash and beats
 
 ##Installation
- ``bin/elasticsearch-plugin install -b com.floragunn/search-guard-ssl/5.0.0-alpha4-13a``
+ ``bin/elasticsearch-plugin install -b com.floragunn:search-guard-ssl:5.0.0-beta1-16a``
 
 ##Documentation
 Documentation is provided in a separate repository in markdown format.
@@ -25,7 +25,7 @@ Documentation is provided in a separate repository in markdown format.
 [See wiki](https://github.com/floragunncom/search-guard-ssl/wiki/Support)
 
 ###License
-Copyright 2015 floragunn UG (haftungsbeschränkt)
+Copyright 2015-2016 floragunn UG (haftungsbeschränkt)
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
