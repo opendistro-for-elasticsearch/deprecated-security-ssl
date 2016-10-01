@@ -27,8 +27,11 @@ import java.util.Arrays;
 import javax.net.ssl.SSLPeerUnverifiedException;
 import javax.security.auth.x500.X500Principal;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.ExceptionsHelper;
+import org.elasticsearch.cluster.node.DiscoveryNode;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.util.concurrent.ThreadContext;
 import org.elasticsearch.tasks.Task;
@@ -39,12 +42,16 @@ import org.elasticsearch.transport.TransportChannel;
 import org.elasticsearch.transport.TransportInterceptor;
 import org.elasticsearch.transport.TransportRequest;
 import org.elasticsearch.transport.TransportRequestHandler;
+import org.elasticsearch.transport.TransportRequestOptions;
+import org.elasticsearch.transport.TransportResponse;
+import org.elasticsearch.transport.TransportResponseHandler;
 
 import com.floragunn.searchguard.ssl.SearchGuardSSLPlugin.Holder;
 
 public class SearchGuardSSLTransportInterceptor implements TransportInterceptor {
     
-    private final Holder<ThreadPool> threadPoolHolder;
+    protected final Logger log = LogManager.getLogger(this.getClass());
+    protected final Holder<ThreadPool> threadPoolHolder;
     
     public SearchGuardSSLTransportInterceptor(final Settings settings, final  Holder<ThreadPool> threadPoolHolder) {
         this.threadPoolHolder = threadPoolHolder;
@@ -52,24 +59,24 @@ public class SearchGuardSSLTransportInterceptor implements TransportInterceptor 
     
     
     @Override
-    public <T extends TransportRequest> TransportRequestHandler<T> interceptHandler(String action,
+    public final <T extends TransportRequest> TransportRequestHandler<T> interceptHandler(String action,
             TransportRequestHandler<T> actualHandler) {
         return new SearchGuardRequestHandler<T>(action, actualHandler, threadPoolHolder);
     }
 
     @Override
-    public AsyncSender interceptSender(AsyncSender sender) {
-        return sender;
+    public final AsyncSender interceptSender(final AsyncSender sender) {
+        //return sender;
         
-        /*return new TransportInterceptor.AsyncSender(){
+        return new TransportInterceptor.AsyncSender(){
 
             @Override
             public <T extends TransportResponse> void sendRequest(DiscoveryNode node, String action, TransportRequest request,
                     TransportRequestOptions options, TransportResponseHandler<T> handler) {
-                
+                sendRequestDecorate(sender, node, action, request, options, handler);
             }
             
-        };*/
+        };
     }
     
     //static
@@ -183,6 +190,11 @@ public class SearchGuardSSLTransportInterceptor implements TransportInterceptor 
     
     protected void messageReceivedDecorate(final TransportRequest request, final TransportRequestHandler actualHandler, final TransportChannel transportChannel, Task task) throws Exception {
         actualHandler.messageReceived(request, transportChannel, task);
+    }
+    
+    protected <T extends TransportResponse> void sendRequestDecorate(AsyncSender sender, DiscoveryNode node, String action, TransportRequest request,
+            TransportRequestOptions options, TransportResponseHandler<T> handler) {
+        sender.sendRequest(node, action, request, options, handler);
     }
     
     protected void errorThrown(Throwable t, final TransportRequest request, String action) {
