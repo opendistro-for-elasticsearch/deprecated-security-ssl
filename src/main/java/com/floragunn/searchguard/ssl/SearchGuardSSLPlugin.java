@@ -142,7 +142,7 @@ public final class SearchGuardSSLPlugin extends Plugin implements ActionPlugin {
         if (transportSSLEnabled) {
             module.registerTransport("com.floragunn.searchguard.ssl.http.netty.SearchGuardSSLNettyTransport", SearchGuardSSLNettyTransport.class);
             if (!client) {
-                module.addTransportInterceptor(new SearchGuardSSLTransportInterceptor(settings, threadPoolHolder));
+                //module.addTransportInterceptor(new SearchGuardSSLTransportInterceptor(settings, threadPoolHolder));
             }
         }
     }

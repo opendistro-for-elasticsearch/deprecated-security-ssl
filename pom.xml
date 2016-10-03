@@ -16,7 +16,7 @@
 
     <groupId>com.floragunn</groupId>
     <artifactId>search-guard-ssl</artifactId>
-    <version>5.0.0-beta1-16b-SNAPSHOT</version>
+    <version>5.0.0-beta1-16c-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>Search Guard SSL</name>

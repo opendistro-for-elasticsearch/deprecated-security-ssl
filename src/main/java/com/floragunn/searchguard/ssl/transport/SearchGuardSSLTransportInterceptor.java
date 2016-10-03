@@ -51,17 +51,17 @@ import com.floragunn.searchguard.ssl.SearchGuardSSLPlugin.Holder;
 public class SearchGuardSSLTransportInterceptor implements TransportInterceptor {
     
     protected final Logger log = LogManager.getLogger(this.getClass());
-    protected final Holder<ThreadPool> threadPoolHolder;
+    protected final ThreadPool threadPool;
     
-    public SearchGuardSSLTransportInterceptor(final Settings settings, final  Holder<ThreadPool> threadPoolHolder) {
-        this.threadPoolHolder = threadPoolHolder;
+    public SearchGuardSSLTransportInterceptor(final Settings settings, final  ThreadPool threadPool) {
+        this.threadPool = threadPool;
     }
     
     
     @Override
     public final <T extends TransportRequest> TransportRequestHandler<T> interceptHandler(String action,
             TransportRequestHandler<T> actualHandler) {
-        return new SearchGuardRequestHandler<T>(action, actualHandler, threadPoolHolder);
+        return new SearchGuardRequestHandler<T>(action, actualHandler, threadPool);
     }
 
     @Override
@@ -85,9 +85,9 @@ public class SearchGuardSSLTransportInterceptor implements TransportInterceptor 
         
         private final String action;
         private final TransportRequestHandler<T> actualHandler;
-        private final Holder<ThreadPool> threadContextHolder;
+        private final ThreadPool threadContextHolder;
 
-        public SearchGuardRequestHandler(String action, TransportRequestHandler<T> actualHandler, Holder<ThreadPool> threadContextHolder) {
+        public SearchGuardRequestHandler(String action, TransportRequestHandler<T> actualHandler, ThreadPool threadContextHolder) {
             super();
             this.action = action;
             this.actualHandler = actualHandler;
@@ -101,7 +101,7 @@ public class SearchGuardSSLTransportInterceptor implements TransportInterceptor 
 
         @Override
         public void messageReceived(T request, TransportChannel channel, Task task) throws Exception {
-          ThreadContext threadContext = threadContextHolder.getValue().getThreadContext();  
+          ThreadContext threadContext = threadContextHolder.getThreadContext();  
           
           //TODO 5.0 - check headers
            //HeaderHelper.checkSGHeader(request);
