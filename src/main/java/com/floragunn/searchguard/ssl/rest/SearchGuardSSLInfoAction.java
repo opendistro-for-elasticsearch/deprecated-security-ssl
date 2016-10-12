@@ -20,13 +20,17 @@ package com.floragunn.searchguard.ssl.rest;
 import static org.elasticsearch.rest.RestRequest.Method.GET;
 import io.netty.handler.ssl.OpenSsl;
 
+import java.io.IOException;
 import java.security.cert.X509Certificate;
+import java.util.Set;
 
 import org.elasticsearch.client.node.NodeClient;
 import org.elasticsearch.common.inject.Inject;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.xcontent.XContentBuilder;
+import org.elasticsearch.common.xcontent.json.JsonXContent;
 import org.elasticsearch.rest.BaseRestHandler;
+import org.elasticsearch.rest.action.RestStatusToXContentListener;
 import org.elasticsearch.rest.BytesRestResponse;
 import org.elasticsearch.rest.RestChannel;
 import org.elasticsearch.rest.RestController;
@@ -52,10 +56,13 @@ public class SearchGuardSSLInfoAction extends BaseRestHandler {
         controller.registerHandler(GET, "/_searchguard/sslinfo", this);
     }
     
+    
+    
+    
     @Override
-    public void handleRequest(RestRequest request, RestChannel channel, NodeClient client) throws Exception {
+    protected RestChannelConsumer prepareRequest(RestRequest request, NodeClient client) throws IOException {
         BytesRestResponse response = null;
-        XContentBuilder builder = channel.newBuilder();
+        XContentBuilder builder = XContentBuilder.builder(JsonXContent.jsonXContent);
       
         try {
             
@@ -73,6 +80,7 @@ public class SearchGuardSSLInfoAction extends BaseRestHandler {
             builder.field("ssl_openssl_version_string", OpenSsl.versionString());
             Throwable openSslUnavailCause = OpenSsl.unavailabilityCause();
             builder.field("ssl_openssl_non_available_cause", openSslUnavailCause==null?"":openSslUnavailCause.toString());
+            builder.field("ssl_openssl_supports_key_manager_factory", OpenSsl.supportsKeyManagerFactory());
             builder.field("ssl_provider_http", sgks.sslHTTPProvider);
             builder.field("ssl_provider_transport_server", sgks.sslTransportServerProvider);
             builder.field("ssl_provider_transport_client", sgks.sslTransportClientProvider);
@@ -81,13 +89,15 @@ public class SearchGuardSSLInfoAction extends BaseRestHandler {
             response = new BytesRestResponse(RestStatus.OK, builder);
         } catch (final Exception e1) {
             logger.error("Error handle request "+e1, e1);
-            builder = channel.newBuilder();
+            builder = XContentBuilder.builder(JsonXContent.jsonXContent);
             builder.startObject();
             builder.field("error", e1.toString());
             builder.endObject();
             response = new BytesRestResponse(RestStatus.INTERNAL_SERVER_ERROR, builder);
         }
+        
+        final BytesRestResponse finalResponse = response;
+        return channel -> channel.sendResponse(finalResponse);
 
-        channel.sendResponse(response);
     }
 }

@@ -25,7 +25,6 @@ import java.security.PrivilegedAction;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -48,7 +47,6 @@ import org.elasticsearch.watcher.ResourceWatcherService;
 import com.floragunn.searchguard.ssl.http.netty.SearchGuardSSLNettyHttpServerTransport;
 import com.floragunn.searchguard.ssl.rest.SearchGuardSSLInfoAction;
 import com.floragunn.searchguard.ssl.transport.SearchGuardSSLNettyTransport;
-import com.floragunn.searchguard.ssl.transport.SearchGuardSSLTransportInterceptor;
 import com.floragunn.searchguard.ssl.util.SSLConfigConstants;
 
 //For ES5 this class has only effect when SSL only plugin is installed
@@ -60,9 +58,9 @@ public final class SearchGuardSSLPlugin extends Plugin implements ActionPlugin {
     private final boolean httpSSLEnabled;
     private final boolean transportSSLEnabled;
     private final Settings settings;
-    private Holder<ThreadPool> threadPoolHolder = new Holder<ThreadPool>();
+    //private Holder<ThreadPool> threadPoolHolder = new Holder<ThreadPool>();
     
-    public static class Holder<T> {
+    /*public static class Holder<T> {
         private volatile T value;
         private AtomicBoolean isSet = new AtomicBoolean();
 
@@ -80,7 +78,7 @@ public final class SearchGuardSSLPlugin extends Plugin implements ActionPlugin {
         public String toString() {
             return "Holder [value=" + value + ", isSet=" + isSet + "]";
         }
-    }
+    }*/
 
     public SearchGuardSSLPlugin(final Settings settings) {
         
@@ -150,7 +148,7 @@ public final class SearchGuardSSLPlugin extends Plugin implements ActionPlugin {
     @Override
     public Collection<Object> createComponents(Client client, ClusterService clusterService, ThreadPool threadPool,
             ResourceWatcherService resourceWatcherService, ScriptService scriptService, SearchRequestParsers searchRequestParsers) {
-        threadPoolHolder.setValue(threadPool);
+        //threadPoolHolder.setValue(threadPool);
         return super.createComponents(client, clusterService, threadPool, resourceWatcherService, scriptService, searchRequestParsers);
     }
 
