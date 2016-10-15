@@ -45,19 +45,14 @@ import com.floragunn.searchguard.ssl.util.SSLRequestHelper.SSLInfo;
 public class SearchGuardSSLInfoAction extends BaseRestHandler {
 
     private final SearchGuardKeyStore sgks;
-    //private final ThreadContext threadContext;
 
     @Inject
     public SearchGuardSSLInfoAction(final Settings settings, final RestController controller,
             ThreadPool threadPool, final SearchGuardKeyStore sgks) {
         super(settings);
         this.sgks = sgks;
-        //this.threadContext = threadPool.getThreadContext();
         controller.registerHandler(GET, "/_searchguard/sslinfo", this);
     }
-    
-    
-    
     
     @Override
     protected RestChannelConsumer prepareRequest(RestRequest request, NodeClient client) throws IOException {
@@ -98,6 +93,5 @@ public class SearchGuardSSLInfoAction extends BaseRestHandler {
         
         final BytesRestResponse finalResponse = response;
         return channel -> channel.sendResponse(finalResponse);
-
     }
 }

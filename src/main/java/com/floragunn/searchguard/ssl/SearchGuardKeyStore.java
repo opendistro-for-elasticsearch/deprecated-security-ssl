@@ -214,17 +214,7 @@ public class SearchGuardKeyStore {
                     throw new ElasticsearchException("No key found in "+keystoreFilePath+" with alias "+keystoreAlias);
                 }
                 
-                if(transportKeystoreCert != null && transportKeystoreCert.length > 0) {
-                    
-                    //TODO create sensitive log property
-                    /*for (int i = 0; i < transportKeystoreCert.length; i++) {
-                        X509Certificate x509Certificate = transportKeystoreCert[i];
-                        
-                        if(x509Certificate != null) {
-                            log.info("Transport keystore subject DN no. {} {}",i,x509Certificate.getSubjectX500Principal());
-                        }
-                    }*/
-                } else {
+                if(transportKeystoreCert == null || transportKeystoreCert.length == 0) {
                     throw new ElasticsearchException("No certificates found in "+keystoreFilePath+" with alias "+keystoreAlias);
                 }
                 
@@ -240,9 +230,9 @@ public class SearchGuardKeyStore {
 
                 final SslContextBuilder sslServerContextBuilder = SslContextBuilder.forServer(transportKeystoreKey, transportKeystoreCert)
                         .ciphers(getEnabledSSLCiphers(this.sslTransportServerProvider, false))
-                        .applicationProtocolConfig(ApplicationProtocolConfig.DISABLED).clientAuth(ClientAuth.REQUIRE)
-                        // https://github.com/netty/netty/issues/4722
-                        .sessionCacheSize(0).sessionTimeout(0).sslProvider(this.sslTransportServerProvider)
+                        .applicationProtocolConfig(ApplicationProtocolConfig.DISABLED)
+                        .clientAuth(ClientAuth.REQUIRE)
+                        .sslProvider(this.sslTransportServerProvider)
                         .trustManager(trustedTransportCertificates);
 
                 transportServerSslContext = buildSSLContext(sslServerContextBuilder);
@@ -252,7 +242,7 @@ public class SearchGuardKeyStore {
                 }
 
                 final SslContextBuilder sslClientContextBuilder = SslContextBuilder.forClient().ciphers(getEnabledSSLCiphers(sslTransportClientProvider, false))
-                        .applicationProtocolConfig(ApplicationProtocolConfig.DISABLED).sessionCacheSize(0).sessionTimeout(0)
+                        .applicationProtocolConfig(ApplicationProtocolConfig.DISABLED)
                         .sslProvider(sslTransportClientProvider).trustManager(trustedTransportCertificates)
                         .keyManager(transportKeystoreKey, transportKeystoreCert);
 
@@ -273,14 +263,6 @@ public class SearchGuardKeyStore {
             final String keystorePassword = settings.get(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_KEYSTORE_PASSWORD, DEFAULT_STORE_PASSWORD);
             final String keystoreAlias = settings.get(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_KEYSTORE_ALIAS, null);
             httpClientAuthMode = ClientAuth.valueOf(settings.get(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_CLIENTAUTH_MODE, ClientAuth.OPTIONAL.toString()));
-            
-            //TODO remove with next version
-            String _enforceHTTPClientAuth = settings.get("searchguard.ssl.http.enforce_clientauth");
-
-            if(_enforceHTTPClientAuth != null) {
-                log.error("{} is deprecated and replaced by {}", "searchguard.ssl.http.enforce_clientauth", SSLConfigConstants.SEARCHGUARD_SSL_HTTP_CLIENTAUTH_MODE);
-                throw new RuntimeException("searchguard.ssl.http.enforce_clientauth is deprecated");
-            }
 
             log.info("HTTPS client auth mode {}", httpClientAuthMode);
             
@@ -316,17 +298,7 @@ public class SearchGuardKeyStore {
                 }
                 
                 
-                if(httpKeystoreCert != null && httpKeystoreCert.length > 0) {
-                    
-                    //TODO create sensitive log property
-                    /*for (int i = 0; i < httpKeystoreCert.length; i++) {
-                        X509Certificate x509Certificate = httpKeystoreCert[i];
-                        
-                        if(x509Certificate != null) {
-                            log.info("HTTP keystore subject DN no. {} {}",i,x509Certificate.getSubjectX500Principal());
-                        }
-                    }*/
-                } else {
+                if(httpKeystoreCert == null || httpKeystoreCert.length == 0) {
                     throw new ElasticsearchException("No certificates found in "+keystoreFilePath+" with alias "+keystoreAlias);
                 }
                 
@@ -347,8 +319,8 @@ public class SearchGuardKeyStore {
                 
                 final SslContextBuilder sslContextBuilder = SslContextBuilder.forServer(httpKeystoreKey, httpKeystoreCert)
                         .ciphers(getEnabledSSLCiphers(this.sslHTTPProvider, true)).applicationProtocolConfig(ApplicationProtocolConfig.DISABLED)
-                        .clientAuth(Objects.requireNonNull(httpClientAuthMode)) // https://github.com/netty/netty/issues/4722
-                        .sessionCacheSize(0).sessionTimeout(0).sslProvider(this.sslHTTPProvider);
+                        .clientAuth(Objects.requireNonNull(httpClientAuthMode))
+                        .sslProvider(this.sslHTTPProvider);
 
                 if (trustedHTTPCertificates != null && trustedHTTPCertificates.length > 0) {
                     sslContextBuilder.trustManager(trustedHTTPCertificates);
@@ -365,7 +337,6 @@ public class SearchGuardKeyStore {
     public SSLEngine createHTTPSSLEngine() throws SSLException {
         final SSLEngine engine = httpSslContext.newEngine(PooledByteBufAllocator.DEFAULT);
         engine.setEnabledProtocols(SSLConfigConstants.getSecureSSLProtocols(settings, true));
-        // engine.setNeedClientAuth(enforceHTTPClientAuth);
         return engine;
 
     }
@@ -374,7 +345,6 @@ public class SearchGuardKeyStore {
         
         final SSLEngine engine = transportServerSslContext.newEngine(PooledByteBufAllocator.DEFAULT);
         engine.setEnabledProtocols(SSLConfigConstants.getSecureSSLProtocols(settings, false));
-        // engine.setNeedClientAuth(true);
         return engine;
 
     }
@@ -400,7 +370,7 @@ public class SearchGuardKeyStore {
     private void logOpenSSLInfos() {
         if (OpenSsl.isAvailable()) {
             log.info("Open SSL " + OpenSsl.versionString() + " available");
-            log.debug("Open SSL available ciphers " + OpenSsl.availableCipherSuites());
+            log.debug("Open SSL available ciphers " + OpenSsl.availableOpenSslCipherSuites());
         } else {
             log.info("Open SSL not available (this is not an error, we simply fallback to built-in JDK SSL) because of " + OpenSsl.unavailabilityCause());
         }
@@ -453,8 +423,7 @@ public class SearchGuardKeyStore {
                 try {
                     engine.closeInbound();
                 } catch (SSLException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
+                    log.debug("Unable to close inbound ssl engine", e);
                 }
                 engine.closeOutbound();
             }
@@ -493,8 +462,7 @@ public class SearchGuardKeyStore {
                 try {
                     engine.closeInbound();
                 } catch (SSLException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
+                    log.debug("Unable to close inbound ssl engine", e);
                 }
                 engine.closeOutbound();
             }

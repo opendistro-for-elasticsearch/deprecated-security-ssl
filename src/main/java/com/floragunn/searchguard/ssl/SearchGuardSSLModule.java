@@ -31,7 +31,6 @@ public final class SearchGuardSSLModule extends AbstractModule {
 
     @Override
     protected void configure() {
-        bind(SearchGuardSSLSettingsFilter.class).asEagerSingleton();
         bind(SearchGuardKeyStore.class).toInstance(sgks);
     }
 }

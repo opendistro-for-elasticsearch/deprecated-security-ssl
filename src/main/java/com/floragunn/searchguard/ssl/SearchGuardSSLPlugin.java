@@ -29,8 +29,6 @@ import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.elasticsearch.SpecialPermission;
-import org.elasticsearch.client.Client;
-import org.elasticsearch.cluster.service.ClusterService;
 import org.elasticsearch.common.inject.Module;
 import org.elasticsearch.common.network.NetworkModule;
 import org.elasticsearch.common.settings.Setting;
@@ -39,14 +37,11 @@ import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.plugins.ActionPlugin;
 import org.elasticsearch.plugins.Plugin;
 import org.elasticsearch.rest.RestHandler;
-import org.elasticsearch.script.ScriptService;
-import org.elasticsearch.search.SearchRequestParsers;
-import org.elasticsearch.threadpool.ThreadPool;
-import org.elasticsearch.watcher.ResourceWatcherService;
 
 import com.floragunn.searchguard.ssl.http.netty.SearchGuardSSLNettyHttpServerTransport;
 import com.floragunn.searchguard.ssl.rest.SearchGuardSSLInfoAction;
 import com.floragunn.searchguard.ssl.transport.SearchGuardSSLNettyTransport;
+import com.floragunn.searchguard.ssl.transport.SearchGuardSSLTransportInterceptor;
 import com.floragunn.searchguard.ssl.util.SSLConfigConstants;
 
 //For ES5 this class has only effect when SSL only plugin is installed
@@ -58,27 +53,6 @@ public final class SearchGuardSSLPlugin extends Plugin implements ActionPlugin {
     private final boolean httpSSLEnabled;
     private final boolean transportSSLEnabled;
     private final Settings settings;
-    //private Holder<ThreadPool> threadPoolHolder = new Holder<ThreadPool>();
-    
-    /*public static class Holder<T> {
-        private volatile T value;
-        private AtomicBoolean isSet = new AtomicBoolean();
-
-        public T getValue() {
-            return value;
-        }
-
-        public void setValue(T value) {
-            if(value != null && !isSet.getAndSet(true)) {
-                this.value = value;
-            }
-        }
-
-        @Override
-        public String toString() {
-            return "Holder [value=" + value + ", isSet=" + isSet + "]";
-        }
-    }*/
 
     public SearchGuardSSLPlugin(final Settings settings) {
         
@@ -96,7 +70,7 @@ public final class SearchGuardSSLPlugin extends Plugin implements ActionPlugin {
             sm.checkPermission(new SpecialPermission());
         }
 
-        // initialize native netty open ssl libs
+        //TODO check initialize native netty open ssl libs still neccessary
         AccessController.doPrivileged(new PrivilegedAction<Object>() {
             @Override
             public Object run() {
@@ -140,16 +114,9 @@ public final class SearchGuardSSLPlugin extends Plugin implements ActionPlugin {
         if (transportSSLEnabled) {
             module.registerTransport("com.floragunn.searchguard.ssl.http.netty.SearchGuardSSLNettyTransport", SearchGuardSSLNettyTransport.class);
             if (!client) {
-                //module.addTransportInterceptor(new SearchGuardSSLTransportInterceptor(settings, threadPoolHolder));
+                module.addTransportInterceptor(new SearchGuardSSLTransportInterceptor(settings, null));
             }
         }
-    }
-
-    @Override
-    public Collection<Object> createComponents(Client client, ClusterService clusterService, ThreadPool threadPool,
-            ResourceWatcherService resourceWatcherService, ScriptService scriptService, SearchRequestParsers searchRequestParsers) {
-        //threadPoolHolder.setValue(threadPool);
-        return super.createComponents(client, clusterService, threadPool, resourceWatcherService, scriptService, searchRequestParsers);
     }
 
     @Override
@@ -206,11 +173,15 @@ public final class SearchGuardSSLPlugin extends Plugin implements ActionPlugin {
         
        if (transportSSLEnabled) {
            builder.put(NetworkModule.TRANSPORT_TYPE_KEY, "com.floragunn.searchguard.ssl.http.netty.SearchGuardSSLNettyTransport");
-           if (!client) {
-               //builder.put(NetworkModule.TRANSPORT_SERVICE_TYPE_KEY, SearchGuardSSLTransportInterceptor.class.toString());
-           }
        }
         
         return builder.build();
+    }
+    
+    @Override
+    public List<String> getSettingsFilter() {
+        List<String> settingsFilter = new ArrayList<>();
+        settingsFilter.add("searchguard.*");
+        return settingsFilter;
     }
 }

@@ -40,6 +40,8 @@ import org.elasticsearch.transport.TransportChannel;
 import org.elasticsearch.transport.TransportRequest;
 import org.elasticsearch.transport.TransportRequestHandler;
 
+import com.floragunn.searchguard.ssl.util.SSLRequestHelper;
+
 public class SearchGuardSSLRequestHandler<T extends TransportRequest>
 implements TransportRequestHandler<T> {
     
@@ -56,6 +58,10 @@ implements TransportRequestHandler<T> {
     }
     
     protected ThreadContext getThreadContext() {
+        if(threadPool == null) {
+            return null;
+        }
+        
         return threadPool.getThreadContext();
     }
 
@@ -66,10 +72,13 @@ implements TransportRequestHandler<T> {
 
     @Override
     public final void messageReceived(T request, TransportChannel channel, Task task) throws Exception {
-      ThreadContext threadContext = threadPool.getThreadContext();  
+        ThreadContext threadContext = getThreadContext() ;
       
-      //TODO 5.0 - check headers
-       //HeaderHelper.checkSGHeader(request);
+        if(SSLRequestHelper.containsBadHeader(threadContext, "_sg_ssl_")) {
+            final Exception exception = new ElasticsearchException("bad header found");
+            channel.sendResponse(exception);
+            throw exception;
+        }
         
         if("netty3".equals(channel.getChannelType()) || "netty4".equals(channel.getChannelType())) {
             final Exception exception = new ElasticsearchException(channel.getChannelType()+" not supported");
@@ -113,10 +122,13 @@ implements TransportRequestHandler<T> {
                 X509Certificate[] x509Certs = Arrays.copyOf(certs, certs.length, X509Certificate[].class);
                 addAdditionalContextValues(action, request, x509Certs);
                 principal = x509Certs[0].getSubjectX500Principal();
-                threadContext.putTransient("_sg_ssl_transport_principal", principal == null ? null : principal.getName());
-                threadContext.putTransient("_sg_ssl_transport_peer_certificates", x509Certs);
-                threadContext.putTransient("_sg_ssl_transport_protocol", sslhandler.engine().getSession().getProtocol());
-                threadContext.putTransient("_sg_ssl_transport_cipher", sslhandler.engine().getSession().getCipherSuite());
+                
+                if(threadContext != null) {
+                    threadContext.putTransient("_sg_ssl_transport_principal", principal == null ? null : principal.getName());
+                    threadContext.putTransient("_sg_ssl_transport_peer_certificates", x509Certs);
+                    threadContext.putTransient("_sg_ssl_transport_protocol", sslhandler.engine().getSession().getProtocol());
+                    threadContext.putTransient("_sg_ssl_transport_cipher", sslhandler.engine().getSession().getCipherSuite());
+                }
                 messageReceivedDecorate(request, actualHandler, channel, task);
             } else {
                 final String msg = "No X509 transport client certificates found (SG 12)";

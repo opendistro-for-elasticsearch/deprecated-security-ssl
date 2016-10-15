@@ -27,6 +27,7 @@ import javax.net.ssl.SSLException;
 import javax.net.ssl.SSLHandshakeException;
 import javax.net.ssl.SSLPeerUnverifiedException;
 
+import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.ElasticsearchSecurityException;
 import org.elasticsearch.ExceptionsHelper;
 import org.elasticsearch.common.inject.Inject;
@@ -99,6 +100,14 @@ public class SearchGuardSSLNettyHttpServerTransport extends Netty4HttpServerTran
 
     @Override
     protected void dispatchRequest(final RestRequest request, final RestChannel channel) {
+        
+        if(SSLRequestHelper.containsBadHeader(threadContext, "_sg_ssl_")) {
+            final ElasticsearchException exception = new ElasticsearchException("bad header found");
+            errorThrown(exception, request);
+            //channel.sendResponse();
+            throw exception;
+        }
+        
         try {
             if(SSLRequestHelper.getSSLInfo(request) == null) {
                 logger.error("Not an SSL request");
@@ -107,6 +116,7 @@ public class SearchGuardSSLNettyHttpServerTransport extends Netty4HttpServerTran
         } catch (SSLPeerUnverifiedException e) {
             logger.error("No client certificates found but such are needed (SG 8).");
             errorThrown(e, request);
+          //channel.sendResponse();
             throw ExceptionsHelper.convertToElastic(e);
         }
         super.dispatchRequest(request, channel);

@@ -22,6 +22,7 @@ import io.netty.handler.ssl.SslHandler;
 import java.security.cert.Certificate;
 import java.security.cert.X509Certificate;
 import java.util.Arrays;
+import java.util.Map.Entry;
 
 import javax.net.ssl.SSLEngine;
 import javax.net.ssl.SSLPeerUnverifiedException;
@@ -29,12 +30,12 @@ import javax.net.ssl.SSLSession;
 import javax.security.auth.x500.X500Principal;
 
 import org.elasticsearch.ElasticsearchException;
+import org.elasticsearch.ElasticsearchSecurityException;
+import org.elasticsearch.common.util.concurrent.ThreadContext;
 import org.elasticsearch.http.netty4.Netty4HttpRequest;
 import org.elasticsearch.rest.RestRequest;
 
 public class SSLRequestHelper {
-
-    //private static final Logger log = LogManager.getLogger(SSLRequestHelper.class);
 
     public static class SSLInfo {
         private final X509Certificate[] x509Certs;
@@ -75,8 +76,6 @@ public class SSLRequestHelper {
     }
 
     public static SSLInfo getSSLInfo(final RestRequest request) throws SSLPeerUnverifiedException {
-        // TODO 5.0 - check headers
-        // HeaderHelper.checkSGHeader(request);
 
         if(request == null || !(request instanceof Netty4HttpRequest)) {
             return null;
@@ -119,5 +118,18 @@ public class SSLRequestHelper {
         }
 
         return new SSLInfo(x509Certs, _principal, protocol, cipher);
+    }
+    
+    public static boolean containsBadHeader(final ThreadContext context, String prefix) {
+        if (context != null) {
+            for (final Entry<String, String> header : context.getHeaders().entrySet()) {
+                if (header != null && header.getKey() != null && header.getKey().trim().toLowerCase().startsWith(prefix)) {
+                    System.out.println(header.getKey()+"="+header.getValue());
+                    return true;
+                }
+            }
+        }
+        
+        return false;
     }
 }

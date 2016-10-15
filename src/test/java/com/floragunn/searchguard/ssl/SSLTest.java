@@ -81,6 +81,7 @@ public class SSLTest extends AbstractUnitTest {
         //Assert.assertTrue(executeSimpleRequest("_searchguard/sslinfo?pretty").contains("TLS"));
         Assert.assertTrue(executeSimpleRequest("_nodes/settings?pretty").contains(clustername));
         Assert.assertFalse(executeSimpleRequest("_nodes/settings?pretty").contains("\"searchguard\""));
+        Assert.assertFalse(executeSimpleRequest("_nodes/settings?pretty").contains("keystore_filepath"));
         //Assert.assertTrue(executeSimpleRequest("_searchguard/sslinfo?pretty").contains("CN=node-0.example.com,OU=SSL,O=Test,L=Test,C=DE"));
 
     }

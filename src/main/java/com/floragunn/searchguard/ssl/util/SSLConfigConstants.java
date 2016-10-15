@@ -89,7 +89,7 @@ public final class SSLConfigConstants {
         //Message Authentication  HMAC-SHA256, HMAC-SHA1, HMAC-MD5
         
 
-        //thats what chrome 48 supports
+        //thats what chrome 48 supports (https://cc.dcsec.uni-hannover.de/)
         //(c0,2b)ECDHE-ECDSA-AES128-GCM-SHA256128 BitKey exchange: ECDH, encryption: AES, MAC: SHA256.
         //(c0,2f)ECDHE-RSA-AES128-GCM-SHA256128 BitKey exchange: ECDH, encryption: AES, MAC: SHA256.
         //(00,9e)DHE-RSA-AES128-GCM-SHA256128 BitKey exchange: DH, encryption: AES, MAC: SHA256.
@@ -106,7 +106,19 @@ public final class SSLConfigConstants {
         //(00,2f)RSA-AES128-SHA128 BitKey exchange: RSA, encryption: AES, MAC: SHA1.
         //(00,0a)RSA-3DES-EDE-SHA168 BitKey exchange: RSA, encryption: 3DES, MAC: SHA1.
         
-        
+        //thats what firefox 42 supports (https://cc.dcsec.uni-hannover.de/)
+        //(c0,2b) ECDHE-ECDSA-AES128-GCM-SHA256
+        //(c0,2f) ECDHE-RSA-AES128-GCM-SHA256
+        //(c0,0a) ECDHE-ECDSA-AES256-SHA
+        //(c0,09) ECDHE-ECDSA-AES128-SHA
+        //(c0,13) ECDHE-RSA-AES128-SHA
+        //(c0,14) ECDHE-RSA-AES256-SHA
+        //(00,33) DHE-RSA-AES128-SHA
+        //(00,39) DHE-RSA-AES256-SHA
+        //(00,2f) RSA-AES128-SHA
+        //(00,35) RSA-AES256-SHA
+        //(00,0a) RSA-3DES-EDE-SHA
+
         //Mozilla modern browsers
         //https://wiki.mozilla.org/Security/Server_Side_TLS
         "TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256",
