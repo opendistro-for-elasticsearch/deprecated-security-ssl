@@ -3,7 +3,7 @@ test-output/
 *.tar.gz
 *gen-*conf*
 netty*jar
-
+logstash*/
 
 /build.gradle
 *.log
