@@ -33,6 +33,7 @@ import javax.net.ssl.TrustManagerFactory;
 
 import org.apache.http.NoHttpResponseException;
 import org.apache.lucene.util.Constants;
+import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.ElasticsearchSecurityException;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthRequest;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthResponse;
@@ -263,7 +264,7 @@ public class SSLTest extends AbstractUnitTest {
         try {
             startES(settings);
             Assert.fail();
-        } catch (ElasticsearchSecurityException e) {
+        } catch (ElasticsearchException e) {
             if(allowOpenSSL) {
                 Assert.assertTrue(e.toString(), e.toString().contains("failed to set cipher suite"));
             } else {

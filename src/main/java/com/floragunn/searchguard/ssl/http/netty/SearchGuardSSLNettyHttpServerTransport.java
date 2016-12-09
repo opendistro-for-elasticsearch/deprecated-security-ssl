@@ -30,7 +30,6 @@ import javax.net.ssl.SSLPeerUnverifiedException;
 import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.ElasticsearchSecurityException;
 import org.elasticsearch.ExceptionsHelper;
-import org.elasticsearch.common.inject.Inject;
 import org.elasticsearch.common.network.NetworkService;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.util.BigArrays;
@@ -49,7 +48,6 @@ public class SearchGuardSSLNettyHttpServerTransport extends Netty4HttpServerTran
     private final SearchGuardKeyStore sgks;
     private final ThreadContext threadContext;
     
-    @Inject
     public SearchGuardSSLNettyHttpServerTransport(final Settings settings, final NetworkService networkService, final BigArrays bigArrays,
             ThreadPool threadPool, final SearchGuardKeyStore sgks) {
         super(settings, networkService, bigArrays, threadPool);

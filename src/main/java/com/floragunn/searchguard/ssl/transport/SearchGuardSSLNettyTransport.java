@@ -35,7 +35,6 @@ import javax.net.ssl.SSLHandshakeException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.elasticsearch.ExceptionsHelper;
-import org.elasticsearch.common.inject.Inject;
 import org.elasticsearch.common.io.stream.NamedWriteableRegistry;
 import org.elasticsearch.common.network.NetworkService;
 import org.elasticsearch.common.settings.Settings;
@@ -51,7 +50,6 @@ public class SearchGuardSSLNettyTransport extends Netty4Transport {
 
     private final SearchGuardKeyStore sgks;
 
-    @Inject
     public SearchGuardSSLNettyTransport(final Settings settings, final ThreadPool threadPool, final NetworkService networkService,
             final BigArrays bigArrays, final NamedWriteableRegistry namedWriteableRegistry,
             final CircuitBreakerService circuitBreakerService, final SearchGuardKeyStore sgks) {

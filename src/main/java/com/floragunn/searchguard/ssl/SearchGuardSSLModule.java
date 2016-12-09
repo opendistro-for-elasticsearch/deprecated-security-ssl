@@ -24,13 +24,9 @@ public final class SearchGuardSSLModule extends AbstractModule {
 
     private final SearchGuardKeyStore sgks;
 
-    public SearchGuardSSLModule(final Settings settings) {
+    public SearchGuardSSLModule(final Settings settings, final SearchGuardKeyStore sgks) {
         super();
-        if(ExternalSearchGuardKeyStore.hasExternalSslContext(settings)) {
-            this.sgks = new ExternalSearchGuardKeyStore(settings);
-        } else {
-            this.sgks = new DefaultSearchGuardKeyStore(settings);
-        }
+        this.sgks = sgks;
     }
 
     @Override
