@@ -22,7 +22,6 @@ import io.netty.handler.ssl.OpenSsl;
 
 import java.io.IOException;
 import java.security.cert.X509Certificate;
-import java.util.Set;
 
 import org.elasticsearch.client.node.NodeClient;
 import org.elasticsearch.common.inject.Inject;
@@ -30,9 +29,7 @@ import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.json.JsonXContent;
 import org.elasticsearch.rest.BaseRestHandler;
-import org.elasticsearch.rest.action.RestStatusToXContentListener;
 import org.elasticsearch.rest.BytesRestResponse;
-import org.elasticsearch.rest.RestChannel;
 import org.elasticsearch.rest.RestController;
 import org.elasticsearch.rest.RestRequest;
 import org.elasticsearch.rest.RestStatus;
@@ -76,9 +73,9 @@ public class SearchGuardSSLInfoAction extends BaseRestHandler {
             Throwable openSslUnavailCause = OpenSsl.unavailabilityCause();
             builder.field("ssl_openssl_non_available_cause", openSslUnavailCause==null?"":openSslUnavailCause.toString());
             builder.field("ssl_openssl_supports_key_manager_factory", OpenSsl.supportsKeyManagerFactory());
-            builder.field("ssl_provider_http", sgks.sslHTTPProvider);
-            builder.field("ssl_provider_transport_server", sgks.sslTransportServerProvider);
-            builder.field("ssl_provider_transport_client", sgks.sslTransportClientProvider);
+            builder.field("ssl_provider_http", sgks.getHTTPProviderName());
+            builder.field("ssl_provider_transport_server", sgks.getTransportServerProviderName());
+            builder.field("ssl_provider_transport_client", sgks.getTransportClientProviderName());
             builder.endObject();
 
             response = new BytesRestResponse(RestStatus.OK, builder);

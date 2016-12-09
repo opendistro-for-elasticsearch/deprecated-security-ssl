@@ -17,6 +17,10 @@ It does not provide authentication and authorization. For that pls refer to [Sea
 
 _Note_: If you install Search Guard 5 then you must not install this plugin (because SG 5 already contains it). This is different from how it worked with SG 2.
 
+## Elasticsearch 5
+
+[Search Guard SSL 5](https://github.com/floragunncom/search-guard-ssl/tree/5.0.0) (compatible with Elasticsearch 5) is now also available. You may also want to read this [blog post about Search Guard 5](https://floragunn.com/search-guard-5/).
+
 ##Documentation
 Documentation is provided in a separate repository in markdown format.
 
