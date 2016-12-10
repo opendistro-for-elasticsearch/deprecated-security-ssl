@@ -19,14 +19,17 @@ package com.floragunn.searchguard.ssl;
 
 import java.net.InetSocketAddress;
 import java.net.SocketException;
+import java.security.KeyStore;
 import java.security.Security;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLEngine;
 import javax.net.ssl.SSLHandshakeException;
+import javax.net.ssl.TrustManagerFactory;
 
 import org.apache.http.NoHttpResponseException;
 import org.apache.lucene.util.Constants;
@@ -38,7 +41,6 @@ import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.client.transport.NoNodeAvailableException;
 import org.elasticsearch.client.transport.TransportClient;
-import org.elasticsearch.cluster.health.ClusterHealthStatus;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
 import org.elasticsearch.common.unit.TimeValue;
@@ -107,8 +109,8 @@ public class SSLTest extends AbstractUnitTest {
                 .build();
         
         try {
-            String[] enabledCiphers = new SearchGuardKeyStore(settings).createHTTPSSLEngine().getEnabledCipherSuites();
-            String[] enabledProtocols = new SearchGuardKeyStore(settings).createHTTPSSLEngine().getEnabledProtocols();
+            String[] enabledCiphers = new DefaultSearchGuardKeyStore(settings).createHTTPSSLEngine().getEnabledCipherSuites();
+            String[] enabledProtocols = new DefaultSearchGuardKeyStore(settings).createHTTPSSLEngine().getEnabledProtocols();
 
             if(allowOpenSSL) {
                 Assert.assertEquals(2, enabledProtocols.length); //SSLv2Hello is always enabled when using openssl
@@ -135,8 +137,8 @@ public class SSLTest extends AbstractUnitTest {
                     .put("path.home",".")
                     .build();
             
-            enabledCiphers = new SearchGuardKeyStore(settings).createServerTransportSSLEngine().getEnabledCipherSuites();
-            enabledProtocols = new SearchGuardKeyStore(settings).createServerTransportSSLEngine().getEnabledProtocols();
+            enabledCiphers = new DefaultSearchGuardKeyStore(settings).createServerTransportSSLEngine().getEnabledCipherSuites();
+            enabledProtocols = new DefaultSearchGuardKeyStore(settings).createServerTransportSSLEngine().getEnabledProtocols();
 
             if(allowOpenSSL) {
                 Assert.assertEquals(2, enabledProtocols.length); //SSLv2Hello is always enabled when using openssl
@@ -149,8 +151,8 @@ public class SSLTest extends AbstractUnitTest {
                 Assert.assertEquals(1, enabledCiphers.length);
                 Assert.assertEquals("SSL_RSA_EXPORT_WITH_RC4_40_MD5",enabledCiphers[0]);
             }
-            enabledCiphers = new SearchGuardKeyStore(settings).createClientTransportSSLEngine(null, -1).getEnabledCipherSuites();
-            enabledProtocols = new SearchGuardKeyStore(settings).createClientTransportSSLEngine(null, -1).getEnabledProtocols();
+            enabledCiphers = new DefaultSearchGuardKeyStore(settings).createClientTransportSSLEngine(null, -1).getEnabledCipherSuites();
+            enabledProtocols = new DefaultSearchGuardKeyStore(settings).createClientTransportSSLEngine(null, -1).getEnabledProtocols();
 
             if(allowOpenSSL) {
                 Assert.assertEquals(2, enabledProtocols.length); //SSLv2Hello is always enabled when using openssl
@@ -410,6 +412,72 @@ public class SSLTest extends AbstractUnitTest {
     }
 
     @Test
+    public void testTransportClientSSLExternalContext() throws Exception {
+
+        final Settings settings = Settings.settingsBuilder().put("searchguard.ssl.transport.enabled", true)
+                .put(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_ENABLE_OPENSSL_IF_AVAILABLE, allowOpenSSL)
+                .put(SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_ENABLE_OPENSSL_IF_AVAILABLE, allowOpenSSL)
+                .put(SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_KEYSTORE_ALIAS, "node-0")
+                .put("searchguard.ssl.transport.keystore_filepath", getAbsoluteFilePathFromClassPath("node-0-keystore.jks"))
+                .put("searchguard.ssl.transport.truststore_filepath", getAbsoluteFilePathFromClassPath("truststore.jks"))
+                .put("searchguard.ssl.transport.enforce_hostname_verification", false)
+                .put("searchguard.ssl.transport.resolve_hostname", false).build();
+
+        startES(settings);
+        
+        log.debug("Elasticsearch started");
+
+        final Settings tcSettings = Settings.builder()
+                .put("cluster.name", clustername)
+                .put("path.home", ".")
+                .put("searchguard.ssl.client.external_context_id", "abcx")
+                .build();
+
+        final TrustManagerFactory tmf = TrustManagerFactory.getInstance(TrustManagerFactory
+                .getDefaultAlgorithm());
+        final KeyStore trustStore = KeyStore.getInstance("JKS");
+        trustStore.load(this.getClass().getResourceAsStream("/truststore.jks"), "changeit".toCharArray());
+        tmf.init(trustStore);
+
+        final KeyManagerFactory kmf = KeyManagerFactory.getInstance(KeyManagerFactory
+                .getDefaultAlgorithm());
+        final KeyStore keyStore = KeyStore.getInstance("JKS");
+        keyStore.load(this.getClass().getResourceAsStream("/node-0-keystore.jks"), "changeit".toCharArray());        
+        kmf.init(keyStore, "changeit".toCharArray());
+        
+        
+        SSLContext sslContext = SSLContext.getInstance("TLSv1.2");
+        sslContext.init(kmf.getKeyManagers(), tmf.getTrustManagers(), null);
+        ExternalSearchGuardKeyStore.registerExternalSslContext("abcx", sslContext);
+        
+        try (TransportClient tc = TransportClient.builder().settings(tcSettings).addPlugin(SearchGuardSSLPlugin.class).build()) {
+            
+            log.debug("TransportClient built, connect now to {}:{}", nodeHost, nodePort);
+            
+            tc.addTransportAddress(new InetSocketTransportAddress(new InetSocketAddress(nodeHost, nodePort)));
+            
+            log.debug("TransportClient connected");
+            
+            Assert.assertEquals("test", tc.index(new IndexRequest("test","test").refresh(true).source("{\"a\":5}")).actionGet().getIndex());
+            
+            log.debug("Index created");
+            
+            Assert.assertEquals(1L, tc.search(new SearchRequest("test")).actionGet().getHits().getTotalHits());
+
+            log.debug("Search done");
+            
+            Assert.assertEquals(3, tc.admin().cluster().health(new ClusterHealthRequest("test")).actionGet().getNumberOfNodes());
+
+            log.debug("ClusterHealth done");
+            
+            //Assert.assertEquals(3, tc.admin().cluster().nodesInfo(new NodesInfoRequest()).actionGet().getNodes().length);
+            
+            //log.debug("NodesInfoRequest asserted");
+            
+        }
+    }
+    
+    @Test
     public void testNodeClientSSL() throws Exception {
 
         final Settings settings = Settings.settingsBuilder().put("searchguard.ssl.transport.enabled", true)
@@ -493,4 +561,42 @@ public class SSLTest extends AbstractUnitTest {
         }
     }
     
+    @Test
+    public void testCustomPrincipalExtractor() throws Exception {
+
+        final Settings settings = Settings.builder().put("searchguard.ssl.transport.enabled", true)
+                .put(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_ENABLE_OPENSSL_IF_AVAILABLE, allowOpenSSL)
+                .put(SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_ENABLE_OPENSSL_IF_AVAILABLE, allowOpenSSL)
+                .put(SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_KEYSTORE_ALIAS, "node-0")
+                .put("searchguard.ssl.transport.keystore_filepath", getAbsoluteFilePathFromClassPath("node-0-keystore.jks"))
+                .put("searchguard.ssl.transport.truststore_filepath", getAbsoluteFilePathFromClassPath("truststore.jks"))
+                .put("searchguard.ssl.transport.enforce_hostname_verification", false)
+                .put("searchguard.ssl.transport.resolve_hostname", false)
+                .put("searchguard.ssl.transport.principal_extractor_class", "com.floragunn.searchguard.ssl.transport.DefaultPrincipalExtractor")
+                .build();
+
+        startES(settings);
+        
+        log.debug("Elasticsearch started");
+
+        final Settings tcSettings = Settings.builder().put("cluster.name", clustername).put("path.home", ".").put(settings).build();
+
+        try (TransportClient tc = TransportClient.builder().settings(tcSettings).addPlugin(SearchGuardSSLPlugin.class).build()) {
+            
+            log.debug("TransportClient built, connect now to {}:{}", nodeHost, nodePort);
+            
+            tc.addTransportAddress(new InetSocketTransportAddress(new InetSocketAddress(nodeHost, nodePort)));
+            Assert.assertEquals(3, tc.admin().cluster().nodesInfo(new NodesInfoRequest()).actionGet().getNodes().length);            
+            log.debug("TransportClient connected");           
+            Assert.assertEquals("test", tc.index(new IndexRequest("test","test").refresh(true).source("{\"a\":5}")).actionGet().getIndex());            
+            log.debug("Index created");           
+            Assert.assertEquals(1L, tc.search(new SearchRequest("test")).actionGet().getHits().getTotalHits());
+            log.debug("Search done");
+            Assert.assertEquals(3, tc.admin().cluster().health(new ClusterHealthRequest("test")).actionGet().getNumberOfNodes());
+            log.debug("ClusterHealth done");            
+            Assert.assertEquals(3, tc.admin().cluster().nodesInfo(new NodesInfoRequest()).actionGet().getNodes().length);           
+            log.debug("NodesInfoRequest asserted");
+        }
+    }
+
 }

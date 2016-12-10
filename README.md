@@ -13,6 +13,10 @@ It does not provide authentication and authorization. For that pls refer to [Sea
 * Only external dependency is Netty 4 (and Tomcat Native if Open SSL is used)
 * Works with Kibana 4, logstash and beats
 
+## Elasticsearch 5
+
+[Search Guard SSL 5](https://github.com/floragunncom/search-guard-ssl/tree/5.0.0) (compatible with Elasticsearch 5) is now also available. You may also want to read this [blog post about Search Guard 5](https://floragunn.com/search-guard-5/).
+
 ##Documentation
 Documentation is provided in a separate repository in markdown format.
 

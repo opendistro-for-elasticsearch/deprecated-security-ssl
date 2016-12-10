@@ -15,21 +15,27 @@
  * 
  */
 
-package com.floragunn.searchguard.ssl;
+package com.floragunn.searchguard.ssl.transport;
 
-import javax.net.ssl.SSLEngine;
-import javax.net.ssl.SSLException;
+import java.security.cert.X509Certificate;
 
-public interface SearchGuardKeyStore {
+import javax.security.auth.x500.X500Principal;
 
-    public SSLEngine createHTTPSSLEngine() throws SSLException;
+public class DefaultPrincipalExtractor implements PrincipalExtractor {
 
-    public SSLEngine createServerTransportSSLEngine() throws SSLException;
+    @Override
+    public String extractPrincipal(X509Certificate x509Certificate) {
+        if (x509Certificate == null) {
+            return null;
+        }
 
-    public SSLEngine createClientTransportSSLEngine(String peerHost, int peerPort) throws SSLException;
+        final X500Principal principal = x509Certificate.getSubjectX500Principal();
 
-    public String getHTTPProviderName();
-    public String getTransportServerProviderName();
-    public String getTransportClientProviderName();
-    
+        if (principal != null) {
+            return principal.getName();
+        }
+
+        return null;
+    }
+
 }

@@ -67,9 +67,9 @@ public class SearchGuardSSLInfoAction extends BaseRestHandler {
             builder.field("ssl_openssl_version_string", OpenSsl.versionString());
             Throwable openSslUnavailCause = OpenSsl.unavailabilityCause();
             builder.field("ssl_openssl_non_available_cause", openSslUnavailCause==null?"":openSslUnavailCause.toString());
-            builder.field("ssl_provider_http", sgks.sslHTTPProvider);
-            builder.field("ssl_provider_transport_server", sgks.sslTransportServerProvider);
-            builder.field("ssl_provider_transport_client", sgks.sslTransportClientProvider);
+            builder.field("ssl_provider_http", sgks.getHTTPProviderName());
+            builder.field("ssl_provider_transport_server", sgks.getTransportServerProviderName());
+            builder.field("ssl_provider_transport_client", sgks.getTransportClientProviderName());
             builder.endObject();
 
             response = new BytesRestResponse(RestStatus.OK, builder);
