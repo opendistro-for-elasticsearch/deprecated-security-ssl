@@ -87,3 +87,15 @@
 # If you set wrong values here this this could be a security risk  
 #searchguard.ssl.http.enabled_protocols:
 #  - "TLSv1.2"
+
+# Enables the usage of custom SSLContext's for Transport clients
+# This setting does only apply to Transport clients
+# WARNING: Expert setting, do only use if you know what you are doing
+# If you set wrong values here this this could be a security risk  
+#searchguard.ssl.client.external_context_id: myid
+    
+# Class name of a class which is in classpath and implements com.floragunn.searchguard.ssl.transport.PrincipalExtractor
+# used to resolve the string representation of an principal from a x509 certificate
+# WARNING: Expert setting, do only use if you know what you are doing
+# If you set wrong values here this this could be a security risk 
+#searchguard.ssl.transport.principal_extractor_class: com.example.sg.MyPrincipalExtractor

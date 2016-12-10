@@ -17,20 +17,48 @@
 
 package com.floragunn.searchguard.ssl;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.common.inject.AbstractModule;
 import org.elasticsearch.common.settings.Settings;
 
+import com.floragunn.searchguard.ssl.transport.PrincipalExtractor;
+import com.floragunn.searchguard.ssl.util.SSLConfigConstants;
+
 public final class SearchGuardSSLModule extends AbstractModule {
 
+    private final Logger log = LogManager.getLogger(this.getClass());
     private final SearchGuardKeyStore sgks;
+    private final PrincipalExtractor principalExtractor;
 
     public SearchGuardSSLModule(final Settings settings, final SearchGuardKeyStore sgks) {
         super();
-        this.sgks = sgks;
+        if(ExternalSearchGuardKeyStore.hasExternalSslContext(settings)) {
+            this.sgks = new ExternalSearchGuardKeyStore(settings);
+        } else {
+            this.sgks = new DefaultSearchGuardKeyStore(settings);
+        }
+        
+        final String principalExtractorClass = settings.get(SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_PRINCIPAL_EXTRACTOR_CLASS, null);
+
+        if(principalExtractorClass == null) {
+            principalExtractor = new com.floragunn.searchguard.ssl.transport.DefaultPrincipalExtractor();
+        } else {
+            try {
+                log.debug("Try to load and instantiate '{}'", principalExtractorClass);
+                Class<?> principalExtractorClazz = Class.forName(principalExtractorClass);
+                principalExtractor = (PrincipalExtractor) principalExtractorClazz.newInstance();
+            } catch (Exception e) {
+                log.error("Unable to load '{}' due to {}", e, principalExtractorClass, e.toString());
+                throw new ElasticsearchException(e);
+            }
+        }
     }
 
     @Override
     protected void configure() {
         bind(SearchGuardKeyStore.class).toInstance(sgks);
+        bind(PrincipalExtractor.class).toInstance(principalExtractor);
     }
 }
