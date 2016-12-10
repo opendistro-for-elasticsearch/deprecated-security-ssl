@@ -559,7 +559,11 @@ public class SSLTest extends AbstractUnitTest {
     
     @Test
     public void testCustomPrincipalExtractor() throws Exception {
-
+        
+        enableHTTPClientSSL = true;
+        trustHTTPServerCertificate = true;
+        sendHTTPClientCertificate = true;
+        
         final Settings settings = Settings.builder().put("searchguard.ssl.transport.enabled", true)
                 .put(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_ENABLE_OPENSSL_IF_AVAILABLE, allowOpenSSL)
                 .put(SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_ENABLE_OPENSSL_IF_AVAILABLE, allowOpenSSL)
@@ -568,8 +572,11 @@ public class SSLTest extends AbstractUnitTest {
                 .put("searchguard.ssl.transport.truststore_filepath", getAbsoluteFilePathFromClassPath("truststore.jks"))
                 .put("searchguard.ssl.transport.enforce_hostname_verification", false)
                 .put("searchguard.ssl.transport.resolve_hostname", false)
-                .put("searchguard.ssl.transport.principal_extractor_class", "com.floragunn.searchguard.ssl.transport.DefaultPrincipalExtractor")
-                .build();
+                .put("searchguard.ssl.transport.principal_extractor_class", "com.floragunn.searchguard.ssl.TestPrincipalExtractor")
+                .put(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_KEYSTORE_ALIAS, "node-0")
+                .put("searchguard.ssl.http.enabled", true)
+                .put("searchguard.ssl.http.keystore_filepath", getAbsoluteFilePathFromClassPath("node-0-keystore.jks"))
+                .put("searchguard.ssl.http.truststore_filepath", getAbsoluteFilePathFromClassPath("truststore.jks")).build();
 
         startES(settings);
         
@@ -583,7 +590,8 @@ public class SSLTest extends AbstractUnitTest {
             
             tc.addTransportAddress(new InetSocketTransportAddress(new InetSocketAddress(nodeHost, nodePort)));
             Assert.assertEquals(3, tc.admin().cluster().nodesInfo(new NodesInfoRequest()).actionGet().getNodes().size());            
-            log.debug("TransportClient connected");           
+            log.debug("TransportClient connected");
+            TestPrincipalExtractor.reset();
             Assert.assertEquals("test", tc.index(new IndexRequest("test","test").setRefreshPolicy(RefreshPolicy.IMMEDIATE).source("{\"a\":5}")).actionGet().getIndex());            
             log.debug("Index created");           
             Assert.assertEquals(1L, tc.search(new SearchRequest("test")).actionGet().getHits().getTotalHits());
@@ -593,6 +601,12 @@ public class SSLTest extends AbstractUnitTest {
             Assert.assertEquals(3, tc.admin().cluster().nodesInfo(new NodesInfoRequest()).actionGet().getNodes().size());           
             log.debug("NodesInfoRequest asserted");
         }
+        
+        executeSimpleRequest("_searchguard/sslinfo?pretty");
+        
+        //we need to test this in SG itself because in the SSL only plugin the info is not longer propagated
+        //Assert.assertTrue(TestPrincipalExtractor.getTransportCount() > 0);
+        Assert.assertTrue(TestPrincipalExtractor.getHttpCount() > 0);
     }
 
 }

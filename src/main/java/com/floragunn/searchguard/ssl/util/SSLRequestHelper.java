@@ -35,6 +35,9 @@ import org.elasticsearch.common.util.concurrent.ThreadContext;
 import org.elasticsearch.http.netty4.Netty4HttpRequest;
 import org.elasticsearch.rest.RestRequest;
 
+import com.floragunn.searchguard.ssl.transport.PrincipalExtractor;
+import com.floragunn.searchguard.ssl.transport.PrincipalExtractor.Type;
+
 public class SSLRequestHelper {
 
     public static class SSLInfo {
@@ -75,7 +78,7 @@ public class SSLRequestHelper {
 
     }
 
-    public static SSLInfo getSSLInfo(final RestRequest request) throws SSLPeerUnverifiedException {
+    public static SSLInfo getSSLInfo(final RestRequest request, PrincipalExtractor principalExtractor) throws SSLPeerUnverifiedException {
 
         if(request == null || !(request instanceof Netty4HttpRequest)) {
             return null;
@@ -92,9 +95,9 @@ public class SSLRequestHelper {
         final SSLSession session = engine.getSession();
 
         X509Certificate[] x509Certs = null;
-        String _principal = null;
         final String protocol = session.getProtocol();
         final String cipher = session.getCipherSuite();
+        String principal = null;
 
         if (engine.getNeedClientAuth() || engine.getWantClientAuth()) {
 
@@ -103,8 +106,7 @@ public class SSLRequestHelper {
 
                 if (certs != null && certs.length > 0 && certs[0] instanceof X509Certificate) {
                     x509Certs = Arrays.copyOf(certs, certs.length, X509Certificate[].class);
-                    final X500Principal principal = x509Certs[0].getSubjectX500Principal();
-                    _principal = principal == null ? null : principal.getName();
+                    principal = principalExtractor == null?null: principalExtractor.extractPrincipal(x509Certs[0], Type.HTTP);
                 } else if (engine.getNeedClientAuth()) {
                     final ElasticsearchException ex = new ElasticsearchException("No client certificates found but such are needed (SG 9).");
                     throw ex;
@@ -117,7 +119,7 @@ public class SSLRequestHelper {
             }
         }
 
-        return new SSLInfo(x509Certs, _principal, protocol, cipher);
+        return new SSLInfo(x509Certs, principal, protocol, cipher);
     }
     
     public static boolean containsBadHeader(final ThreadContext context, String prefix) {

@@ -131,7 +131,7 @@ public final class SearchGuardSSLPlugin extends Plugin implements ActionPlugin, 
         List<TransportInterceptor> interceptors = new ArrayList<TransportInterceptor>(1);
         
         if(transportSSLEnabled && !client) {
-            interceptors.add(new SearchGuardSSLTransportInterceptor(settings, null));
+            interceptors.add(new SearchGuardSSLTransportInterceptor(settings, null, null));
         }
         
         return interceptors;

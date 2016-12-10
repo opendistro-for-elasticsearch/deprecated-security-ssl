@@ -24,7 +24,7 @@ import javax.security.auth.x500.X500Principal;
 public class DefaultPrincipalExtractor implements PrincipalExtractor {
 
     @Override
-    public String extractPrincipal(X509Certificate x509Certificate) {
+    public String extractPrincipal(X509Certificate x509Certificate, Type type) {
         if (x509Certificate == null) {
             return null;
         }
