@@ -46,10 +46,13 @@ import org.jboss.netty.handler.ssl.SslHandler;
 import com.floragunn.searchguard.ssl.util.HeaderHelper;
 
 public class SearchGuardSSLTransportService extends TransportService {
+    
+    private final PrincipalExtractor principalExtractor;
 
     @Inject
-    public SearchGuardSSLTransportService(final Settings settings, final Transport transport, final ThreadPool threadPool) {
+    public SearchGuardSSLTransportService(final Settings settings, final Transport transport, final ThreadPool threadPool, PrincipalExtractor principalExtractor) {
         super(settings, transport, threadPool);
+        this.principalExtractor = principalExtractor;
     }
 
     @Override
@@ -123,15 +126,13 @@ public class SearchGuardSSLTransportService extends TransportService {
                     throw exception;
                 }
 
-                X500Principal principal;
-
                 final Certificate[] certs = sslhandler.getEngine().getSession().getPeerCertificates();
                 
                 if (certs != null && certs.length > 0 && certs[0] instanceof X509Certificate) {
                     X509Certificate[] x509Certs = Arrays.copyOf(certs, certs.length, X509Certificate[].class);
                     addAdditionalContextValues(action, request, x509Certs);
-                    principal = x509Certs[0].getSubjectX500Principal();
-                    request.putInContext("_sg_ssl_transport_principal", principal == null ? null : principal.getName());
+                    final String principal = principalExtractor.extractPrincipal(x509Certs[0], PrincipalExtractor.Type.TRANSPORT);
+                    request.putInContext("_sg_ssl_transport_principal", principal);
                     request.putInContext("_sg_ssl_transport_peer_certificates", x509Certs);
                     request.putInContext("_sg_ssl_transport_protocol", sslhandler.getEngine().getSession().getProtocol());
                     request.putInContext("_sg_ssl_transport_cipher", sslhandler.getEngine().getSession().getCipherSuite());
