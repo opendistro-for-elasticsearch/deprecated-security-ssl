@@ -36,18 +36,21 @@ import org.elasticsearch.rest.RestStatus;
 import org.elasticsearch.threadpool.ThreadPool;
 
 import com.floragunn.searchguard.ssl.SearchGuardKeyStore;
+import com.floragunn.searchguard.ssl.transport.PrincipalExtractor;
 import com.floragunn.searchguard.ssl.util.SSLRequestHelper;
 import com.floragunn.searchguard.ssl.util.SSLRequestHelper.SSLInfo;
 
 public class SearchGuardSSLInfoAction extends BaseRestHandler {
 
     private final SearchGuardKeyStore sgks;
+    final PrincipalExtractor principalExtractor;
 
     @Inject
     public SearchGuardSSLInfoAction(final Settings settings, final RestController controller,
-            ThreadPool threadPool, final SearchGuardKeyStore sgks) {
+            ThreadPool threadPool, final SearchGuardKeyStore sgks, final PrincipalExtractor principalExtractor) {
         super(settings);
         this.sgks = sgks;
+        this.principalExtractor = principalExtractor;
         controller.registerHandler(GET, "/_searchguard/sslinfo", this);
     }
     
@@ -58,7 +61,7 @@ public class SearchGuardSSLInfoAction extends BaseRestHandler {
       
         try {
             
-            SSLInfo sslInfo = SSLRequestHelper.getSSLInfo(request);
+            SSLInfo sslInfo = SSLRequestHelper.getSSLInfo(request, principalExtractor);
             X509Certificate[] certs = sslInfo.getX509Certs();
 
             builder.startObject();

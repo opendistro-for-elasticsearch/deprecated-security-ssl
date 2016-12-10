@@ -109,7 +109,7 @@ public class SearchGuardSSLNettyHttpServerTransport extends Netty4HttpServerTran
         }
         
         try {
-            if(SSLRequestHelper.getSSLInfo(request) == null) {
+            if(SSLRequestHelper.getSSLInfo(request, null) == null) {
                 logger.error("Not an SSL request");
                 throw new ElasticsearchSecurityException("Not an SSL request", RestStatus.INTERNAL_SERVER_ERROR);
             }

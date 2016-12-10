@@ -20,6 +20,11 @@ package com.floragunn.searchguard.ssl.transport;
 import java.security.cert.X509Certificate;
 
 public interface PrincipalExtractor {
+    
+    public enum Type {
+        HTTP,
+        TRANSPORT
+    }
 
     /**
      * Extract the principal name
@@ -35,6 +40,6 @@ public interface PrincipalExtractor {
      * @return The principal as string. This may be <code>null</code> in case where x509Certificate is null
      *        or the principal cannot be extracted because of any other circumstances.
      */
-    String extractPrincipal(X509Certificate x509Certificate);
+    String extractPrincipal(X509Certificate x509Certificate, Type type);
 
 }

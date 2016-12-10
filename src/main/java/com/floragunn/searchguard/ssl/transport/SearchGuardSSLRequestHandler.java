@@ -40,6 +40,7 @@ import org.elasticsearch.transport.TransportChannel;
 import org.elasticsearch.transport.TransportRequest;
 import org.elasticsearch.transport.TransportRequestHandler;
 
+import com.floragunn.searchguard.ssl.transport.PrincipalExtractor.Type;
 import com.floragunn.searchguard.ssl.util.SSLRequestHelper;
 
 public class SearchGuardSSLRequestHandler<T extends TransportRequest>
@@ -49,12 +50,14 @@ implements TransportRequestHandler<T> {
     private final TransportRequestHandler<T> actualHandler;
     private final ThreadPool threadPool;
     protected final Logger log = LogManager.getLogger(this.getClass());
+    private final PrincipalExtractor principalExtractor;
 
-    public SearchGuardSSLRequestHandler(String action, TransportRequestHandler<T> actualHandler, ThreadPool threadPool) {
+    public SearchGuardSSLRequestHandler(String action, TransportRequestHandler<T> actualHandler, ThreadPool threadPool, final PrincipalExtractor principalExtractor) {
         super();
         this.action = action;
         this.actualHandler = actualHandler;
         this.threadPool = threadPool;
+        this.principalExtractor = principalExtractor;
     }
     
     protected ThreadContext getThreadContext() {
@@ -112,19 +115,17 @@ implements TransportRequestHandler<T> {
                 channel.sendResponse(exception);
                 throw exception;
             }
-            
-            
-            X500Principal principal;
+
 
             final Certificate[] certs = sslhandler.engine().getSession().getPeerCertificates();
             
             if (certs != null && certs.length > 0 && certs[0] instanceof X509Certificate) {
                 X509Certificate[] x509Certs = Arrays.copyOf(certs, certs.length, X509Certificate[].class);
                 addAdditionalContextValues(action, request, x509Certs);
-                principal = x509Certs[0].getSubjectX500Principal();
-                
                 if(threadContext != null) {
-                    threadContext.putTransient("_sg_ssl_transport_principal", principal == null ? null : principal.getName());
+                    //in the case of ssl plugin only: threadContext and principalExtractor are null
+                    String principal = principalExtractor.extractPrincipal(x509Certs[0], Type.TRANSPORT);
+                    threadContext.putTransient("_sg_ssl_transport_principal", principal);
                     threadContext.putTransient("_sg_ssl_transport_peer_certificates", x509Certs);
                     threadContext.putTransient("_sg_ssl_transport_protocol", sslhandler.engine().getSession().getProtocol());
                     threadContext.putTransient("_sg_ssl_transport_cipher", sslhandler.engine().getSession().getCipherSuite());
