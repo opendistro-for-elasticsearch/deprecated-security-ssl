@@ -13,7 +13,7 @@ It does not provide authentication and authorization. For that pls refer to [Sea
 * Works with Kibana, logstash and beats
 
 ##Installation
- ``bin/elasticsearch-plugin install -b com.floragunn:search-guard-ssl:5.1.1-18``
+ ``bin/elasticsearch-plugin install -b com.floragunn:search-guard-ssl:5.1.1-19``
 
 _Note_: If you install Search Guard 5 then you must not install this plugin (because SG 5 already contains it). This is different from how it worked with SG 2.
 
