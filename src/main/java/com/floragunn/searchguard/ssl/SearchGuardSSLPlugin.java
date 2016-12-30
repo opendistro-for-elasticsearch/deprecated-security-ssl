@@ -100,7 +100,7 @@ public final class SearchGuardSSLPlugin extends Plugin implements ActionPlugin {
     @Override
     public List<Class<? extends RestHandler>> getRestHandlers() {
         List<Class<? extends RestHandler>> handlers = new ArrayList<Class<? extends RestHandler>>(1);
-        if (!client && httpSSLEnabled) {
+        if (!client) {
             handlers.add(SearchGuardSSLInfoAction.class);
         }
         return handlers;
