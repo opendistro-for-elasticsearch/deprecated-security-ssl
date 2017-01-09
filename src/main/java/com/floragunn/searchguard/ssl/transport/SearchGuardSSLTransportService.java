@@ -126,14 +126,22 @@ public class SearchGuardSSLTransportService extends TransportService {
                     throw exception;
                 }
 
-                final Certificate[] certs = sslhandler.getEngine().getSession().getPeerCertificates();
+                final Certificate[] peerCerts = sslhandler.getEngine().getSession().getPeerCertificates();
+                final Certificate[] localCerts = sslhandler.getEngine().getSession().getLocalCertificates();
                 
-                if (certs != null && certs.length > 0 && certs[0] instanceof X509Certificate) {
-                    X509Certificate[] x509Certs = Arrays.copyOf(certs, certs.length, X509Certificate[].class);
-                    addAdditionalContextValues(action, request, x509Certs);
-                    final String principal = principalExtractor.extractPrincipal(x509Certs[0], PrincipalExtractor.Type.TRANSPORT);
+                if (peerCerts != null 
+                        && peerCerts.length > 0 
+                        && peerCerts[0] instanceof X509Certificate 
+                        && localCerts != null && localCerts.length > 0 
+                        && localCerts[0] instanceof X509Certificate) {
+                    final X509Certificate[] x509PeerCerts = Arrays.copyOf(peerCerts, peerCerts.length, X509Certificate[].class);
+                    final X509Certificate[] x509LocalCerts = Arrays.copyOf(localCerts, localCerts.length, X509Certificate[].class);
+                    final String principal = principalExtractor.extractPrincipal(x509PeerCerts[0], PrincipalExtractor.Type.TRANSPORT);
+                    addAdditionalContextValues(action, request, x509LocalCerts, x509PeerCerts, principal);
+                    addAdditionalContextValues(action, request, x509PeerCerts);
                     request.putInContext("_sg_ssl_transport_principal", principal);
-                    request.putInContext("_sg_ssl_transport_peer_certificates", x509Certs);
+                    request.putInContext("_sg_ssl_transport_peer_certificates", x509PeerCerts);
+                    request.putInContext("_sg_ssl_transport_local_certificates", x509LocalCerts);
                     request.putInContext("_sg_ssl_transport_protocol", sslhandler.getEngine().getSession().getProtocol());
                     request.putInContext("_sg_ssl_transport_cipher", sslhandler.getEngine().getSession().getCipherSuite());
                     messageReceivedDecorate(request, handler, transportChannel, task);
@@ -163,7 +171,17 @@ public class SearchGuardSSLTransportService extends TransportService {
 
     }
 
-    protected void addAdditionalContextValues(final String action, final TransportRequest request, final X509Certificate[] certs)
+    protected void addAdditionalContextValues(final String action, final TransportRequest request, final X509Certificate[] localCerts, final X509Certificate[] peerCerts, final String principal)
+            throws Exception {
+        // no-op
+    }
+    
+    /**
+     * @deprecated
+     * use addAdditionalContextValues(final String action, final TransportRequest request, final X509Certificate[] localCerts, final X509Certificate[] peerCerts, final String principal) instead
+     */
+    @Deprecated
+    protected void addAdditionalContextValues(final String action, final TransportRequest request, final X509Certificate[] peerCerts)
             throws Exception {
         // no-op
     }
