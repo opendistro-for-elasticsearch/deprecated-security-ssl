@@ -137,10 +137,7 @@
                 <directory>${basedir}/src/test/resources</directory>
                 <filtering>false</filtering>
                 <includes>
-                    <include>**/*.json</include>
-                    <include>**/*.yml</include>
-                    <include>**/*.properties</include>
-                    <include>**/*.jks</include>
+                    <include>**/*</include>
                 </includes>
             </testResource>
         </testResources>
