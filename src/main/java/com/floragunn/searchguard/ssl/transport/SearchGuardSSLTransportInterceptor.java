@@ -37,7 +37,7 @@ public final class SearchGuardSSLTransportInterceptor implements TransportInterc
     }
 
     @Override
-    public <T extends TransportRequest> TransportRequestHandler<T> interceptHandler(String action, String executor,
+    public <T extends TransportRequest> TransportRequestHandler<T> interceptHandler(String action, String executor, boolean forceExecution,
             TransportRequestHandler<T> actualHandler) {
         return new SearchGuardSSLRequestHandler<T>(action, actualHandler, threadPool, principalExtractor);
     }
