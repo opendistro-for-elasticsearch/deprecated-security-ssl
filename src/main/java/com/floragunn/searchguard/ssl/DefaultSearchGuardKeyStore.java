@@ -53,6 +53,7 @@ import javax.net.ssl.SSLParameters;
 
 import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.ElasticsearchSecurityException;
+import org.elasticsearch.ExceptionsHelper;
 import org.elasticsearch.SpecialPermission;
 import org.elasticsearch.common.inject.Inject;
 import org.elasticsearch.common.logging.ESLogger;
@@ -464,8 +465,9 @@ public class DefaultSearchGuardKeyStore implements SearchGuardKeyStore {
             engine.setEnabledCipherSuites(jdkSupportedCiphers.toArray(new String[0]));
 
             enabledHttpCiphersJDKProvider = Collections.unmodifiableList(Arrays.asList(engine.getEnabledCipherSuites()));
-        } catch (final Exception e) {
-            enabledHttpCiphersJDKProvider = Collections.emptyList();
+        } catch (final Throwable e) {
+            log.error("Unable to determine supported ciphers due to "+ExceptionsHelper.stackTrace(e));
+            enabledHttpCiphersJDKProvider = secureSSLCiphers;
         } finally {
             if(engine != null) {
                 try {
@@ -504,8 +506,9 @@ public class DefaultSearchGuardKeyStore implements SearchGuardKeyStore {
             engine.setEnabledCipherSuites(jdkSupportedCiphers.toArray(new String[0]));
 
             enabledTransportCiphersJDKProvider = Collections.unmodifiableList(Arrays.asList(engine.getEnabledCipherSuites()));
-        } catch (final Exception e) {
-            enabledTransportCiphersJDKProvider = Collections.emptyList();
+        } catch (final Throwable e) {
+            log.error("Unable to determine supported ciphers due to "+ExceptionsHelper.stackTrace(e));
+            enabledTransportCiphersJDKProvider = secureSSLCiphers;
         } finally {
             if(engine != null) {
                 try {
