@@ -180,8 +180,8 @@ implements TransportRequestHandler<T> {
         // no-op
     }
     
-    protected void messageReceivedDecorate(final TransportRequest request, final TransportRequestHandler handler, final TransportChannel transportChannel, Task task) throws Exception {
-        handler.messageReceived(request, transportChannel, task);
+    protected void messageReceivedDecorate(final T request, final TransportRequestHandler<T> actualHandler, final TransportChannel transportChannel, Task task) throws Exception {
+        actualHandler.messageReceived(request, transportChannel, task);
     }
     
     protected void errorThrown(Throwable t, final TransportRequest request, String action) {
