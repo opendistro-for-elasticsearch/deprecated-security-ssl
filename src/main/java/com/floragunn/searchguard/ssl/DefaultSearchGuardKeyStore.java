@@ -135,6 +135,20 @@ public class DefaultSearchGuardKeyStore implements SearchGuardKeyStore {
         } else {
             sslTransportClientProvider = sslTransportServerProvider = null;
         }
+        
+        log.info("java.version: {}", System.getProperty("java.version"));
+        log.info("java.vendor: {}", System.getProperty("java.vendor"));
+        log.info("java.vm.specification.version: {}", System.getProperty("java.vm.specification.version"));
+        log.info("java.vm.specification.vendor: {}", System.getProperty("java.vm.specification.vendor"));
+        log.info("java.vm.specification.name: {}", System.getProperty("java.vm.specification.name"));
+        log.info("java.vm.name: {}", System.getProperty("java.vm.name"));
+        log.info("java.vm.vendor: {}", System.getProperty("java.vm.vendor"));
+        log.info("java.specification.version: {}", System.getProperty("java.specification.version"));
+        log.info("java.specification.vendor: {}", System.getProperty("java.specification.vendor"));
+        log.info("java.specification.name: {}", System.getProperty("java.specification.name"));
+        log.info("os.name: {}", System.getProperty("os.name"));
+        log.info("os.arch: {}", System.getProperty("os.arch"));
+        log.info("os.version: {}", System.getProperty("os.version"));
 
         initEnabledSSLCiphers();
         initSSLConfig();
@@ -461,6 +475,7 @@ public class DefaultSearchGuardKeyStore implements SearchGuardKeyStore {
             serverContext.init(null, null, null);
             engine = serverContext.createSSLEngine();
             final List<String> jdkSupportedCiphers = new ArrayList<>(Arrays.asList(engine.getSupportedCipherSuites()));
+            log.info("JVM supports the following {} ciphers for https {}", jdkSupportedCiphers.size(), jdkSupportedCiphers);
             jdkSupportedCiphers.retainAll(secureSSLCiphers);
             engine.setEnabledCipherSuites(jdkSupportedCiphers.toArray(new String[0]));
 
@@ -502,6 +517,7 @@ public class DefaultSearchGuardKeyStore implements SearchGuardKeyStore {
             serverContext.init(null, null, null);
             engine = serverContext.createSSLEngine();
             final List<String> jdkSupportedCiphers = new ArrayList<>(Arrays.asList(engine.getSupportedCipherSuites()));
+            log.info("JVM supports the following {} ciphers for transport {}", jdkSupportedCiphers.size(), jdkSupportedCiphers);
             jdkSupportedCiphers.retainAll(secureSSLCiphers);
             engine.setEnabledCipherSuites(jdkSupportedCiphers.toArray(new String[0]));
 
