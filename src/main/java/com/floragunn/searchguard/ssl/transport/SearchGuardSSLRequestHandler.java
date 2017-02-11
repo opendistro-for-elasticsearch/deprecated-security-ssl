@@ -25,7 +25,6 @@ import java.security.cert.X509Certificate;
 import java.util.Arrays;
 
 import javax.net.ssl.SSLPeerUnverifiedException;
-import javax.security.auth.x500.X500Principal;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -40,7 +39,6 @@ import org.elasticsearch.transport.TransportChannel;
 import org.elasticsearch.transport.TransportRequest;
 import org.elasticsearch.transport.TransportRequestHandler;
 
-import com.floragunn.searchguard.ssl.transport.PrincipalExtractor.Type;
 import com.floragunn.searchguard.ssl.util.SSLRequestHelper;
 
 public class SearchGuardSSLRequestHandler<T extends TransportRequest>
@@ -117,16 +115,24 @@ implements TransportRequestHandler<T> {
             }
 
 
-            final Certificate[] certs = sslhandler.engine().getSession().getPeerCertificates();
+            final Certificate[] peerCerts = sslhandler.engine().getSession().getPeerCertificates();
+            final Certificate[] localCerts = sslhandler.engine().getSession().getLocalCertificates();
             
-            if (certs != null && certs.length > 0 && certs[0] instanceof X509Certificate) {
-                X509Certificate[] x509Certs = Arrays.copyOf(certs, certs.length, X509Certificate[].class);
-                addAdditionalContextValues(action, request, x509Certs);
+            if (peerCerts != null 
+                    && peerCerts.length > 0 
+                    && peerCerts[0] instanceof X509Certificate 
+                    && localCerts != null && localCerts.length > 0 
+                    && localCerts[0] instanceof X509Certificate) {
+                final X509Certificate[] x509PeerCerts = Arrays.copyOf(peerCerts, peerCerts.length, X509Certificate[].class);
+                final X509Certificate[] x509LocalCerts = Arrays.copyOf(localCerts, localCerts.length, X509Certificate[].class);
+                final String principal = principalExtractor==null?null:principalExtractor.extractPrincipal(x509PeerCerts[0], PrincipalExtractor.Type.TRANSPORT);
+                addAdditionalContextValues(action, request, x509LocalCerts, x509PeerCerts, principal);
+                addAdditionalContextValues(action, request, x509PeerCerts);
                 if(threadContext != null) {
                     //in the case of ssl plugin only: threadContext and principalExtractor are null
-                    String principal = principalExtractor.extractPrincipal(x509Certs[0], Type.TRANSPORT);
                     threadContext.putTransient("_sg_ssl_transport_principal", principal);
-                    threadContext.putTransient("_sg_ssl_transport_peer_certificates", x509Certs);
+                    threadContext.putTransient("_sg_ssl_transport_peer_certificates", x509PeerCerts);
+                    threadContext.putTransient("_sg_ssl_transport_local_certificates", x509LocalCerts);
                     threadContext.putTransient("_sg_ssl_transport_protocol", sslhandler.engine().getSession().getProtocol());
                     threadContext.putTransient("_sg_ssl_transport_cipher", sslhandler.engine().getSession().getCipherSuite());
                 }
@@ -159,16 +165,26 @@ implements TransportRequestHandler<T> {
         
     }
     
-    protected void addAdditionalContextValues(final String action, final TransportRequest request, final X509Certificate[] certs)
+    protected void addAdditionalContextValues(final String action, final TransportRequest request, final X509Certificate[] localCerts, final X509Certificate[] peerCerts, final String principal)
             throws Exception {
         // no-op
     }
     
-    protected void messageReceivedDecorate(final T request, final TransportRequestHandler<T> actualHandler, final TransportChannel transportChannel, Task task) throws Exception {
-        actualHandler.messageReceived(request, transportChannel, task);
+    /**
+     * @deprecated
+     * use addAdditionalContextValues(final String action, final TransportRequest request, final X509Certificate[] localCerts, final X509Certificate[] peerCerts, final String principal) instead
+     */
+    @Deprecated
+    protected void addAdditionalContextValues(final String action, final TransportRequest request, final X509Certificate[] peerCerts)
+            throws Exception {
+        // no-op
     }
-      
-    protected void errorThrown(Throwable t, final T request, String action) {
+    
+    protected void messageReceivedDecorate(final TransportRequest request, final TransportRequestHandler handler, final TransportChannel transportChannel, Task task) throws Exception {
+        handler.messageReceived(request, transportChannel, task);
+    }
+    
+    protected void errorThrown(Throwable t, final TransportRequest request, String action) {
         // no-op
     }
 }

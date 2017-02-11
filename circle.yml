@@ -8,6 +8,8 @@ machine:
 
 deployment:
   deploysnap:
-    branch: 5.0.0
+    branch: 5.1.1
     commands:
       - mvn deploy -DskipTests -s settings.xml
+
+

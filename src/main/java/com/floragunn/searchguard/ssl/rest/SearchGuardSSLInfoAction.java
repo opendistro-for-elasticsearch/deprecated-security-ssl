@@ -27,9 +27,9 @@ import org.elasticsearch.client.node.NodeClient;
 import org.elasticsearch.common.inject.Inject;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.xcontent.XContentBuilder;
-import org.elasticsearch.common.xcontent.json.JsonXContent;
 import org.elasticsearch.rest.BaseRestHandler;
 import org.elasticsearch.rest.BytesRestResponse;
+import org.elasticsearch.rest.RestChannel;
 import org.elasticsearch.rest.RestController;
 import org.elasticsearch.rest.RestRequest;
 import org.elasticsearch.rest.RestStatus;
@@ -56,42 +56,47 @@ public class SearchGuardSSLInfoAction extends BaseRestHandler {
     
     @Override
     protected RestChannelConsumer prepareRequest(RestRequest request, NodeClient client) throws IOException {
-        BytesRestResponse response = null;
-        XContentBuilder builder = XContentBuilder.builder(JsonXContent.jsonXContent);
-      
-        try {
-            
-            SSLInfo sslInfo = SSLRequestHelper.getSSLInfo(request, principalExtractor);
-            X509Certificate[] certs = sslInfo.getX509Certs();
+        return new RestChannelConsumer() {
 
-            builder.startObject();
+            @Override
+            public void accept(RestChannel channel) throws Exception {
+                XContentBuilder builder = channel.newBuilder();
+                BytesRestResponse response = null;
+                
+                try {
+                    
+                    SSLInfo sslInfo = SSLRequestHelper.getSSLInfo(request, principalExtractor);
+                    X509Certificate[] certs = sslInfo == null?null:sslInfo.getX509Certs();
 
-            builder.field("principal", sslInfo.getPrincipal());
-            builder.field("peer_certificates", certs != null && certs.length > 0 ? certs.length + "" : "0");
-            builder.field("ssl_protocol", sslInfo.getProtocol());
-            builder.field("ssl_cipher", sslInfo.getCipher());
-            builder.field("ssl_openssl_available", OpenSsl.isAvailable());
-            builder.field("ssl_openssl_version", OpenSsl.version());
-            builder.field("ssl_openssl_version_string", OpenSsl.versionString());
-            Throwable openSslUnavailCause = OpenSsl.unavailabilityCause();
-            builder.field("ssl_openssl_non_available_cause", openSslUnavailCause==null?"":openSslUnavailCause.toString());
-            builder.field("ssl_openssl_supports_key_manager_factory", OpenSsl.supportsKeyManagerFactory());
-            builder.field("ssl_provider_http", sgks.getHTTPProviderName());
-            builder.field("ssl_provider_transport_server", sgks.getTransportServerProviderName());
-            builder.field("ssl_provider_transport_client", sgks.getTransportClientProviderName());
-            builder.endObject();
+                    builder.startObject();
 
-            response = new BytesRestResponse(RestStatus.OK, builder);
-        } catch (final Exception e1) {
-            logger.error("Error handle request "+e1, e1);
-            builder = XContentBuilder.builder(JsonXContent.jsonXContent);
-            builder.startObject();
-            builder.field("error", e1.toString());
-            builder.endObject();
-            response = new BytesRestResponse(RestStatus.INTERNAL_SERVER_ERROR, builder);
-        }
-        
-        final BytesRestResponse finalResponse = response;
-        return channel -> channel.sendResponse(finalResponse);
+                    builder.field("principal", sslInfo == null?null:sslInfo.getPrincipal());
+                    builder.field("peer_certificates", certs != null && certs.length > 0 ? certs.length + "" : "0");
+                    builder.field("ssl_protocol", sslInfo == null?null:sslInfo.getProtocol());
+                    builder.field("ssl_cipher", sslInfo == null?null:sslInfo.getCipher());
+                    builder.field("ssl_openssl_available", OpenSsl.isAvailable());
+                    builder.field("ssl_openssl_version", OpenSsl.version());
+                    builder.field("ssl_openssl_version_string", OpenSsl.versionString());
+                    Throwable openSslUnavailCause = OpenSsl.unavailabilityCause();
+                    builder.field("ssl_openssl_non_available_cause", openSslUnavailCause==null?"":openSslUnavailCause.toString());
+                    builder.field("ssl_openssl_supports_key_manager_factory", OpenSsl.supportsKeyManagerFactory());
+                    builder.field("ssl_provider_http", sgks.getHTTPProviderName());
+                    builder.field("ssl_provider_transport_server", sgks.getTransportServerProviderName());
+                    builder.field("ssl_provider_transport_client", sgks.getTransportClientProviderName());
+                    builder.endObject();
+
+                    response = new BytesRestResponse(RestStatus.OK, builder);
+                } catch (final Exception e1) {
+                    logger.error("Error handle request "+e1, e1);
+                    builder = channel.newBuilder();
+                    builder.startObject();
+                    builder.field("error", e1.toString());
+                    builder.endObject();
+                    response = new BytesRestResponse(RestStatus.INTERNAL_SERVER_ERROR, builder);
+                }
+                
+                channel.sendResponse(response);
+            }
+        };
     }
 }

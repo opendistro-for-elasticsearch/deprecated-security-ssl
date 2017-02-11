@@ -25,6 +25,7 @@ import io.netty.channel.ChannelPromise;
 import io.netty.handler.ssl.NotSslRecordException;
 import io.netty.handler.ssl.SslHandler;
 
+import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 
@@ -56,6 +57,27 @@ public class SearchGuardSSLNettyTransport extends Netty4Transport {
         super(settings, threadPool, networkService, bigArrays, namedWriteableRegistry, circuitBreakerService);
         this.sgks = sgks;
     }
+    
+    @Override
+    protected void onException(Channel channel, Exception e) throws IOException {
+        if (lifecycle.started()) {
+            final Throwable cause = e.getCause();
+            if(cause instanceof NotSslRecordException) {
+                logger.warn("Someone ({}) speaks transport plaintext instead of ssl, will close the channel", channel.remoteAddress());
+                disconnectFromNodeChannel(channel, e);
+                return;
+            } else if (cause instanceof SSLException) {
+                logger.error("SSL Problem "+cause.getMessage(),cause);
+                disconnectFromNodeChannel(channel, e);
+                return;
+            } else if (cause instanceof SSLHandshakeException) {
+                logger.error("Problem during handshake "+cause.getMessage());
+                disconnectFromNodeChannel(channel, e);
+                return;
+            }
+        }
+        super.onException(channel, e);
+    }
 
     @Override
     protected ChannelHandler getServerChannelInitializer(String name, Settings remoteAddress) {
@@ -85,7 +107,7 @@ public class SearchGuardSSLNettyTransport extends Netty4Transport {
             if(SearchGuardSSLNettyTransport.this.lifecycle.started()) {
                 
                 if(cause instanceof NotSslRecordException) {
-                    logger.warn("Someone speaks plaintext instead of ssl, will close the channel");
+                    logger.warn("Someone ({}) speaks transport plaintext instead of ssl, will close the channel", ctx.channel().remoteAddress());
                     ctx.channel().close();
                     return;
                 } else if (cause instanceof SSLException) {
@@ -170,7 +192,7 @@ public class SearchGuardSSLNettyTransport extends Netty4Transport {
             if(SearchGuardSSLNettyTransport.this.lifecycle.started()) {
                 
                 if(cause instanceof NotSslRecordException) {
-                    logger.warn("Someone speaks plaintext instead of ssl, will close the channel");
+                    logger.warn("Someone ({}) speaks transport plaintext instead of ssl, will close the channel", ctx.channel().remoteAddress());
                     ctx.channel().close();
                     return;
                 } else if (cause instanceof SSLException) {
