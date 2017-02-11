@@ -66,14 +66,14 @@ public class SearchGuardSSLInfoAction extends BaseRestHandler {
                 try {
                     
                     SSLInfo sslInfo = SSLRequestHelper.getSSLInfo(request, principalExtractor);
-                    X509Certificate[] certs = sslInfo.getX509Certs();
+                    X509Certificate[] certs = sslInfo == null?null:sslInfo.getX509Certs();
 
                     builder.startObject();
 
-                    builder.field("principal", sslInfo.getPrincipal());
+                    builder.field("principal", sslInfo == null?null:sslInfo.getPrincipal());
                     builder.field("peer_certificates", certs != null && certs.length > 0 ? certs.length + "" : "0");
-                    builder.field("ssl_protocol", sslInfo.getProtocol());
-                    builder.field("ssl_cipher", sslInfo.getCipher());
+                    builder.field("ssl_protocol", sslInfo == null?null:sslInfo.getProtocol());
+                    builder.field("ssl_cipher", sslInfo == null?null:sslInfo.getCipher());
                     builder.field("ssl_openssl_available", OpenSsl.isAvailable());
                     builder.field("ssl_openssl_version", OpenSsl.version());
                     builder.field("ssl_openssl_version_string", OpenSsl.versionString());
