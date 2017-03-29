@@ -85,8 +85,7 @@ public class SSLCertificateHelper {
         
         List<X509Certificate> x509Certificates = new ArrayList<>(trustedCerts.size());
         for (Certificate c : trustedCerts) {
-            if (c != null && c instanceof X509Certificate)
-            {
+            if (c != null && c instanceof X509Certificate) {
                 x509Certificates.add((X509Certificate) c);
             } else {
                 if(log.isDebugEnabled()) {

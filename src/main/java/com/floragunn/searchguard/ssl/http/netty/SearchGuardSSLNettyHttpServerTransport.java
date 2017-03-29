@@ -25,33 +25,26 @@ import io.netty.handler.ssl.SslHandler;
 
 import javax.net.ssl.SSLException;
 import javax.net.ssl.SSLHandshakeException;
-import javax.net.ssl.SSLPeerUnverifiedException;
 
-import org.elasticsearch.ElasticsearchException;
-import org.elasticsearch.ElasticsearchSecurityException;
-import org.elasticsearch.ExceptionsHelper;
 import org.elasticsearch.common.network.NetworkService;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.util.BigArrays;
 import org.elasticsearch.common.util.concurrent.ThreadContext;
 import org.elasticsearch.common.xcontent.NamedXContentRegistry;
 import org.elasticsearch.http.netty4.Netty4HttpServerTransport;
-import org.elasticsearch.rest.RestChannel;
 import org.elasticsearch.rest.RestRequest;
-import org.elasticsearch.rest.RestStatus;
 import org.elasticsearch.threadpool.ThreadPool;
 
 import com.floragunn.searchguard.ssl.SearchGuardKeyStore;
-import com.floragunn.searchguard.ssl.util.SSLRequestHelper;
 
-public class SearchGuardSSLNettyHttpServerTransport extends Netty4HttpServerTransport {
+public class SearchGuardSSLNettyHttpServerTransport extends Netty4HttpServerTransport implements AuditErrorHandler {
 
     private final SearchGuardKeyStore sgks;
     private final ThreadContext threadContext;
     
     public SearchGuardSSLNettyHttpServerTransport(final Settings settings, final NetworkService networkService, final BigArrays bigArrays,
-            ThreadPool threadPool, final SearchGuardKeyStore sgks, NamedXContentRegistry namedXContentRegistry) {
-        super(settings, networkService, bigArrays, threadPool, namedXContentRegistry);
+            final ThreadPool threadPool, final SearchGuardKeyStore sgks, final NamedXContentRegistry namedXContentRegistry, final ValidatingDispatcher dispatcher) {
+        super(settings, networkService, bigArrays, threadPool, namedXContentRegistry, dispatcher);
         this.sgks = sgks;
         this.threadContext = threadPool.getThreadContext();
     }
@@ -97,28 +90,8 @@ public class SearchGuardSSLNettyHttpServerTransport extends Netty4HttpServerTran
         }
     }
 
-    @Override
-    protected void dispatchRequest(final RestRequest request, final RestChannel channel) {
-        
-        if(SSLRequestHelper.containsBadHeader(threadContext, "_sg_ssl_")) {
-            final ElasticsearchException exception = new ElasticsearchException("bad header found");
-            errorThrown(exception, request);
-            //channel.sendResponse();
-            throw exception;
-        }
-        
-        try {
-            if(SSLRequestHelper.getSSLInfo(request, null) == null) {
-                logger.error("Not an SSL request");
-                throw new ElasticsearchSecurityException("Not an SSL request", RestStatus.INTERNAL_SERVER_ERROR);
-            }
-        } catch (SSLPeerUnverifiedException e) {
-            logger.error("No client certificates found but such are needed (SG 8).");
-            errorThrown(e, request);
-          //channel.sendResponse();
-            throw ExceptionsHelper.convertToElastic(e);
-        }
-        super.dispatchRequest(request, channel);
+    public final void logError(Throwable t, final RestRequest request) {
+        errorThrown(t, request);
     }
     
     protected void errorThrown(Throwable t, final RestRequest request) {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 floragunn UG (haftungsbeschränkt)
+ * Copyright 2017 floragunn GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,17 +15,12 @@
  * 
  */
 
-package org.elasticsearch.node;
+package com.floragunn.searchguard.ssl.http.netty;
 
-import java.util.Arrays;
+import org.elasticsearch.rest.RestRequest;
 
-import org.elasticsearch.common.settings.Settings;
-import org.elasticsearch.plugins.Plugin;
+public interface AuditErrorHandler {
+    
+    void logError(Throwable t, final RestRequest request);
 
-public class PluginAwareNode extends Node {
-
-    @SafeVarargs
-    public PluginAwareNode(final Settings preparedSettings, final Class<? extends Plugin>... plugins) {
-        super(InternalSettingsPreparer.prepareEnvironment(preparedSettings, null), Arrays.asList(plugins));
-    }
 }

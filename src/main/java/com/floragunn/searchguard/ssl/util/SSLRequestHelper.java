@@ -27,10 +27,8 @@ import java.util.Map.Entry;
 import javax.net.ssl.SSLEngine;
 import javax.net.ssl.SSLPeerUnverifiedException;
 import javax.net.ssl.SSLSession;
-import javax.security.auth.x500.X500Principal;
 
 import org.elasticsearch.ElasticsearchException;
-import org.elasticsearch.ElasticsearchSecurityException;
 import org.elasticsearch.common.util.concurrent.ThreadContext;
 import org.elasticsearch.http.netty4.Netty4HttpRequest;
 import org.elasticsearch.rest.RestRequest;
@@ -126,7 +124,6 @@ public class SSLRequestHelper {
         if (context != null) {
             for (final Entry<String, String> header : context.getHeaders().entrySet()) {
                 if (header != null && header.getKey() != null && header.getKey().trim().toLowerCase().startsWith(prefix)) {
-                    System.out.println(header.getKey()+"="+header.getValue());
                     return true;
                 }
             }

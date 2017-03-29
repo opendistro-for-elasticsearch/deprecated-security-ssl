@@ -55,7 +55,6 @@ import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.ElasticsearchSecurityException;
 import org.elasticsearch.ExceptionsHelper;
 import org.elasticsearch.SpecialPermission;
-import org.elasticsearch.common.inject.Inject;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.elasticsearch.common.settings.Settings;
@@ -104,7 +103,6 @@ public class DefaultSearchGuardKeyStore implements SearchGuardKeyStore {
     private SslContext transportServerSslContext;
     private SslContext transportClientSslContext;
 
-    @Inject
     public DefaultSearchGuardKeyStore(final Settings settings) {
         super();
         this.settings = settings;

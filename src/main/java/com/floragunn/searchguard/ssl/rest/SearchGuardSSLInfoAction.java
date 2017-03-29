@@ -24,7 +24,6 @@ import java.io.IOException;
 import java.security.cert.X509Certificate;
 
 import org.elasticsearch.client.node.NodeClient;
-import org.elasticsearch.common.inject.Inject;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.rest.BaseRestHandler;
@@ -33,7 +32,6 @@ import org.elasticsearch.rest.RestChannel;
 import org.elasticsearch.rest.RestController;
 import org.elasticsearch.rest.RestRequest;
 import org.elasticsearch.rest.RestStatus;
-import org.elasticsearch.threadpool.ThreadPool;
 
 import com.floragunn.searchguard.ssl.SearchGuardKeyStore;
 import com.floragunn.searchguard.ssl.transport.PrincipalExtractor;
@@ -45,9 +43,8 @@ public class SearchGuardSSLInfoAction extends BaseRestHandler {
     private final SearchGuardKeyStore sgks;
     final PrincipalExtractor principalExtractor;
 
-    @Inject
     public SearchGuardSSLInfoAction(final Settings settings, final RestController controller,
-            ThreadPool threadPool, final SearchGuardKeyStore sgks, final PrincipalExtractor principalExtractor) {
+            final SearchGuardKeyStore sgks, final PrincipalExtractor principalExtractor) {
         super(settings);
         this.sgks = sgks;
         this.principalExtractor = principalExtractor;
