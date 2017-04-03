@@ -27,89 +27,98 @@ import java.security.cert.Certificate;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.elasticsearch.ExceptionsHelper;
 import org.elasticsearch.common.Strings;
 
 public class SSLCertificateHelper {
 
     private static final Logger log = LogManager.getLogger(SSLCertificateHelper.class);
+    private static boolean stripRootFromChain = true; //TODO check
     
-    public static X509Certificate[] exportCertificateChain(final KeyStore ks, final String alias) throws KeyStoreException {
-        final Enumeration<String> e = ks.aliases();
-        final List<String> aliases = new ArrayList<>();
-
-        while (e.hasMoreElements()) {
-            aliases.add(e.nextElement());
-        }
+    public static X509Certificate[] exportRootCertificates(final KeyStore ks, final String alias) throws KeyStoreException {
+        logKeyStore(ks);
+        final List<String> aliases = toList(ks.aliases());
         
-        if(log.isDebugEnabled()) {
-            log.debug("Keystore has {} entries/aliases", ks.size());
-            for (String _alias: aliases) {
-                log.debug("Alias {}: is a certificate entry?{}/is a key entry?{}", _alias, ks.isCertificateEntry(_alias), ks.isKeyEntry(_alias));
-            }
-        }
+        final List<X509Certificate> trustedCerts = new ArrayList<X509Certificate>();
         
-        List<Certificate> trustedCerts = new ArrayList<Certificate>();
-
         if (Strings.isNullOrEmpty(alias)) {
-            log.debug("No alias given, will trust all of the certificates in the store");
             
-            for (String _alias: aliases) {
-                Certificate[] certs = ks.getCertificateChain(_alias);
-                if(certs != null && certs.length > 0) {
-                    trustedCerts.addAll(Arrays.asList(certs));
-                } else {
-                    Certificate cert = ks.getCertificate(_alias);
-                    if(cert != null) {
+            if(log.isDebugEnabled()) {
+                log.debug("No alias given, will trust all of the certificates in the store");
+            }
+            
+            for (final String _alias : aliases) {
+
+                if (ks.isCertificateEntry(_alias)) {
+                    final X509Certificate cert = (X509Certificate) ks.getCertificate(_alias);
+                    if (cert != null) {
                         trustedCerts.add(cert);
+                    } else {
+                        log.error("Alias {} does not exist", _alias);
                     }
                 }
             }
-            
         } else {
-
-            Certificate[] certs = ks.getCertificateChain(alias);
-            if(certs != null && certs.length > 0) {
-                trustedCerts.addAll(Arrays.asList(certs));
-            } else {
-                Certificate cert = ks.getCertificate(alias);
-                if(cert != null) {
+            if (ks.isCertificateEntry(alias)) {
+                final X509Certificate cert = (X509Certificate) ks.getCertificate(alias);
+                if (cert != null) {
                     trustedCerts.add(cert);
+                } else {
+                    log.error("Alias {} does not exist", alias);
                 }
-            }
-        }
-        
-        List<X509Certificate> x509Certificates = new ArrayList<>(trustedCerts.size());
-        for (Certificate c : trustedCerts) {
-            if (c != null && c instanceof X509Certificate)
-            {
-                x509Certificates.add((X509Certificate) c);
             } else {
-                if(log.isDebugEnabled()) {
-                    log.debug("No X509 Certificate or null certificate: {}",c);
-                }
+                log.error("Alias {} does not contain hold a certificate entry", alias);
             }
-        }
-        
-        
-        if(x509Certificates.isEmpty()) {
-            throw new KeyStoreException("no certificate chain or certificate with alias: "+ alias);
         }
         
         return trustedCerts.toArray(new X509Certificate[0]);
+    }   
+    
+    public static X509Certificate[] exportServerCertChain(final KeyStore ks, String alias) throws KeyStoreException {
+        logKeyStore(ks);
+        final List<String> aliases = toList(ks.aliases());
+        
+        if (Strings.isNullOrEmpty(alias)) {
+            if(aliases.isEmpty()) {
+                log.error("Keystore does not contain any aliases");
+            } else {
+                alias = aliases.get(0);
+                log.info("No alias given, use the firs one: {}", alias);
+            }
+        } 
+
+        final Certificate[] certs = ks.getCertificateChain(alias);
+        if (certs != null && certs.length > 0) {
+            X509Certificate[] x509Certs = Arrays.copyOf(certs, certs.length, X509Certificate[].class);
+
+            final X509Certificate lastCertificate = x509Certs[x509Certs.length - 1];
+
+            if (lastCertificate.getBasicConstraints() > -1
+                    && lastCertificate.getSubjectX500Principal().equals(lastCertificate.getIssuerX500Principal())) {
+                log.warn("Certificate chain for alias {} contains a root certificate", alias);
+                
+                if(stripRootFromChain ) {
+                    x509Certs = Arrays.copyOf(certs, certs.length-1, X509Certificate[].class);
+                }
+            }
+
+            return x509Certs;
+        } else {
+            log.error("Alias {} does not exists or contain hold a certificate chain", alias);
+        }
+
+        return new X509Certificate[0];
     }
 
     public static PrivateKey exportDecryptedKey(final KeyStore ks, final String alias, final char[] password) throws KeyStoreException, UnrecoverableKeyException, NoSuchAlgorithmException {
-        final Enumeration<String> e = ks.aliases();
-        final List<String> aliases = new ArrayList<>();
-
-        while (e.hasMoreElements()) {
-            aliases.add(e.nextElement());
-        }
+        logKeyStore(ks);
+        final List<String> aliases = toList(ks.aliases());
 
         String evaluatedAlias = alias;
 
@@ -132,5 +141,47 @@ public class SSLCertificateHelper {
         }
 
         return null;
+    }
+    
+    private static void logKeyStore(final KeyStore ks) {
+        try {
+            final List<String> aliases = toList(ks.aliases());
+            if (log.isDebugEnabled()) {
+                log.debug("Keystore has {} entries/aliases", ks.size());
+                for (String _alias : aliases) {
+                    log.debug("Alias {}: is a certificate entry?{}/is a key entry?{}", _alias, ks.isCertificateEntry(_alias),
+                            ks.isKeyEntry(_alias));
+                    Certificate[] certs = ks.getCertificateChain(_alias);
+
+                    if (certs != null) {
+                        log.debug("Alias {}: chain len {}", _alias, certs.length);
+                        for (int i = 0; i < certs.length; i++) {
+                            X509Certificate certificate = (X509Certificate) certs[i];
+                            log.debug("cert {} of type {} -> {}", certificate.getSubjectX500Principal(), certificate.getBasicConstraints(),
+                                    certificate.getSubjectX500Principal().equals(certificate.getIssuerX500Principal()));
+                        }
+                    }
+
+                    X509Certificate cert = (X509Certificate) ks.getCertificate(_alias);
+
+                    if (cert != null) {
+                        log.debug("Alias {}: single cert {} of type {} -> {}", _alias, cert.getSubjectX500Principal(),
+                                cert.getBasicConstraints(), cert.getSubjectX500Principal().equals(cert.getIssuerX500Principal()));
+                    }
+                }
+            }
+        } catch (Exception e) {
+            log.error("Error logging keystore "+e+" {}", ExceptionsHelper.stackTrace(e));
+        }
+    }
+    
+    private static List<String> toList(final Enumeration<String> enumeration) {
+        final List<String> aliases = new ArrayList<>();
+
+        while (enumeration.hasMoreElements()) {
+            aliases.add(enumeration.nextElement());
+        }
+        
+        return Collections.unmodifiableList(aliases);
     }
 }

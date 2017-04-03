@@ -68,7 +68,13 @@ cat ca/signing-ca.pem ca/root-ca.pem > ca/chain-ca.pem
 
 #http://stackoverflow.com/questions/652916/converting-a-java-keystore-into-pem-format
 
-cat ca/root-ca.pem | keytool \
+BIN_PATH="keytool"
+
+if [ ! -z "$JAVA_HOME" ]; then
+    BIN_PATH="$JAVA_HOME/bin/keytool"
+fi
+
+cat ca/root-ca.pem | "$BIN_PATH" \
     -import \
     -v \
     -keystore truststore.jks   \
