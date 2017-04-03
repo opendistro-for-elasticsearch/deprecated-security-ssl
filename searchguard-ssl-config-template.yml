@@ -34,6 +34,20 @@
 # Use native Open SSL instead of JDK SSL if available (default: true)
 #searchguard.ssl.transport.enable_openssl_if_available: false
 
+# As an alternative to JKS/PCKS12 based configuration 
+# you can also use X.509 PEM certificates and PKCS #8 keys.
+# This, for example, makes it pretty easy to configure letsencrypt certificates.
+
+# Relative path to the certificates key file (PKCS #8), must be placed under the config/ dir
+#searchguard.ssl.transport.pemkey_filepath: privkey.pem
+# Key password (omit this setting if the key has no password)
+#searchguard.ssl.transport.pemkey_password: "secret"
+# X509 node certificate chain in PEM format, must be placed under the config/ dir
+#searchguard.ssl.transport.pemcert_filepath: fullchain.pem
+# Trusted certificates
+#searchguard.ssl.transport.pemtrustedcas_filepath: chain.pem
+    
+
 # Enabled SSL cipher suites for transport protocol (only Java format is supported)
 # WARNING: Expert setting, do only use if you know what you are doing
 # If you set wrong values here this this could be a security risk
@@ -74,6 +88,19 @@
 #searchguard.ssl.http.truststore_password: changeit
 # Use native Open SSL instead of JDK SSL if available (default: true)
 #searchguard.ssl.http.enable_openssl_if_available: false
+
+# As an alternative to JKS/PCKS12 based configuration 
+# you can also use X.509 PEM certificates and PKCS #8 keys.
+# This, for example, makes it pretty easy to configure letsencrypt certificates.
+
+# Relative path to the certificates key file (PKCS #8), must be placed under the config/ dir
+#searchguard.ssl.http.pemkey_filepath: privkey.pem
+# Key password (omit this setting if the key has no password)
+#searchguard.ssl.http.pemkey_password: "secret"
+# X509 node certificate chain in PEM format, must be placed under the config/ dir
+#searchguard.ssl.http.pemcert_filepath: fullchain.pem
+# Trusted certificates
+#searchguard.ssl.http.pemtrustedcas_filepath: chain.pem
 
 # Enabled SSL cipher suites for http protocol (only Java format is supported)
 # WARNING: Expert setting, do only use if you know what you are doing

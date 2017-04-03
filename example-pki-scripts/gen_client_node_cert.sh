@@ -11,13 +11,19 @@ if [ -z "$3" ] ; then
   CA_PASS=$3
 fi
 
+BIN_PATH="keytool"
+
+if [ ! -z "$JAVA_HOME" ]; then
+    BIN_PATH="$JAVA_HOME/bin/keytool"
+fi
+
 rm -f $CLIENT_NAME-keystore.jks
 rm -f $CLIENT_NAME.csr
 rm -f $CLIENT_NAME-signed.pem
 
 echo Generating keystore and certificate for node $CLIENT_NAME
 
-keytool -genkey \
+"$BIN_PATH" -genkey \
         -alias     $CLIENT_NAME \
         -keystore  $CLIENT_NAME-keystore.jks \
         -keyalg    RSA \
@@ -30,7 +36,7 @@ keytool -genkey \
 
 echo Generating certificate signing request for node $CLIENT_NAME
 
-keytool -certreq \
+"$BIN_PATH" -certreq \
         -alias      $CLIENT_NAME \
         -keystore   $CLIENT_NAME-keystore.jks \
         -file       $CLIENT_NAME.csr \
@@ -52,14 +58,14 @@ openssl ca \
 
 echo "Import back to keystore (including CA chain)"
 
-cat ca/chain-ca.pem $CLIENT_NAME-signed.pem | keytool \
+cat ca/chain-ca.pem $CLIENT_NAME-signed.pem | "$BIN_PATH" \
     -importcert \
     -keystore $CLIENT_NAME-keystore.jks \
     -storepass $KS_PASS \
     -noprompt \
     -alias $CLIENT_NAME
 
-keytool -importkeystore -srckeystore $CLIENT_NAME-keystore.jks -srcstorepass $KS_PASS -srcstoretype JKS -deststoretype PKCS12 -deststorepass $KS_PASS -destkeystore $CLIENT_NAME-keystore.p12
+"$BIN_PATH" -importkeystore -srckeystore $CLIENT_NAME-keystore.jks -srcstorepass $KS_PASS -srcstoretype JKS -deststoretype PKCS12 -deststorepass $KS_PASS -destkeystore $CLIENT_NAME-keystore.p12
 
 openssl pkcs12 -in "$CLIENT_NAME-keystore.p12" -out "$CLIENT_NAME.all.pem" -nodes -passin "pass:$KS_PASS"
 openssl pkcs12 -in "$CLIENT_NAME-keystore.p12" -out "$CLIENT_NAME.key.pem" -nocerts -nodes -passin pass:$KS_PASS
