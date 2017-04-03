@@ -309,7 +309,7 @@ public abstract class AbstractUnitTest {
             if (sendHTTPClientCertificate) {
                 sslContextbBuilder.loadKeyMaterial(keyStore, "changeit".toCharArray());
             }
-
+            
             final SSLContext sslContext = sslContextbBuilder.build();
 
             String[] protocols = null;
