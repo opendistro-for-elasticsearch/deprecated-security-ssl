@@ -6,7 +6,7 @@ It does not provide authentication and authorization. For that pls refer to [Sea
 
 ![Logo](https://raw.githubusercontent.com/floragunncom/sg-assets/master/logo/sg_logo_small.jpg) 
 
-##Features
+## Features
 * Node-to-node encryption through SSL/TLS (Transport layer)
 * Secure REST layer through HTTPS (SSL/TLS)
 * Supports JDK SSL and Open SSL
@@ -17,15 +17,15 @@ It does not provide authentication and authorization. For that pls refer to [Sea
 
 [Search Guard SSL 5](https://github.com/floragunncom/search-guard-ssl/tree/5.0.0) (compatible with Elasticsearch 5) is now also available. You may also want to read this [blog post about Search Guard 5](https://floragunn.com/search-guard-5/).
 
-##Documentation
+## Documentation
 Documentation is provided in a separate repository in markdown format.
 
 [Search Guard SSL Documentation](http://floragunncom.github.io/search-guard-ssl-docs/)
 
-##Support
+## Support
 [See wiki](https://github.com/floragunncom/search-guard-ssl/wiki/Support)
 
-###License
+### License
 Copyright 2015-2017 floragunn GmbH
 
 Licensed under the Apache License, Version 2.0 (the "License");
