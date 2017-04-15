@@ -256,17 +256,18 @@ public class DefaultSearchGuardKeyStore implements SearchGuardKeyStore {
 
             } else if(rawPemCertFilePath != null) {
                 
-                final String pemKey = settings.get(SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_PEMKEY_FILEPATH);
-                final String trustedCas = settings.get(SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_PEMTRUSTEDCAS_FILEPATH, null);
+                final String pemCertFilePath = env.configFile().resolve(rawPemCertFilePath).toAbsolutePath().toString();
+                final String pemKey = env.configFile().resolve(settings.get(SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_PEMKEY_FILEPATH, "")).toAbsolutePath().toString();
+                final String trustedCas = env.configFile().resolve(settings.get(SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_PEMTRUSTEDCAS_FILEPATH, "")).toAbsolutePath().toString();
                 
-                checkStorePath(rawPemCertFilePath);
+                checkStorePath(pemCertFilePath);
                 checkStorePath(pemKey);
                 checkStorePath(trustedCas);
                 
                 try {
                 
-                    transportServerSslContext = buildSSLServerContext(new File(pemKey), new File(rawPemCertFilePath), new File(trustedCas), settings.get(SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_PEMKEY_PASSWORD), getEnabledSSLCiphers(this.sslTransportServerProvider, false), this.sslTransportServerProvider, ClientAuth.REQUIRE);
-                    transportClientSslContext = buildSSLClientContext(new File(pemKey), new File(rawPemCertFilePath), new File(trustedCas), settings.get(SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_PEMKEY_PASSWORD), getEnabledSSLCiphers(sslTransportClientProvider, false), sslTransportClientProvider);
+                    transportServerSslContext = buildSSLServerContext(new File(pemKey), new File(pemCertFilePath), new File(trustedCas), settings.get(SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_PEMKEY_PASSWORD), getEnabledSSLCiphers(this.sslTransportServerProvider, false), this.sslTransportServerProvider, ClientAuth.REQUIRE);
+                    transportClientSslContext = buildSSLClientContext(new File(pemKey), new File(pemCertFilePath), new File(trustedCas), settings.get(SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_PEMKEY_PASSWORD), getEnabledSSLCiphers(sslTransportClientProvider, false), sslTransportClientProvider);
 
                 } catch (final Exception e) {
                     throw new ElasticsearchSecurityException("Error while initializing transport SSL layer from PEM: "+e.toString(), e);
@@ -374,7 +375,7 @@ public class DefaultSearchGuardKeyStore implements SearchGuardKeyStore {
                 
             } else if (rawPemCertFilePath != null) {
                 
-                final String trustedCas = settings.get(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_PEMTRUSTEDCAS_FILEPATH, null);
+               final String trustedCas = env.configFile().resolve(settings.get(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_PEMTRUSTEDCAS_FILEPATH, "")).toAbsolutePath().toString();
                 
                 if (httpClientAuthMode == ClientAuth.REQUIRE) {
                     
@@ -387,13 +388,15 @@ public class DefaultSearchGuardKeyStore implements SearchGuardKeyStore {
                     
                 }
                 
-                final String pemKey = settings.get(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_PEMKEY_FILEPATH);
+                final String pemCertFilePath = env.configFile().resolve(rawPemCertFilePath).toAbsolutePath().toString();
+                final String pemKey = env.configFile().resolve(settings.get(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_PEMKEY_FILEPATH, "")).toAbsolutePath().toString();
+                
 
-                checkStorePath(rawPemCertFilePath);
+                checkStorePath(pemCertFilePath);
                 checkStorePath(pemKey);
                 
                 try {
-                    httpSslContext = buildSSLServerContext(new File(pemKey), new File(rawPemCertFilePath), trustedCas == null?null:new File(trustedCas), settings.get(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_PEMKEY_PASSWORD), getEnabledSSLCiphers(this.sslHTTPProvider, true), sslHTTPProvider, httpClientAuthMode);
+                    httpSslContext = buildSSLServerContext(new File(pemKey), new File(pemCertFilePath), trustedCas == null?null:new File(trustedCas), settings.get(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_PEMKEY_PASSWORD), getEnabledSSLCiphers(this.sslHTTPProvider, true), sslHTTPProvider, httpClientAuthMode);
                 } catch (final Exception e) {
                     throw new ElasticsearchSecurityException("Error while initializing http SSL layer from PEM: "+e.toString(), e);
                 }
