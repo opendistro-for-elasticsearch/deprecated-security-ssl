@@ -382,7 +382,7 @@ public class DefaultSearchGuardKeyStore implements SearchGuardKeyStore {
                 
                 if (httpClientAuthMode == ClientAuth.REQUIRE) {
                     
-                    if(trustedCas == null) {
+                    if(trustedCas == null || trustedCas.equals(env.configFile().toAbsolutePath().toString())) {
                         throw new ElasticsearchException(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_PEMTRUSTEDCAS_FILEPATH
                                 + " must be set if http ssl and client auth is reqested.");
                     }
@@ -399,7 +399,7 @@ public class DefaultSearchGuardKeyStore implements SearchGuardKeyStore {
                 checkStorePath(pemKey);
                 
                 try {
-                    httpSslContext = buildSSLServerContext(new File(pemKey), new File(pemCertFilePath), trustedCas == null?null:new File(trustedCas), settings.get(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_PEMKEY_PASSWORD), getEnabledSSLCiphers(this.sslHTTPProvider, true), sslHTTPProvider, httpClientAuthMode);
+                    httpSslContext = buildSSLServerContext(new File(pemKey), new File(pemCertFilePath), (trustedCas == null || trustedCas.equals(env.configFile().toAbsolutePath().toString()))?null:new File(trustedCas), settings.get(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_PEMKEY_PASSWORD), getEnabledSSLCiphers(this.sslHTTPProvider, true), sslHTTPProvider, httpClientAuthMode);
                 } catch (final Exception e) {
                     throw new ElasticsearchSecurityException("Error while initializing http SSL layer from PEM: "+e.toString(), e);
                 }
