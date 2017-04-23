@@ -10,20 +10,21 @@ It does not provide authentication and authorization. For that pls refer to [Sea
 * Node-to-node encryption through SSL/TLS (Transport layer)
 * Secure REST layer through HTTPS (SSL/TLS)
 * Supports JDK SSL and Open SSL
-* Only external dependency is Netty 4 (and Tomcat Native if Open SSL is used)
-* Works with Kibana, logstash and beats
+* Works with Kibana, Logstash and Beats
 
 ## Elasticsearch 5
 
-[Search Guard SSL 5](https://github.com/floragunncom/search-guard-ssl/tree/5.0.0) (compatible with Elasticsearch 5) is now also available. You may also want to read this [blog post about Search Guard 5](https://floragunn.com/search-guard-5/).
+[Search Guard SSL 5](https://github.com/floragunncom/search-guard-ssl/tree/5.0.0) (compatible with Elasticsearch 5) is also available. You may also want to read this [blog post about Search Guard 5](https://floragunn.com/search-guard-5/).
 
 ## Documentation
 Documentation is provided in a separate repository in markdown format.
 
-[Search Guard SSL Documentation](http://floragunncom.github.io/search-guard-ssl-docs/)
+[Search Guard SSL Documentation](http://floragunncom.github.io/search-guard-docs/)
 
 ## Support
-[See wiki](https://github.com/floragunncom/search-guard-ssl/wiki/Support)
+* Commercial support now available through [floragunn GmbH](https://floragunn.com/searchguard/searchguard-license-support/)
+* Community support available via [google groups](https://groups.google.com/forum/#!forum/search-guard)
+* Follow us and get community support on twitter [@searchguard](https://twitter.com/searchguard)
 
 ### License
 Copyright 2015-2017 floragunn GmbH
@@ -39,3 +40,6 @@ distributed under the License is distributed on an "AS IS" BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
+
+<sub><sup>Search Guard is a trademark of floragunn GmbH, registered in the U.S. and in other countries.
+Elasticsearch, Kibana, Logstash, and Beats are trademarks of Elasticsearch BV, registered in the U.S. and in other countries. floragunn GmbH is not affiliated with Elasticsearch BV.</sup></sub>
