@@ -108,9 +108,12 @@ public class DefaultSearchGuardKeyStore implements SearchGuardKeyStore {
         final boolean useOpenSSLForTransportIfAvailable = settings.getAsBoolean(
                 SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_ENABLE_OPENSSL_IF_AVAILABLE, true);
 
+        boolean openSSLInfoLogged = false;
+        
         if (httpSSLEnabled && useOpenSSLForHttpIfAvailable) {
             sslHTTPProvider = SslContext.defaultServerProvider();
             logOpenSSLInfos();
+            openSSLInfoLogged = true;
         } else if (httpSSLEnabled) {
             sslHTTPProvider = SslProvider.JDK;
         } else {
@@ -120,7 +123,9 @@ public class DefaultSearchGuardKeyStore implements SearchGuardKeyStore {
         if (transportSSLEnabled && useOpenSSLForTransportIfAvailable) {
             sslTransportClientProvider = SslContext.defaultClientProvider();
             sslTransportServerProvider = SslContext.defaultServerProvider();
-            logOpenSSLInfos();
+            if(!openSSLInfoLogged) {
+                logOpenSSLInfos();
+            }
         } else if (transportSSLEnabled) {
             sslTransportClientProvider = sslTransportServerProvider = SslProvider.JDK;
         } else {
@@ -463,7 +468,16 @@ public class DefaultSearchGuardKeyStore implements SearchGuardKeyStore {
 
     private void logOpenSSLInfos() {
         if (OpenSsl.isAvailable()) {
-            log.info("Open SSL " + OpenSsl.versionString() + " available");
+            log.info("Open SSL " + OpenSsl.versionString() + " ("+OpenSsl.version()+") available");
+            
+            if(OpenSsl.version() < 0x10002000L) {
+                log.warn("Outdated OpenSSL version detected. You should update to 1.0.2k or later. Currently installed: "+OpenSsl.versionString());
+            }
+
+            if(!OpenSsl.supportsHostnameValidation()) {
+                log.warn("Your OpenSSL version "+OpenSsl.versionString()+" does not support hostname verification. You should update to 1.0.2k or later.");
+            }
+
             log.debug("Open SSL available ciphers " + OpenSsl.availableOpenSslCipherSuites());
         } else {
             log.info("Open SSL not available (this is not an error, we simply fallback to built-in JDK SSL) because of " + OpenSsl.unavailabilityCause());
