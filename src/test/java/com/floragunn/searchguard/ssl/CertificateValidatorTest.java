@@ -19,16 +19,10 @@ package com.floragunn.searchguard.ssl;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.net.URLDecoder;
-import java.security.KeyStore;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
 import java.security.cert.CRL;
-import java.security.cert.CRLException;
 import java.security.cert.CertPathBuilderException;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
@@ -41,22 +35,15 @@ import java.util.Collections;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.elasticsearch.ExceptionsHelper;
-import org.elasticsearch.env.Environment;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 
 import com.floragunn.searchguard.ssl.util.CertificateValidator;
-import com.floragunn.searchguard.ssl.util.SSLConfigConstants;
+import com.floragunn.searchguard.ssl.util.ExceptionUtils;
 
 public class CertificateValidatorTest {
     
     protected final Logger log = LogManager.getLogger(this.getClass());
-    
-    @Before
-    public void setup(){
-        //System.setSecurityManager(new SecurityManager());
-    }
     
     @Test
     public void testStaticCRL() throws Exception {
@@ -92,7 +79,7 @@ public class CertificateValidatorTest {
             validator.validate(certsToValidate.toArray(new X509Certificate[0]));
             Assert.fail();
         } catch (CertificateException e) {
-            Assert.assertTrue(e.getCause().getCause().getCause() instanceof CertificateRevokedException);
+            Assert.assertTrue(ExceptionUtils.getRootCause(e) instanceof CertificateRevokedException);
         }
     }
     
@@ -129,8 +116,7 @@ public class CertificateValidatorTest {
         try {
             validator.validate(certsToValidate.toArray(new X509Certificate[0]));
         } catch (CertificateException e) {
-            e.printStackTrace();
-            Assert.fail();
+            Assert.fail(ExceptionsHelper.stackTrace(ExceptionUtils.getRootCause(e)));
         }
     }
     
@@ -194,7 +180,7 @@ public class CertificateValidatorTest {
             validator.validate(certsToValidate.toArray(new X509Certificate[0]));
             Assert.fail();
         } catch (CertificateException e) {
-            Assert.assertTrue(e.getCause().getCause().getCause() instanceof CertificateRevokedException);
+            Assert.assertTrue(ExceptionUtils.getRootCause(e) instanceof CertificateRevokedException);
         }
     }
 

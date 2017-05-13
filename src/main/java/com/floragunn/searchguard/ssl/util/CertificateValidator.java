@@ -38,10 +38,8 @@ import java.security.cert.X509CertSelector;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.EnumSet;
 import java.util.Enumeration;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -277,11 +275,6 @@ public class CertificateValidator
             
             revocationChecker.setOptions(opts);
 
-            
-            
-            
-            
-    
             // Configure certification path builder parameters
             PKIXBuilderParameters pbParams = null;
             
@@ -324,8 +317,6 @@ public class CertificateValidator
             {
                 System.setProperty("com.sun.security.enableCRLDP","true");
             }
-            
-            System.out.println("START VAL");
     
             // Build certification path
             CertPathBuilderResult buildResult = CertPathBuilder.getInstance("PKIX").build(pbParams);               
@@ -336,7 +327,7 @@ public class CertificateValidator
         catch (GeneralSecurityException gse)
         {
             //gse.printStackTrace();
-            LOG.debug(gse);
+            //LOG.debug(gse);
             throw new CertificateException("Unable to validate certificate: " + gse.getMessage(), gse);
         }
     }

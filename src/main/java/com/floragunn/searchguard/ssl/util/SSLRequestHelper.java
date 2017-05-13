@@ -159,7 +159,6 @@ public class SSLRequestHelper {
         if (context != null) {
             for (final Entry<String, String> header : context.getHeaders().entrySet()) {
                 if (header != null && header.getKey() != null && header.getKey().trim().toLowerCase().startsWith(prefix)) {
-                    System.out.println(header.getKey()+"="+header.getValue());
                     return true;
                 }
             }
@@ -201,9 +200,7 @@ public class SSLRequestHelper {
                     log.trace("no crl file configured");
                 }
             }
-            
-            System.out.println("VALIDATING----------------------------------------------------------------------- "+crls);
-            
+         
             final String truststore = settings.get(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_TRUSTSTORE_FILEPATH);
             CertificateValidator validator = null;
             
@@ -233,7 +230,10 @@ public class SSLRequestHelper {
             return true;
             
         } catch (Exception e) {
-            log.error("Unable to validate CRL: "+ExceptionsHelper.stackTrace(e));
+            if(log.isDebugEnabled()) {
+                log.debug("Unable to validate CRL: "+ExceptionsHelper.stackTrace(e));
+            }
+            log.warn("Unable to validate CRL: "+ExceptionUtils.getRootCause(e));
         }
         
         return false;
