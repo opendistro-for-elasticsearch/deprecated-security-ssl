@@ -38,6 +38,7 @@ import java.security.cert.X509CertSelector;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Set;
@@ -92,6 +93,10 @@ public class CertificateValidator
     
     private boolean preferCrl = false;
     private boolean checkOnlyEndEntities = true;
+    
+    //for unittests only
+    private final String crlTestdate = System.getProperty("sg.test.crl.date");
+    private Date date = crlTestdate == null?null:new Date(Long.parseLong(crlTestdate));
     
     /**
      * creates an instance of the certificate validator 
@@ -293,6 +298,8 @@ public class CertificateValidator
             
             pbParams.addCertPathChecker(revocationChecker);
             
+            pbParams.setDate(date);
+            
             pbParams.addCertStore(CertStore.getInstance("Collection", new CollectionCertStoreParameters(certList)));
             
             // Set maximum certification path length
@@ -414,5 +421,14 @@ public class CertificateValidator
     public void setOcspResponderURL(String ocspResponderURL)
     {
         _ocspResponderURL = ocspResponderURL;
+    }
+    
+    /**
+     * For unit tests only
+     * @param date
+     */
+    public void setDate(Date date)
+    {
+        this.date = date;
     }
 }

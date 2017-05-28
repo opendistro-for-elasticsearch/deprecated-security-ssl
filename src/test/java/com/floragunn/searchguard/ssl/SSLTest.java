@@ -49,6 +49,7 @@ import org.elasticsearch.node.Node;
 import org.elasticsearch.node.PluginAwareNode;
 import org.elasticsearch.transport.Netty4Plugin;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -62,6 +63,11 @@ public class SSLTest extends AbstractUnitTest {
 
     protected boolean allowOpenSSL = false;
 
+    @Before
+    public void prepare() {
+        System.setProperty("sg.test.crl.date", String.valueOf(System.currentTimeMillis()));
+    }
+    
     @Test
     public void testHttps() throws Exception {
 
@@ -680,6 +686,8 @@ public class SSLTest extends AbstractUnitTest {
     @Test
     public void testCRLPem() throws Exception {
 
+        System.setProperty("sg.test.crl.date", "1493231675442");
+        
         enableHTTPClientSSL = true;
         trustHTTPServerCertificate = true;
         sendHTTPClientCertificate = true;
@@ -710,6 +718,8 @@ public class SSLTest extends AbstractUnitTest {
     @Test
     public void testCRL() throws Exception {
 
+        System.setProperty("sg.test.crl.date", "1493231675442");
+        
         enableHTTPClientSSL = true;
         trustHTTPServerCertificate = true;
         sendHTTPClientCertificate = true;

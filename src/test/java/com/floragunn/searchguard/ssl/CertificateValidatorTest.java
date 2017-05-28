@@ -31,6 +31,7 @@ import java.security.cert.CertificateRevokedException;
 import java.security.cert.X509Certificate;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -75,6 +76,7 @@ public class CertificateValidatorTest {
         Assert.assertEquals(certsToValidate.size(), 2);
         
         CertificateValidator validator = new CertificateValidator(rootCas.toArray(new X509Certificate[0]), crls);
+        validator.setDate(new Date(1493231675442L));
         try {
             validator.validate(certsToValidate.toArray(new X509Certificate[0]));
             Assert.fail();
@@ -113,6 +115,7 @@ public class CertificateValidatorTest {
         Assert.assertEquals(certsToValidate.size(), 3);
         
         CertificateValidator validator = new CertificateValidator(rootCas.toArray(new X509Certificate[0]), crls);
+        validator.setDate(new Date(1493231675442L));
         try {
             validator.validate(certsToValidate.toArray(new X509Certificate[0]));
         } catch (CertificateException e) {
@@ -142,6 +145,7 @@ public class CertificateValidatorTest {
         Assert.assertEquals(certsToValidate.size(), 2);
         
         CertificateValidator validator = new CertificateValidator(rootCas.toArray(new X509Certificate[0]), Collections.EMPTY_LIST);
+        validator.setDate(new Date(1493231675442L));
         try {
             validator.validate(certsToValidate.toArray(new X509Certificate[0]));
             Assert.fail();
@@ -176,6 +180,7 @@ public class CertificateValidatorTest {
         CertificateValidator validator = new CertificateValidator(rootCas.toArray(new X509Certificate[0]), Collections.EMPTY_LIST);
         validator.setEnableCRLDP(true);
         validator.setEnableOCSP(true);
+        validator.setDate(new Date(1493231675442L));
         try {
             validator.validate(certsToValidate.toArray(new X509Certificate[0]));
             Assert.fail();
