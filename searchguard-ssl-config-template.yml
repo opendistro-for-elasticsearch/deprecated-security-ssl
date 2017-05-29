@@ -126,3 +126,24 @@
 # WARNING: Expert setting, do only use if you know what you are doing
 # If you set wrong values here this this could be a security risk 
 #searchguard.ssl.transport.principal_extractor_class: com.example.sg.MyPrincipalExtractor
+
+# CRL validation of HTTP client certificates
+# WARNING: Expert setting, do only use if you know what you are doing
+# If you set wrong values here this this could be a security risk 
+# Set to true to enable CRL validation (default is false)
+searchguard.ssl.http.crl.validate: true
+# File based static revocation list, by default this is null
+# if null then either OCSP or CRLDP needs to be enabled
+# CRL file must be in config/ dir, so this path is relative here
+#searchguard.ssl.http.crl.file_path: mycrl.crl
+# Default is false (means we prefer OCSP over static CRL file)
+#searchguard.ssl.http.crl.prefer_crlfile_over_ocsp: true
+# Default is true (means we do not validate intermediate certificates)
+#searchguard.ssl.http.crl.check_only_end_entities: false
+# Default is false (means we use OCSP if available)
+#searchguard.ssl.http.crl.disable_ocsp: true
+# Default is false (means we use CRLDP if available)
+#searchguard.ssl.http.crl.disable_crldp: true
+# Sets the time (as unix epoch timestamp) for which the validity of the certification path should be determined
+# If not set of set to -1 then the current time will be used
+#searchguard.ssl.http.crl.validation_date: 1496070074

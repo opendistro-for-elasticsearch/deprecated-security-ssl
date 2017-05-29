@@ -21,7 +21,6 @@ package com.floragunn.searchguard.ssl.util;
 import java.security.GeneralSecurityException;
 import java.security.InvalidParameterException;
 import java.security.KeyStore;
-import java.security.KeyStoreException;
 import java.security.Security;
 import java.security.cert.CRL;
 import java.security.cert.CertPathBuilder;
@@ -39,13 +38,8 @@ import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
-import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicLong;
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 /**
  * Convenience class to handle validation of certificates, aliases and keystores
@@ -59,8 +53,6 @@ import org.apache.logging.log4j.Logger;
  */
 public class CertificateValidator
 {
-    private static final Logger LOG = LogManager.getLogger(CertificateValidator.class);
-    private static AtomicLong __aliasCount = new AtomicLong();
     
     boolean isPreferCrl() {
         return preferCrl;
@@ -93,10 +85,7 @@ public class CertificateValidator
     
     private boolean preferCrl = false;
     private boolean checkOnlyEndEntities = true;
-    
-    //for unittests only
-    private final String crlTestdate = System.getProperty("sg.test.crl.date");
-    private Date date = crlTestdate == null?null:new Date(Long.parseLong(crlTestdate));
+    private Date date = null; //current date
     
     /**
      * creates an instance of the certificate validator 
@@ -125,112 +114,7 @@ public class CertificateValidator
         _trustedCert = trustedCert;
         _crls = crls;
     }
-    
-    /**
-     * validates all aliases inside of a given keystore
-     * 
-     * @param keyStore the keystore to validate
-     * @throws CertificateException if keystore error and unable to validate 
-     */
-    public void validate( KeyStore keyStore ) throws CertificateException
-    {
-        try
-        {
-            Enumeration<String> aliases = keyStore.aliases();
-            
-            for ( ; aliases.hasMoreElements(); )
-            {
-                String alias = aliases.nextElement();
-                
-                validate(keyStore,alias);
-            }
-            
-        }
-        catch ( KeyStoreException kse )
-        {
-            throw new CertificateException("Unable to retrieve aliases from keystore", kse);
-        }
-    }
-    
 
-    /**
-     * validates a specific alias inside of the keystore being passed in
-     * 
-     * @param keyStore the keystore to validate
-     * @param keyAlias the keyalias in the keystore to valid with
-     * @return the keyAlias if valid
-     * @throws CertificateException if keystore error and unable to validate
-     */
-    public String validate(KeyStore keyStore, String keyAlias) throws CertificateException
-    {
-        String result = null;
-
-        if (keyAlias != null)
-        {
-            try
-            {
-                validate(keyStore, keyStore.getCertificate(keyAlias));
-            }
-            catch (KeyStoreException kse)
-            {
-                LOG.debug(kse);
-                throw new CertificateException("Unable to validate certificate" +
-                        " for alias [" + keyAlias + "]: " + kse.getMessage(), kse);
-            }
-            result = keyAlias;            
-        }
-        
-        return result;
-    }
-    
-    /**
-     * validates a specific certificate inside of the keystore being passed in
-     * 
-     * @param keyStore the keystore to validate against
-     * @param cert the certificate to validate
-     * @throws CertificateException if keystore error and unable to validate
-     */
-    @Deprecated
-    public void validate(KeyStore keyStore, Certificate cert) throws CertificateException
-    {
-        Certificate[] certChain = null;
-        
-        if (cert != null && cert instanceof X509Certificate)
-        {
-            ((X509Certificate)cert).checkValidity();
-            
-            String certAlias = null;
-            try
-            {
-                if (keyStore == null)
-                {
-                    throw new InvalidParameterException("Keystore cannot be null");
-                }
-
-                certAlias = keyStore.getCertificateAlias((X509Certificate)cert);
-                if (certAlias == null)
-                {
-                    certAlias = "JETTY" + String.format("%016X",__aliasCount.incrementAndGet());
-                    keyStore.setCertificateEntry(certAlias, cert);
-                }
-                
-                certChain = keyStore.getCertificateChain(certAlias);
-                if (certChain == null || certChain.length == 0)
-                {
-                    throw new IllegalStateException("Unable to retrieve certificate chain");
-                }
-            }
-            catch (KeyStoreException kse)
-            {
-                LOG.debug(kse);
-                throw new CertificateException("Unable to validate certificate" +
-                        (certAlias == null ? "":" for alias [" +certAlias + "]") + ": " + kse.getMessage(), kse);
-            }
-            
-            validate(certChain);
-        } 
-    }
-    
     public void validate(Certificate[] certChain) throws CertificateException
     {
         try
@@ -245,10 +129,7 @@ public class CertificateValidator
                 {
                     throw new IllegalStateException("Invalid certificate type in chain");
                 }
-                
-                
-                
-                //if(((X509Certificate)item).getBasicConstraints() < 5)
+
                 certList.add((X509Certificate)item);
             }
 
@@ -333,16 +214,9 @@ public class CertificateValidator
         }
         catch (GeneralSecurityException gse)
         {
-            //gse.printStackTrace();
-            //LOG.debug(gse);
             throw new CertificateException("Unable to validate certificate: " + gse.getMessage(), gse);
         }
     }
-
-    /*public KeyStore getTrustStore()
-    {
-        return _trustStore;
-    }*/
 
     public Collection<? extends CRL> getCrls()
     {
@@ -422,13 +296,12 @@ public class CertificateValidator
     {
         _ocspResponderURL = ocspResponderURL;
     }
-    
-    /**
-     * For unit tests only
-     * @param date
-     */
-    public void setDate(Date date)
-    {
-        this.date = date;
+
+    public Date getDate() {
+        return date==null?null:(Date) date.clone();
+    }
+
+    public void setDate(Date date) {
+        this.date = date==null?null:(Date) date.clone();
     }
 }

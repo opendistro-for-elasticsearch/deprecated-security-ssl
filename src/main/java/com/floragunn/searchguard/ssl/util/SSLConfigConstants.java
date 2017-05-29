@@ -71,6 +71,7 @@ public final class SSLConfigConstants {
     public static final String SEARCHGUARD_SSL_HTTP_CRL_CHECK_ONLY_END_ENTITIES = "searchguard.ssl.http.crl.check_only_end_entities";    
     public static final String SEARCHGUARD_SSL_HTTP_CRL_DISABLE_OCSP = "searchguard.ssl.http.crl.disable_ocsp";    
     public static final String SEARCHGUARD_SSL_HTTP_CRL_DISABLE_CRLDP = "searchguard.ssl.http.crl.disable_crldp";   
+    public static final String SEARCHGUARD_SSL_HTTP_CRL_VALIDATION_DATE = "searchguard.ssl.http.crl.validation_date";
 
     
     private static final String[] _SECURE_SSL_PROTOCOLS = {"TLSv1.2", "TLSv1.1"};

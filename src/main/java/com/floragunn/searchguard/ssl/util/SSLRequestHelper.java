@@ -30,6 +30,7 @@ import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Date;
 import java.util.Map.Entry;
 
 import javax.net.ssl.SSLEngine;
@@ -225,6 +226,11 @@ public class SSLRequestHelper {
             validator.setEnableOCSP(!settings.getAsBoolean(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_CRL_DISABLE_OCSP, false));
             validator.setCheckOnlyEndEntities(settings.getAsBoolean(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_CRL_CHECK_ONLY_END_ENTITIES, true));
             validator.setPreferCrl(settings.getAsBoolean(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_CRL_PREFER_CRLFILE_OVER_OCSP, false));
+            Long dateTimestamp = settings.getAsLong(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_CRL_VALIDATION_DATE, null);
+            if(dateTimestamp != null && dateTimestamp.longValue() < 0) {
+                dateTimestamp = null;
+            }
+            validator.setDate(dateTimestamp==null?null:new Date(dateTimestamp.longValue()));
             validator.validate(x509Certs);
             
             return true;

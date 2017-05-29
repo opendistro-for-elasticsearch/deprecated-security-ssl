@@ -49,7 +49,6 @@ import org.elasticsearch.node.Node;
 import org.elasticsearch.node.PluginAwareNode;
 import org.elasticsearch.transport.Netty4Plugin;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -62,11 +61,6 @@ public class SSLTest extends AbstractUnitTest {
     public final ExpectedException thrown = ExpectedException.none();
 
     protected boolean allowOpenSSL = false;
-
-    @Before
-    public void prepare() {
-        System.setProperty("sg.test.crl.date", String.valueOf(System.currentTimeMillis()));
-    }
     
     @Test
     public void testHttps() throws Exception {
@@ -685,8 +679,6 @@ public class SSLTest extends AbstractUnitTest {
 
     @Test
     public void testCRLPem() throws Exception {
-
-        System.setProperty("sg.test.crl.date", "1493231675442");
         
         enableHTTPClientSSL = true;
         trustHTTPServerCertificate = true;
@@ -709,6 +701,7 @@ public class SSLTest extends AbstractUnitTest {
                 //.put(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_PEMKEY_PASSWORD, "changeit")
                 .put(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_PEMTRUSTEDCAS_FILEPATH, getAbsoluteFilePathFromClassPath("chain-ca.pem"))
                 .put(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_CRL_VALIDATE, true)
+                .put(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_CRL_VALIDATION_DATE, 1493231675442L)
                 .build();
 
         startES(settings);
@@ -717,8 +710,6 @@ public class SSLTest extends AbstractUnitTest {
     
     @Test
     public void testCRL() throws Exception {
-
-        System.setProperty("sg.test.crl.date", "1493231675442");
         
         enableHTTPClientSSL = true;
         trustHTTPServerCertificate = true;
@@ -733,6 +724,7 @@ public class SSLTest extends AbstractUnitTest {
                 .put("searchguard.ssl.http.truststore_filepath", getAbsoluteFilePathFromClassPath("truststore.jks"))
                 .put(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_CRL_VALIDATE, true)
                 .put(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_CRL_FILE, getAbsoluteFilePathFromClassPath("crl/revoked.crl"))
+                .put(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_CRL_VALIDATION_DATE, 1493231675442L)
                 .build();
 
         startES(settings);
