@@ -1,41 +1,54 @@
-# Search Guard SSL for Elasticsearch
-Elasticsearch SSL for free.
-
-Search Guard SSL is a free and open source plugin for Elasticsearch which provides SSL for Elasticsearch. 
-It does not provide authentication and authorization. For that pls refer to [Search Guard](https://github.com/floragunncom/search-guard).
+# Search Guard SSL - Security for Elasticsearch
 
 ![Logo](https://raw.githubusercontent.com/floragunncom/sg-assets/master/logo/sg_logo_small.jpg) 
 
-##Features
+Search Guard SSL is a free and Open Source plugin for Elasticsearch which provides SSL/TLS for Elasticsearch. It supports OpenSSL for maximum performance and security. It does not provide authentication and authorization. For that please refer to [Search Guard](https://github.com/floragunncom/search-guard), our complete Elasticsearch security suite.
+
+
+## Features
 * Node-to-node encryption through SSL/TLS (Transport layer)
 * Secure REST layer through HTTPS (SSL/TLS)
 * Supports JDK SSL and Open SSL
-* Only external dependency is Netty 4 (and Tomcat Native if Open SSL is used)
-* Works with Kibana, logstash and beats
+* Works with Kibana, Logstash and Beats
 
-## Elasticsearch 5
+## Documentation
 
-[Search Guard SSL 5](https://github.com/floragunncom/search-guard-ssl/tree/5.0.0) (compatible with Elasticsearch 5) is now also available. You may also want to read this [blog post about Search Guard 5](https://floragunn.com/search-guard-5/).
+The [Official Search Guard documentation](http://floragunncom.github.io/search-guard-docs/) is available on GitHub.
 
-##Documentation
-Documentation is provided in a separate repository in markdown format.
+## Commercial use
 
-[Search Guard SSL Documentation](http://floragunncom.github.io/search-guard-ssl-docs/)
+Search Guard SSL is licensed under the Apache2 license and can be used for commercial and non-commercial projects for free.
 
-##Support
-[See wiki](https://github.com/floragunncom/search-guard-ssl/wiki/Support)
+## Support
+* Commercial support available through [floragunn GmbH](https://floragunn.com/searchguard/searchguard-license-support/)
+* Community support available via [google groups](https://groups.google.com/forum/#!forum/search-guard)
+* Follow us and get community support on twitter [@searchguard](https://twitter.com/searchguard)
 
-###License
-Copyright 2015-2017 floragunn GmbH
+## License
+
+```
+This software is licensed under the Apache License, version 2 ("ALv2"), quoted below.
+
+Copyright 2015-2017 floragunn GmbH 
+https://floragunn.com
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at
 
-   ``http://www.apache.org/licenses/LICENSE-2.0``
+http://www.apache.org/licenses/LICENSE-2.0
 
 Unless required by applicable law or agreed to in writing, software
 distributed under the License is distributed on an "AS IS" BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
+```
+
+## Legal 
+
+Search Guard SSL is an independent implementation of a security access layer for Elasticsearch. Search Guard SSL is completely independent from Elasticsearch own security offerings. floragunn GmbH is not affiliated with Elasticsearch BV.
+
+Search Guard is a trademark of floragunn GmbH, registered in the U.S. and in other countries.
+
+Elasticsearch, Kibana and Logstash are trademarks of Elasticsearch BV, registered in the U.S. and in other countries. 
