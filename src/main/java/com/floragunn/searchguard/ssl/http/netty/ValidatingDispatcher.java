@@ -24,6 +24,7 @@ import org.apache.logging.log4j.Logger;
 import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.ElasticsearchSecurityException;
 import org.elasticsearch.ExceptionsHelper;
+import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.util.concurrent.ThreadContext;
 import org.elasticsearch.http.HttpServerTransport.Dispatcher;
 import org.elasticsearch.rest.RestChannel;
@@ -39,11 +40,13 @@ public class ValidatingDispatcher implements Dispatcher {
     private final ThreadContext threadContext;
     private final Dispatcher originalDispatcher;
     private AuditErrorHandler auditErrorHandler;
+    private final Settings settings;
 
-    public ValidatingDispatcher(final ThreadContext threadContext, final Dispatcher originalDispatcher) {
+    public ValidatingDispatcher(final ThreadContext threadContext, final Dispatcher originalDispatcher, final Settings settings) {
         super();
         this.threadContext = threadContext;
         this.originalDispatcher = originalDispatcher;
+        this.settings = settings;
     }
     
     public void setAuditErrorHandler(AuditErrorHandler auditErrorHandler) {
@@ -71,7 +74,7 @@ public class ValidatingDispatcher implements Dispatcher {
         }
         
         try {
-            if(SSLRequestHelper.getSSLInfo(request, null) == null) {
+            if(SSLRequestHelper.getSSLInfo(settings, request, null) == null) {
                 logger.error("Not an SSL request");
                 throw new ElasticsearchSecurityException("Not an SSL request", RestStatus.INTERNAL_SERVER_ERROR);
             }
