@@ -62,7 +62,7 @@ public class SSLTest extends AbstractUnitTest {
     public final ExpectedException thrown = ExpectedException.none();
 
     protected boolean allowOpenSSL = false;
-
+    
     @Test
     public void testHttps() throws Exception {
 
@@ -678,4 +678,59 @@ public class SSLTest extends AbstractUnitTest {
         Assert.assertTrue(TestPrincipalExtractor.getHttpCount() > 0);
     }
 
+    @Test
+    public void testCRLPem() throws Exception {
+        
+        enableHTTPClientSSL = true;
+        trustHTTPServerCertificate = true;
+        sendHTTPClientCertificate = true;
+
+        final Settings settings = Settings.builder().put("searchguard.ssl.transport.enabled", true)
+                .put(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_ENABLE_OPENSSL_IF_AVAILABLE, allowOpenSSL)
+                .put(SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_ENABLE_OPENSSL_IF_AVAILABLE, allowOpenSSL)
+                .put(SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_PEMCERT_FILEPATH, getAbsoluteFilePathFromClassPath("node-0.crt.pem"))
+                .put(SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_PEMKEY_FILEPATH, getAbsoluteFilePathFromClassPath("node-0.key.pem"))
+                //.put(SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_PEMKEY_PASSWORD, "changeit")
+                .put(SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_PEMTRUSTEDCAS_FILEPATH, getAbsoluteFilePathFromClassPath("root-ca.pem"))
+                .put("searchguard.ssl.transport.enforce_hostname_verification", false)
+                .put("searchguard.ssl.transport.resolve_hostname", false)
+
+                .put("searchguard.ssl.http.enabled", true)
+                .put("searchguard.ssl.http.clientauth_mode", "REQUIRE")
+                .put(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_PEMCERT_FILEPATH, getAbsoluteFilePathFromClassPath("node-0.crt.pem"))
+                .put(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_PEMKEY_FILEPATH, getAbsoluteFilePathFromClassPath("node-0.key.pem"))
+                //.put(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_PEMKEY_PASSWORD, "changeit")
+                .put(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_PEMTRUSTEDCAS_FILEPATH, getAbsoluteFilePathFromClassPath("chain-ca.pem"))
+                .put(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_CRL_VALIDATE, true)
+                .put(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_CRL_VALIDATION_DATE, 1493231675442L)
+                .build();
+
+        startES(settings);
+        Assert.assertTrue(executeSimpleRequest("_searchguard/sslinfo?pretty").contains("TLS"));
+    }
+    
+    @Test
+    public void testCRL() throws Exception {
+        
+        enableHTTPClientSSL = true;
+        trustHTTPServerCertificate = true;
+        sendHTTPClientCertificate = true;
+
+        final Settings settings = Settings.builder().put("searchguard.ssl.transport.enabled", false)
+                .put(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_KEYSTORE_ALIAS, "node-0").put("searchguard.ssl.http.enabled", true)
+                .put(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_ENABLE_OPENSSL_IF_AVAILABLE, allowOpenSSL)
+                .put(SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_ENABLE_OPENSSL_IF_AVAILABLE, allowOpenSSL)
+                .put("searchguard.ssl.http.clientauth_mode", "REQUIRE")
+                .put("searchguard.ssl.http.keystore_filepath", getAbsoluteFilePathFromClassPath("node-0-keystore.jks"))
+                .put("searchguard.ssl.http.truststore_filepath", getAbsoluteFilePathFromClassPath("truststore.jks"))
+                .put(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_CRL_VALIDATE, true)
+                .put(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_CRL_FILE, getAbsoluteFilePathFromClassPath("crl/revoked.crl"))
+                .put(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_CRL_VALIDATION_DATE, 1493231675442L)
+                .build();
+
+        startES(settings);
+
+        Assert.assertTrue(executeSimpleRequest("_nodes/settings?pretty").contains(clustername));
+        
+    }
 }

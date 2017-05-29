@@ -65,7 +65,7 @@ public class SearchGuardSSLInfoAction extends BaseRestHandler {
                 
                 try {
                     
-                    SSLInfo sslInfo = SSLRequestHelper.getSSLInfo(request, principalExtractor);
+                    SSLInfo sslInfo = SSLRequestHelper.getSSLInfo(settings, request, principalExtractor);
                     X509Certificate[] certs = sslInfo == null?null:sslInfo.getX509Certs();
 
                     builder.startObject();

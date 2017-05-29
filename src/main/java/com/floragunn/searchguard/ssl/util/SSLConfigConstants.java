@@ -65,7 +65,15 @@ public final class SSLConfigConstants {
     public static final String SEARCHGUARD_SSL_CLIENT_EXTERNAL_CONTEXT_ID = "searchguard.ssl.client.external_context_id";
     public static final String SEARCHGUARD_SSL_TRANSPORT_PRINCIPAL_EXTRACTOR_CLASS = "searchguard.ssl.transport.principal_extractor_class";
 
-   
+    public static final String SEARCHGUARD_SSL_HTTP_CRL_FILE = "searchguard.ssl.http.crl.file_path";
+    public static final String SEARCHGUARD_SSL_HTTP_CRL_VALIDATE = "searchguard.ssl.http.crl.validate";
+    public static final String SEARCHGUARD_SSL_HTTP_CRL_PREFER_CRLFILE_OVER_OCSP = "searchguard.ssl.http.crl.prefer_crlfile_over_ocsp";
+    public static final String SEARCHGUARD_SSL_HTTP_CRL_CHECK_ONLY_END_ENTITIES = "searchguard.ssl.http.crl.check_only_end_entities";    
+    public static final String SEARCHGUARD_SSL_HTTP_CRL_DISABLE_OCSP = "searchguard.ssl.http.crl.disable_ocsp";    
+    public static final String SEARCHGUARD_SSL_HTTP_CRL_DISABLE_CRLDP = "searchguard.ssl.http.crl.disable_crldp";   
+    public static final String SEARCHGUARD_SSL_HTTP_CRL_VALIDATION_DATE = "searchguard.ssl.http.crl.validation_date";
+
+    
     private static final String[] _SECURE_SSL_PROTOCOLS = {"TLSv1.2", "TLSv1.1"};
     
     public static final String[] getSecureSSLProtocols(Settings settings, boolean http)
