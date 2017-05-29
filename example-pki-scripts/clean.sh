@@ -9,3 +9,4 @@ rm -f ./*.p12
 rm -f ./*.csr
 rm -f ./*.key*
 rm -f ./*tmp*
+rm -f ./*.crl
