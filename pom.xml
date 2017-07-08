@@ -16,7 +16,7 @@
 
     <groupId>com.floragunn</groupId>
     <artifactId>search-guard-ssl</artifactId>
-    <version>5.5.0-22</version>
+    <version>5.5.0-23-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>Search Guard SSL</name>
@@ -53,7 +53,7 @@
         <url>https://github.com/floragunncom/search-guard-ssl</url>
         <connection>scm:git:git@github.com:floragunncom/search-guard-ssl.git</connection>
         <developerConnection>scm:git:git@github.com:floragunncom/search-guard-ssl.git</developerConnection>
-      <tag>ves-5.5.0-22</tag>
+      <tag>HEAD</tag>
     </scm>
 
     <issueManagement>
