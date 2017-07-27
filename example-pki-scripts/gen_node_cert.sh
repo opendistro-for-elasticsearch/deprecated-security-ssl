@@ -30,6 +30,12 @@ fi
 
 echo Generating keystore and certificate for node $NODE_NAME
 
+if [ -z "$DN" ]; then
+   DN="CN=$NODE_NAME.example.com, OU=SSL, O=Test, L=Test, C=DE"
+fi
+
+
+
 "$BIN_PATH" -genkey \
         -alias     $NODE_NAME \
         -keystore  $NODE_NAME-keystore.jks \
@@ -39,7 +45,7 @@ echo Generating keystore and certificate for node $NODE_NAME
         -sigalg SHA256withRSA \
         -keypass $KS_PASS \
         -storepass $KS_PASS \
-        -dname "CN=$NODE_NAME.example.com, OU=SSL, O=Test, L=Test, C=DE" \
+        -dname "$DN" \
         -ext san=dns:$NODE_NAME.example.com,dns:localhost,ip:127.0.0.1,oid:1.2.3.4.5.5 
         
 #oid:1.2.3.4.5.5 denote this a server node certificate for search guard
@@ -53,7 +59,7 @@ echo Generating certificate signing request for node $NODE_NAME
         -keyalg     rsa \
         -keypass $KS_PASS \
         -storepass $KS_PASS \
-        -dname "CN=$NODE_NAME.example.com, OU=SSL, O=Test, L=Test, C=DE" \
+        -dname "$DN" \
         -ext san=dns:$NODE_NAME.example.com,dns:localhost,ip:127.0.0.1,oid:1.2.3.4.5.5
         
 #oid:1.2.3.4.5.5 denote this a server node certificate for search guard
