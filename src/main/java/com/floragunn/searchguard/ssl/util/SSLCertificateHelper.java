@@ -43,7 +43,6 @@ public class SSLCertificateHelper {
     
     public static X509Certificate[] exportRootCertificates(final KeyStore ks, final String alias) throws KeyStoreException {
         logKeyStore(ks);
-        final List<String> aliases = toList(ks.aliases());
         
         final List<X509Certificate> trustedCerts = new ArrayList<X509Certificate>();
         
@@ -52,6 +51,8 @@ public class SSLCertificateHelper {
             if(log.isDebugEnabled()) {
                 log.debug("No alias given, will trust all of the certificates in the store");
             }
+            
+            final List<String> aliases = toList(ks.aliases());
             
             for (final String _alias : aliases) {
 
@@ -73,7 +74,7 @@ public class SSLCertificateHelper {
                     log.error("Alias {} does not exist", alias);
                 }
             } else {
-                log.error("Alias {} does not contain hold a certificate entry", alias);
+                log.error("Alias {} does not contain a certificate entry", alias);
             }
         }
 
@@ -89,7 +90,7 @@ public class SSLCertificateHelper {
                 log.error("Keystore does not contain any aliases");
             } else {
                 alias = aliases.get(0);
-                log.info("No alias given, use the firs one: {}", alias);
+                log.info("No alias given, use the first one: {}", alias);
             }
         } 
 
@@ -110,7 +111,7 @@ public class SSLCertificateHelper {
 
             return x509Certs;
         } else {
-            log.error("Alias {} does not exists or contain hold a certificate chain", alias);
+            log.error("Alias {} does not exist or contain a certificate chain", alias);
         }
 
         return new X509Certificate[0];
