@@ -20,6 +20,7 @@ package com.floragunn.searchguard.ssl.http.netty;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
+import io.netty.handler.codec.DecoderException;
 import io.netty.handler.ssl.NotSslRecordException;
 import io.netty.handler.ssl.SslHandler;
 
@@ -57,6 +58,10 @@ public class SearchGuardSSLNettyHttpServerTransport extends Netty4HttpServerTran
     @Override
     protected void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
         if(this.lifecycle.started()) {
+            
+            if(cause instanceof DecoderException && cause != null) {
+                cause = cause.getCause();
+            }
             
             if(cause instanceof NotSslRecordException) {
                 logger.warn("Someone ({}) speaks http plaintext instead of ssl, will close the channel", ctx.channel().remoteAddress());
