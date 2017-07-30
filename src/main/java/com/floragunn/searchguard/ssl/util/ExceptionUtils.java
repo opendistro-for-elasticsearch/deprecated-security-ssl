@@ -17,6 +17,8 @@
 
 package com.floragunn.searchguard.ssl.util;
 
+import org.elasticsearch.ElasticsearchException;
+
 public class ExceptionUtils {
     
     public static Throwable getRootCause(final Throwable e) {
@@ -32,4 +34,11 @@ public class ExceptionUtils {
         return getRootCause(cause);
     }
 
+    public static ElasticsearchException createBadHeaderException() {
+        
+        return new ElasticsearchException("bad header found. "
+                + "This means typically that one node try to connect to another with "
+                + "a non-node certificate (no OID or searchguard.nodes_dn incorrect configured) or that someone"
+                + "is spoofing requests. See https://github.com/floragunncom/search-guard-docs/blob/master/tls_node_certificates.md");
+    }
 }

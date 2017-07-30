@@ -31,6 +31,7 @@ import org.elasticsearch.rest.RestChannel;
 import org.elasticsearch.rest.RestRequest;
 import org.elasticsearch.rest.RestStatus;
 
+import com.floragunn.searchguard.ssl.util.ExceptionUtils;
 import com.floragunn.searchguard.ssl.util.SSLRequestHelper;
 
 public class ValidatingDispatcher implements Dispatcher {
@@ -68,7 +69,7 @@ public class ValidatingDispatcher implements Dispatcher {
     protected void checkRequest(final RestRequest request, final RestChannel channel) {
         
         if(SSLRequestHelper.containsBadHeader(threadContext, "_sg_ssl_")) {
-            final ElasticsearchException exception = new ElasticsearchException("bad header found");
+            final ElasticsearchException exception = ExceptionUtils.createBadHeaderException();
             auditErrorHandler.logError(exception, request);
             throw exception;
         }
