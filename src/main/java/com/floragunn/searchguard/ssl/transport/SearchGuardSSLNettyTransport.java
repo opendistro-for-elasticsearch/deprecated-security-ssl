@@ -22,6 +22,7 @@ import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelOutboundHandlerAdapter;
 import io.netty.channel.ChannelPromise;
+import io.netty.handler.codec.DecoderException;
 import io.netty.handler.ssl.NotSslRecordException;
 import io.netty.handler.ssl.SslHandler;
 
@@ -61,7 +62,13 @@ public class SearchGuardSSLNettyTransport extends Netty4Transport {
     @Override
     protected void onException(Channel channel, Exception e) throws IOException {
         if (lifecycle.started()) {
-            final Throwable cause = e.getCause();
+            
+            Throwable cause = e;
+            
+            if(e instanceof DecoderException && e != null) {
+                cause = e.getCause();
+            }
+            
             if(cause instanceof NotSslRecordException) {
                 logger.warn("Someone ({}) speaks transport plaintext instead of ssl, will close the channel", channel.remoteAddress());
                 disconnectFromNodeChannel(channel, e);
@@ -105,6 +112,10 @@ public class SearchGuardSSLNettyTransport extends Netty4Transport {
         @Override
         public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
             if(SearchGuardSSLNettyTransport.this.lifecycle.started()) {
+                
+                if(cause instanceof DecoderException && cause != null) {
+                    cause = cause.getCause();
+                }
                 
                 if(cause instanceof NotSslRecordException) {
                     logger.warn("Someone ({}) speaks transport plaintext instead of ssl, will close the channel", ctx.channel().remoteAddress());
@@ -190,6 +201,10 @@ public class SearchGuardSSLNettyTransport extends Netty4Transport {
         @Override
         public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
             if(SearchGuardSSLNettyTransport.this.lifecycle.started()) {
+                
+                if(cause instanceof DecoderException && cause != null) {
+                    cause = cause.getCause();
+                }
                 
                 if(cause instanceof NotSslRecordException) {
                     logger.warn("Someone ({}) speaks transport plaintext instead of ssl, will close the channel", ctx.channel().remoteAddress());
