@@ -46,6 +46,7 @@ import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
 import org.elasticsearch.common.unit.TimeValue;
+import org.elasticsearch.common.xcontent.XContentType;
 import org.elasticsearch.node.Node;
 import org.elasticsearch.node.PluginAwareNode;
 import org.elasticsearch.transport.Netty4Plugin;
@@ -56,6 +57,7 @@ import org.junit.rules.ExpectedException;
 
 import com.floragunn.searchguard.ssl.util.SSLConfigConstants;
 
+@SuppressWarnings({"resource", "unchecked"})
 public class SSLTest extends AbstractUnitTest {
 
     @Rule
@@ -464,7 +466,7 @@ public class SSLTest extends AbstractUnitTest {
             tc.addTransportAddress(new InetSocketTransportAddress(new InetSocketAddress(nodeHost, nodePort)));
             Assert.assertEquals(3, tc.admin().cluster().nodesInfo(new NodesInfoRequest()).actionGet().getNodes().size());            
             log.debug("TransportClient connected");           
-            Assert.assertEquals("test", tc.index(new IndexRequest("test","test").setRefreshPolicy(RefreshPolicy.IMMEDIATE).source("{\"a\":5}")).actionGet().getIndex());            
+            Assert.assertEquals("test", tc.index(new IndexRequest("test","test").setRefreshPolicy(RefreshPolicy.IMMEDIATE).source("{\"a\":5}", XContentType.JSON)).actionGet().getIndex());            
             log.debug("Index created");           
             Assert.assertEquals(1L, tc.search(new SearchRequest("test")).actionGet().getHits().getTotalHits());
             log.debug("Search done");
@@ -522,7 +524,7 @@ public class SSLTest extends AbstractUnitTest {
             
             log.debug("TransportClient connected");
             
-            Assert.assertEquals("test", tc.index(new IndexRequest("test","test").setRefreshPolicy(RefreshPolicy.IMMEDIATE).source("{\"a\":5}")).actionGet().getIndex());
+            Assert.assertEquals("test", tc.index(new IndexRequest("test","test").setRefreshPolicy(RefreshPolicy.IMMEDIATE).source("{\"a\":5}", XContentType.JSON)).actionGet().getIndex());
             
             log.debug("Index created");
             
@@ -540,7 +542,7 @@ public class SSLTest extends AbstractUnitTest {
             
         }
     }
-    
+
     @Test
     public void testNodeClientSSL() throws Exception {
 
@@ -661,7 +663,7 @@ public class SSLTest extends AbstractUnitTest {
             Assert.assertEquals(3, tc.admin().cluster().nodesInfo(new NodesInfoRequest()).actionGet().getNodes().size());            
             log.debug("TransportClient connected");
             TestPrincipalExtractor.reset();
-            Assert.assertEquals("test", tc.index(new IndexRequest("test","test").setRefreshPolicy(RefreshPolicy.IMMEDIATE).source("{\"a\":5}")).actionGet().getIndex());            
+            Assert.assertEquals("test", tc.index(new IndexRequest("test","test").setRefreshPolicy(RefreshPolicy.IMMEDIATE).source("{\"a\":5}", XContentType.JSON)).actionGet().getIndex());            
             log.debug("Index created");           
             Assert.assertEquals(1L, tc.search(new SearchRequest("test")).actionGet().getHits().getTotalHits());
             log.debug("Search done");

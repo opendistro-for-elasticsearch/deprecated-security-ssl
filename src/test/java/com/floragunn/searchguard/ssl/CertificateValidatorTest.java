@@ -144,7 +144,7 @@ public class CertificateValidatorTest {
         
         Assert.assertEquals(certsToValidate.size(), 2);
         
-        CertificateValidator validator = new CertificateValidator(rootCas.toArray(new X509Certificate[0]), Collections.EMPTY_LIST);
+        CertificateValidator validator = new CertificateValidator(rootCas.toArray(new X509Certificate[0]), Collections.emptyList());
         validator.setDate(new Date(1493231675442L));
         try {
             validator.validate(certsToValidate.toArray(new X509Certificate[0]));
@@ -177,7 +177,7 @@ public class CertificateValidatorTest {
         
         Assert.assertEquals(certsToValidate.size(), 2);
         
-        CertificateValidator validator = new CertificateValidator(rootCas.toArray(new X509Certificate[0]), Collections.EMPTY_LIST);
+        CertificateValidator validator = new CertificateValidator(rootCas.toArray(new X509Certificate[0]), Collections.emptyList());
         validator.setEnableCRLDP(true);
         validator.setEnableOCSP(true);
         validator.setDate(new Date(1493231675442L));

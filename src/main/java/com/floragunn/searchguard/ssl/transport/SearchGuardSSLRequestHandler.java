@@ -97,9 +97,9 @@ implements TransportRequestHandler<T> {
             Channel nettyChannel = null;
             
             if(channel instanceof DelegatingTransportChannel) {
-                nettyChannel = (Channel) ((TcpTransportChannel)((DelegatingTransportChannel) channel).getChannel()).getChannel();
+                nettyChannel = (Channel) ((TcpTransportChannel<?>)((DelegatingTransportChannel) channel).getChannel()).getChannel();
             } else if (channel instanceof TcpTransportChannel) {
-                nettyChannel = (Channel) ((TcpTransportChannel) channel).getChannel();
+                nettyChannel = (Channel) ((TcpTransportChannel<?>) channel).getChannel();
             } else {
                 throw new Exception("Invalid channel of type "+channel.getClass());
             }
