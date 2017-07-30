@@ -23,6 +23,12 @@ rm -f $CLIENT_NAME-signed.pem
 
 echo Generating keystore and certificate for node $CLIENT_NAME
 
+if [ -z "$DN" ]; then
+   DN="CN=$CLIENT_NAME, OU=client, O=client, L=Test, C=DE"
+fi
+
+
+
 "$BIN_PATH" -genkey \
         -alias     $CLIENT_NAME \
         -keystore  $CLIENT_NAME-keystore.jks \
@@ -32,7 +38,7 @@ echo Generating keystore and certificate for node $CLIENT_NAME
         -validity  712 \
         -keypass $KS_PASS \
         -storepass $KS_PASS \
-        -dname "CN=$CLIENT_NAME, OU=client, O=client, L=Test, C=DE"
+        -dname "$DN"
 
 echo Generating certificate signing request for node $CLIENT_NAME
 
@@ -43,7 +49,7 @@ echo Generating certificate signing request for node $CLIENT_NAME
         -keyalg     rsa \
         -keypass $KS_PASS \
         -storepass $KS_PASS \
-        -dname "CN=$CLIENT_NAME, OU=client, O=client, L=Test, C=DE"
+        -dname "$DN"
 
 echo Sign certificate request with CA
 openssl ca \

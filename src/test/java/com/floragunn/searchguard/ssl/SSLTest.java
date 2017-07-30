@@ -71,9 +71,10 @@ public class SSLTest extends AbstractUnitTest {
         enableHTTPClientSSL = true;
         trustHTTPServerCertificate = true;
         sendHTTPClientCertificate = true;
+        keystore = "unittestspecial1-keystore.jks";
 
         final Settings settings = Settings.builder().put("searchguard.ssl.transport.enabled", false)
-                .put(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_KEYSTORE_ALIAS, "node-0").put("searchguard.ssl.http.enabled", true)
+                .put("searchguard.ssl.http.enabled", true)
                 .put(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_ENABLE_OPENSSL_IF_AVAILABLE, allowOpenSSL)
                 .put(SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_ENABLE_OPENSSL_IF_AVAILABLE, allowOpenSSL)
                 .put("searchguard.ssl.http.clientauth_mode", "REQUIRE")
@@ -84,7 +85,7 @@ public class SSLTest extends AbstractUnitTest {
         startES(settings);
 
         System.out.println(executeSimpleRequest("_searchguard/sslinfo?pretty"));
-        //Assert.assertTrue(executeSimpleRequest("_searchguard/sslinfo?pretty").contains("TLS"));
+        Assert.assertTrue(executeSimpleRequest("_searchguard/sslinfo?pretty").contains("EMAILADDRESS=abc@xyz.com"));
         Assert.assertTrue(executeSimpleRequest("_nodes/settings?pretty").contains(clustername));
         Assert.assertFalse(executeSimpleRequest("_nodes/settings?pretty").contains("\"searchguard\""));
         Assert.assertFalse(executeSimpleRequest("_nodes/settings?pretty").contains("keystore_filepath"));
@@ -704,7 +705,7 @@ public class SSLTest extends AbstractUnitTest {
                 //.put(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_PEMKEY_PASSWORD, "changeit")
                 .put(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_PEMTRUSTEDCAS_FILEPATH, getAbsoluteFilePathFromClassPath("chain-ca.pem"))
                 .put(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_CRL_VALIDATE, true)
-                .put(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_CRL_VALIDATION_DATE, 1493231675442L)
+                .put(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_CRL_VALIDATION_DATE, CertificateValidatorTest.CRL_DATE.getTime())
                 .build();
 
         startES(settings);
@@ -727,7 +728,7 @@ public class SSLTest extends AbstractUnitTest {
                 .put("searchguard.ssl.http.truststore_filepath", getAbsoluteFilePathFromClassPath("truststore.jks"))
                 .put(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_CRL_VALIDATE, true)
                 .put(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_CRL_FILE, getAbsoluteFilePathFromClassPath("crl/revoked.crl"))
-                .put(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_CRL_VALIDATION_DATE, 1493231675442L)
+                .put(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_CRL_VALIDATION_DATE, CertificateValidatorTest.CRL_DATE.getTime())
                 .build();
 
         startES(settings);
