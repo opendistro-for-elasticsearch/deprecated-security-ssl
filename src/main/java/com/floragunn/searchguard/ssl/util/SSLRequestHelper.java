@@ -57,20 +57,30 @@ public class SSLRequestHelper {
     
     public static class SSLInfo {
         private final X509Certificate[] x509Certs;
+        private final X509Certificate[] localCertificates;
         private final String principal;
         private final String protocol;
         private final String cipher;
 
         public SSLInfo(final X509Certificate[] x509Certs, final String principal, final String protocol, final String cipher) {
+            this(x509Certs, principal, protocol, cipher, null);
+        }
+
+        public SSLInfo(final X509Certificate[] x509Certs, final String principal, final String protocol, final String cipher, X509Certificate[] localCertificates) {
             super();
             this.x509Certs = x509Certs;
             this.principal = principal;
             this.protocol = protocol;
             this.cipher = cipher;
+            this.localCertificates = localCertificates;
         }
 
         public X509Certificate[] getX509Certs() {
             return x509Certs == null ? null : x509Certs.clone();
+        }
+        
+        public X509Certificate[] getLocalCertificates() {
+            return localCertificates == null ? null : localCertificates.clone();
         }
 
         public String getPrincipal() {
@@ -153,7 +163,8 @@ public class SSLRequestHelper {
             }
         }
 
-        return new SSLInfo(x509Certs, principal, protocol, cipher);
+        Certificate[] localCerts = session.getLocalCertificates();
+        return new SSLInfo(x509Certs, principal, protocol, cipher, localCerts==null?null:Arrays.copyOf(localCerts, localCerts.length, X509Certificate[].class));
     }
     
     public static boolean containsBadHeader(final ThreadContext context, String prefix) {

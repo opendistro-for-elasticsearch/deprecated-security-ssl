@@ -88,8 +88,11 @@ public class SSLTest extends AbstractUnitTest {
 
         startES(settings);
 
-        System.out.println(executeSimpleRequest("_searchguard/sslinfo?pretty"));
-        Assert.assertTrue(executeSimpleRequest("_searchguard/sslinfo?pretty").contains("EMAILADDRESS=abc@xyz.com"));
+        System.out.println(executeSimpleRequest("_searchguard/sslinfo?pretty&show_dn"));
+        Assert.assertTrue(executeSimpleRequest("_searchguard/sslinfo?pretty&show_dn").contains("EMAILADDRESS=abc@xyz.com"));
+        Assert.assertTrue(executeSimpleRequest("_searchguard/sslinfo?pretty&show_dn").contains("local_certificates_list"));
+        Assert.assertFalse(executeSimpleRequest("_searchguard/sslinfo?pretty&show_dn=false").contains("local_certificates_list"));
+        Assert.assertFalse(executeSimpleRequest("_searchguard/sslinfo?pretty").contains("local_certificates_list"));
         Assert.assertTrue(executeSimpleRequest("_nodes/settings?pretty").contains(clustername));
         Assert.assertFalse(executeSimpleRequest("_nodes/settings?pretty").contains("\"searchguard\""));
         Assert.assertFalse(executeSimpleRequest("_nodes/settings?pretty").contains("keystore_filepath"));

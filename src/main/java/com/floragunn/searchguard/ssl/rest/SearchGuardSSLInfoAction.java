@@ -22,6 +22,8 @@ import io.netty.handler.ssl.OpenSsl;
 
 import java.io.IOException;
 import java.security.cert.X509Certificate;
+import java.util.Arrays;
+import java.util.stream.Collectors;
 
 import org.elasticsearch.client.node.NodeClient;
 import org.elasticsearch.common.settings.Settings;
@@ -54,21 +56,30 @@ public class SearchGuardSSLInfoAction extends BaseRestHandler {
     @Override
     protected RestChannelConsumer prepareRequest(RestRequest request, NodeClient client) throws IOException {
         return new RestChannelConsumer() {
+            
+            final Boolean showDn = request.paramAsBoolean("show_dn", Boolean.FALSE);
 
             @Override
             public void accept(RestChannel channel) throws Exception {
                 XContentBuilder builder = channel.newBuilder();
                 BytesRestResponse response = null;
-                
+
                 try {
                     
                     SSLInfo sslInfo = SSLRequestHelper.getSSLInfo(settings, request, principalExtractor);
                     X509Certificate[] certs = sslInfo == null?null:sslInfo.getX509Certs();
+                    X509Certificate[] localCerts = sslInfo == null?null:sslInfo.getLocalCertificates();
 
                     builder.startObject();
 
                     builder.field("principal", sslInfo == null?null:sslInfo.getPrincipal());
                     builder.field("peer_certificates", certs != null && certs.length > 0 ? certs.length + "" : "0");
+
+                    if(showDn == Boolean.TRUE) {
+                        builder.field("peer_certificates_list", certs == null?null:Arrays.stream(certs).map(c->c.getSubjectDN().getName()).collect(Collectors.toList()));
+                        builder.field("local_certificates_list", localCerts == null?null:Arrays.stream(localCerts).map(c->c.getSubjectDN().getName()).collect(Collectors.toList()));
+                    }
+
                     builder.field("ssl_protocol", sslInfo == null?null:sslInfo.getProtocol());
                     builder.field("ssl_cipher", sslInfo == null?null:sslInfo.getCipher());
                     builder.field("ssl_openssl_available", OpenSsl.isAvailable());
