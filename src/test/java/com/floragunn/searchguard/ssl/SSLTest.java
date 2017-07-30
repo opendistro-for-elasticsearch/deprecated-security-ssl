@@ -458,7 +458,7 @@ public class SSLTest extends AbstractUnitTest {
         
         log.debug("Elasticsearch started");
 
-        final Settings tcSettings = Settings.builder().put("cluster.name", clustername).put("path.home", ".").put(settings).build();
+        final Settings tcSettings = Settings.builder().put("cluster.name", clustername).put(settings).build();
 
         try (TransportClient tc = new TransportClientImpl(tcSettings, asCollection(SearchGuardSSLPlugin.class))) {
             

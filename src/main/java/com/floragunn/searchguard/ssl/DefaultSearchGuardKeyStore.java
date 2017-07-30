@@ -96,11 +96,13 @@ public class DefaultSearchGuardKeyStore implements SearchGuardKeyStore {
     private SslContext httpSslContext;
     private SslContext transportServerSslContext;
     private SslContext transportClientSslContext;
+    private final Environment env;
 
     @Inject
     public DefaultSearchGuardKeyStore(final Settings settings) {
         super();
         this.settings = settings;
+        env = getEnvironment();
         httpSSLEnabled = settings.getAsBoolean(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_ENABLED,
                 SSLConfigConstants.SEARCHGUARD_SSL_HTTP_ENABLED_DEFAULT);
         transportSSLEnabled = settings.getAsBoolean(SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_ENABLED,
@@ -174,11 +176,45 @@ public class DefaultSearchGuardKeyStore implements SearchGuardKeyStore {
             throw new ElasticsearchSecurityException("no ssl protocols for http");
         }
     }
+    
+    private Environment getEnvironment() {        
+        try {
+             return new Environment(settings);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+    
+    private String resolve(String propName, boolean mustBeValid) {
+        
+        final String originalPath = settings.get(propName, null);
+        String path = originalPath;
+        log.debug("Value for {} is {}", propName, originalPath);
+        
+        if(env != null && originalPath != null && originalPath.length() > 0) {
+            path = env.configFile().resolve(originalPath).toAbsolutePath().toString();
+            log.debug("Resolved {} to {} against {}", originalPath, path, env.configFile().toAbsolutePath().toString());
+        }
+        
+        if(mustBeValid) {
+            checkPath(path, propName);
+        }
+        
+        if("".equals(path)) {
+            path = null;
+        }
+        
+        return path;
+    }
 
     private void initSSLConfig() {
         
-        final Environment env = new Environment(settings);
-        log.info("Config directory is {}/, from there the key- and truststore files are resolved relatively", env.configFile().toAbsolutePath());
+        if(env == null) {
+            log.info("No config directory, key- and truststore files are resolved absolutely");
+        } else {
+            log.info("Config directory is {}/, from there the key- and truststore files are resolved relatively", env.configFile().toAbsolutePath());
+        }
+
         
         if (transportSSLEnabled) {
    
@@ -187,34 +223,22 @@ public class DefaultSearchGuardKeyStore implements SearchGuardKeyStore {
             
             if(rawKeyStoreFilePath != null) {
                 
-                final String keystoreFilePath = env.configFile()
-                        .resolve(settings.get(SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_KEYSTORE_FILEPATH, "")).toAbsolutePath().toString();
+                final String keystoreFilePath = resolve(SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_KEYSTORE_FILEPATH, true);
                 final String keystoreType = settings.get(SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_KEYSTORE_TYPE, DEFAULT_STORE_TYPE);
                 final String keystorePassword = settings.get(SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_KEYSTORE_PASSWORD, DEFAULT_STORE_PASSWORD);
                 final String keystoreAlias = settings.get(SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_KEYSTORE_ALIAS, null);
 
-                final String truststoreFilePath = env.configFile()
-                        .resolve(settings.get(SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_TRUSTSTORE_FILEPATH, "")).toAbsolutePath()
-                        .toString();
-
-                checkStorePath(keystoreFilePath);
+                final String truststoreFilePath = resolve(SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_TRUSTSTORE_FILEPATH, true);
                 
                 if(settings.get(SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_TRUSTSTORE_FILEPATH, null) == null) {
                     throw new ElasticsearchException(SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_TRUSTSTORE_FILEPATH
                             + " must be set if transport ssl is reqested.");
                 }
 
-                checkStorePath(truststoreFilePath);
-
                 final String truststoreType = settings.get(SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_TRUSTSTORE_TYPE, DEFAULT_STORE_TYPE);
                 final String truststorePassword = settings.get(SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_TRUSTSTORE_PASSWORD, DEFAULT_STORE_PASSWORD);
                 final String truststoreAlias = settings.get(SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_TRUSTSTORE_ALIAS, null);
-                
 
-                //if(transportKeystoreCert == null || transportKeystoreCert.length == 0) {
-                //    throw new ElasticsearchException("No certificates found in "+keystoreFilePath+" with alias "+keystoreAlias);
-                //}
-                //====#===
                 try {
                 
                     final KeyStore ks = KeyStore.getInstance(keystoreType);
@@ -260,13 +284,9 @@ public class DefaultSearchGuardKeyStore implements SearchGuardKeyStore {
 
             } else if(rawPemCertFilePath != null) {
                 
-                final String pemCertFilePath = env.configFile().resolve(rawPemCertFilePath).toAbsolutePath().toString();
-                final String pemKey = env.configFile().resolve(settings.get(SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_PEMKEY_FILEPATH, "")).toAbsolutePath().toString();
-                final String trustedCas = env.configFile().resolve(settings.get(SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_PEMTRUSTEDCAS_FILEPATH, "")).toAbsolutePath().toString();
-                
-                checkStorePath(pemCertFilePath);
-                checkStorePath(pemKey);
-                checkStorePath(trustedCas);
+                final String pemCertFilePath = resolve(SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_PEMCERT_FILEPATH, true);
+                final String pemKey = resolve(SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_PEMKEY_FILEPATH, true);
+                final String trustedCas = resolve(SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_PEMTRUSTEDCAS_FILEPATH, true);
                 
                 try {
                 
@@ -293,31 +313,17 @@ public class DefaultSearchGuardKeyStore implements SearchGuardKeyStore {
             
             if(rawKeystoreFilePath != null) {
                 
-                final String keystoreFilePath = env.configFile()
-                        .resolve(settings.get(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_KEYSTORE_FILEPATH, "")).toAbsolutePath().toString();
+                final String keystoreFilePath = resolve(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_KEYSTORE_FILEPATH, true);
                 final String keystoreType = settings.get(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_KEYSTORE_TYPE, DEFAULT_STORE_TYPE);
                 final String keystorePassword = settings.get(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_KEYSTORE_PASSWORD, DEFAULT_STORE_PASSWORD);
                 final String keystoreAlias = settings.get(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_KEYSTORE_ALIAS, null);            
-                
-                //TODO remove with next version
-                //String _enforceHTTPClientAuth = settings.get("searchguard.ssl.http.enforce_clientauth");
-
-                //if(_enforceHTTPClientAuth != null) {
-                //    log.error("{} is deprecated and replaced by {}", "searchguard.ssl.http.enforce_clientauth", SSLConfigConstants.SEARCHGUARD_SSL_HTTP_CLIENTAUTH_MODE);
-                //    throw new RuntimeException("searchguard.ssl.http.enforce_clientauth is deprecated");
-                //}
 
                 log.info("HTTPS client auth mode {}", httpClientAuthMode);
-                
-                final String truststoreFilePath = env.configFile()
-                        .resolve(settings.get(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_TRUSTSTORE_FILEPATH, "")).toAbsolutePath().toString();
 
                 if(settings.get(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_KEYSTORE_FILEPATH, null) == null) {
                     throw new ElasticsearchException(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_KEYSTORE_FILEPATH
                             + " must be set if https is reqested.");
                 }
-
-                checkStorePath(keystoreFilePath);
 
                 if (httpClientAuthMode == ClientAuth.REQUIRE) {
                     
@@ -360,7 +366,7 @@ public class DefaultSearchGuardKeyStore implements SearchGuardKeyStore {
                     
                     if(settings.get(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_TRUSTSTORE_FILEPATH, null) != null) {
 
-                        checkStorePath(truststoreFilePath);
+                        final String truststoreFilePath = resolve(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_TRUSTSTORE_FILEPATH, true);
                         
                         final String truststoreType = settings.get(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_TRUSTSTORE_TYPE, DEFAULT_STORE_TYPE);
                         final String truststorePassword = settings.get(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_TRUSTSTORE_PASSWORD, DEFAULT_STORE_PASSWORD);
@@ -380,28 +386,31 @@ public class DefaultSearchGuardKeyStore implements SearchGuardKeyStore {
                 
             } else if (rawPemCertFilePath != null) {
                 
-               final String trustedCas = env.configFile().resolve(settings.get(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_PEMTRUSTEDCAS_FILEPATH, "")).toAbsolutePath().toString();
+               final String trustedCas = resolve(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_PEMTRUSTEDCAS_FILEPATH, false);
                 
                 if (httpClientAuthMode == ClientAuth.REQUIRE) {
                     
-                    if(trustedCas == null || trustedCas.equals(env.configFile().toAbsolutePath().toString())) {
-                        throw new ElasticsearchException(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_PEMTRUSTEDCAS_FILEPATH
-                                + " must be set if http ssl and client auth is reqested.");
-                    }
+                    //if(trustedCas == null || trustedCas.equals(env.config-File().toAbsolutePath().toString())) {
+                    //    throw new ElasticsearchException(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_PEMTRUSTEDCAS_FILEPATH
+                    //            + " must be set if http ssl and client auth is reqested.");
+                    //}
                     
-                    checkStorePath(trustedCas);
+                    checkPath(trustedCas, SSLConfigConstants.SEARCHGUARD_SSL_HTTP_PEMTRUSTEDCAS_FILEPATH);
                     
                 }
                 
-                final String pemCertFilePath = env.configFile().resolve(rawPemCertFilePath).toAbsolutePath().toString();
-                final String pemKey = env.configFile().resolve(settings.get(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_PEMKEY_FILEPATH, "")).toAbsolutePath().toString();
-                
-
-                checkStorePath(pemCertFilePath);
-                checkStorePath(pemKey);
+                final String pemCertFilePath = resolve(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_PEMCERT_FILEPATH, true);
+                final String pemKey = resolve(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_PEMKEY_FILEPATH, true);
                 
                 try {
-                    httpSslContext = buildSSLServerContext(new File(pemKey), new File(pemCertFilePath), (trustedCas == null || trustedCas.equals(env.configFile().toAbsolutePath().toString()))?null:new File(trustedCas), settings.get(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_PEMKEY_PASSWORD), getEnabledSSLCiphers(this.sslHTTPProvider, true), sslHTTPProvider, httpClientAuthMode);
+                    httpSslContext = buildSSLServerContext(
+                            new File(pemKey), 
+                            new File(pemCertFilePath), 
+                            trustedCas == null?null:new File(trustedCas), 
+                                    settings.get(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_PEMKEY_PASSWORD), 
+                                    getEnabledSSLCiphers(this.sslHTTPProvider, true), 
+                                    sslHTTPProvider, 
+                                    httpClientAuthMode);
                 } catch (final Exception e) {
                     throw new ElasticsearchSecurityException("Error while initializing http SSL layer from PEM: "+e.toString(), e);
                 }
@@ -664,18 +673,18 @@ public class DefaultSearchGuardKeyStore implements SearchGuardKeyStore {
         return sslContext;
     }
     
-    private static void checkStorePath(String keystoreFilePath) {
+    private static void checkPath(String keystoreFilePath, String fileNameLogOnly) {
         
         if (keystoreFilePath == null || keystoreFilePath.length() == 0) {
-            throw new ElasticsearchException("Empty file path");
+            throw new ElasticsearchException("Empty file path for "+fileNameLogOnly);
         }
         
         if (Files.isDirectory(Paths.get(keystoreFilePath), LinkOption.NOFOLLOW_LINKS)) {
-            throw new ElasticsearchException("Is a directory: " + keystoreFilePath+" Expected file!");
+            throw new ElasticsearchException("Is a directory: " + keystoreFilePath+" Expected a file for "+fileNameLogOnly);
         }
 
         if(!Files.isReadable(Paths.get(keystoreFilePath))) {
-            throw new ElasticsearchException("Unable to read " + keystoreFilePath + " ("+Paths.get(keystoreFilePath)+") Please make sure this files exists and is readable regarding to permissions");
+            throw new ElasticsearchException("Unable to read " + keystoreFilePath + " ("+Paths.get(keystoreFilePath)+"). Please make sure this files exists and is readable regarding to permissions. Property: "+fileNameLogOnly);
         }
     }
 }
