@@ -60,6 +60,7 @@ import org.apache.logging.log4j.Logger;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.env.Environment;
 
+import com.floragunn.searchguard.ssl.util.ExceptionUtils;
 import com.floragunn.searchguard.ssl.util.SSLCertificateHelper;
 import com.floragunn.searchguard.ssl.util.SSLConfigConstants;
 
@@ -282,6 +283,7 @@ public class DefaultSearchGuardKeyStore implements SearchGuardKeyStore {
                     transportClientSslContext = buildSSLClientContext(transportKeystoreKey, transportKeystoreCert, trustedTransportCertificates, getEnabledSSLCiphers(sslTransportClientProvider, false), sslTransportClientProvider);
                 
                 } catch (final Exception e) {
+                    logExplanation(e);
                     throw new ElasticsearchSecurityException("Error while initializing transport SSL layer: "+e.toString(), e);
                 }
 
@@ -297,6 +299,7 @@ public class DefaultSearchGuardKeyStore implements SearchGuardKeyStore {
                     transportClientSslContext = buildSSLClientContext(new File(pemKey), new File(pemCertFilePath), new File(trustedCas), settings.get(SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_PEMKEY_PASSWORD), getEnabledSSLCiphers(sslTransportClientProvider, false), sslTransportClientProvider);
 
                 } catch (final Exception e) {
+                    logExplanation(e);
                     throw new ElasticsearchSecurityException("Error while initializing transport SSL layer from PEM: "+e.toString(), e);
                 }
                 
@@ -384,6 +387,7 @@ public class DefaultSearchGuardKeyStore implements SearchGuardKeyStore {
                     httpSslContext = buildSSLServerContext(httpKeystoreKey, httpKeystoreCert, trustedHTTPCertificates, getEnabledSSLCiphers(this.sslHTTPProvider, true), sslHTTPProvider, httpClientAuthMode);
                     
                 } catch (final Exception e) {
+                    logExplanation(e);
                     throw new ElasticsearchSecurityException("Error while initializing HTTP SSL layer: "+e.toString(), e);
                 }
                 
@@ -415,6 +419,7 @@ public class DefaultSearchGuardKeyStore implements SearchGuardKeyStore {
                                     sslHTTPProvider, 
                                     httpClientAuthMode);
                 } catch (final Exception e) {
+                    logExplanation(e);
                     throw new ElasticsearchSecurityException("Error while initializing http SSL layer from PEM: "+e.toString(), e);
                 }
                 
@@ -683,6 +688,19 @@ public class DefaultSearchGuardKeyStore implements SearchGuardKeyStore {
         }
 
         return sslContext;
+    }
+    
+    private void logExplanation(Exception e) {
+        if(ExceptionUtils.findMsg(e, "not contain valid private key") != null) {
+            log.error("Your keystore or PEM does not contain a key. "
+                    + "If you sepcified a key password try removing it. "
+                    + "If you not sepcified a key password maybe you one because the key is password protected. "
+                    + "Maybe you just confused keys and certificates.");
+        }
+        
+        if(ExceptionUtils.findMsg(e, "not contain valid certificates") != null) {
+            log.error("Your keystore or PEM does not contain a certificate. Maybe you confused keys and certificates.");
+        }
     }
     
     private static void checkPath(String keystoreFilePath, String fileNameLogOnly) {

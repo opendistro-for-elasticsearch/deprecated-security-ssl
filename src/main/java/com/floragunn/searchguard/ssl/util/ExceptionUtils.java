@@ -33,6 +33,23 @@ public class ExceptionUtils {
         }
         return getRootCause(cause);
     }
+    
+    public static Throwable findMsg(final Throwable e, String msg) {
+        
+        if(e == null) {
+            return null;
+        }
+        
+        if(e.getMessage().contains(msg)) {
+            return e;
+        }
+        
+        final Throwable cause = e.getCause();
+        if(cause == null) {
+            return null;
+        }
+        return findMsg(cause, msg);
+    }
 
     public static ElasticsearchException createBadHeaderException() {
         
