@@ -71,15 +71,15 @@ public class SearchGuardSSLNettyTransport extends Netty4Transport {
             
             if(cause instanceof NotSslRecordException) {
                 logger.warn("Someone ({}) speaks transport plaintext instead of ssl, will close the channel", channel.remoteAddress());
-                disconnectFromNodeChannel(channel, e);
+                disconnectFromNodeChannel(channel, e.getMessage());
                 return;
             } else if (cause instanceof SSLException) {
                 logger.error("SSL Problem "+cause.getMessage(),cause);
-                disconnectFromNodeChannel(channel, e);
+                disconnectFromNodeChannel(channel, e.getMessage());
                 return;
             } else if (cause instanceof SSLHandshakeException) {
                 logger.error("Problem during handshake "+cause.getMessage());
-                disconnectFromNodeChannel(channel, e);
+                disconnectFromNodeChannel(channel, e.getMessage());
                 return;
             }
         }
