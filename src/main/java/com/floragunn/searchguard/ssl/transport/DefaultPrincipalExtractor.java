@@ -23,12 +23,17 @@ import java.security.cert.X509Certificate;
 
 import javax.security.auth.x500.X500Principal;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.elasticsearch.SpecialPermission;
 
 public class DefaultPrincipalExtractor implements PrincipalExtractor {
 
+    private static final String EMAILADDRESS = "EMAILADDRESS";
+    private static final String EMAILADDRESS_KEY = EMAILADDRESS+"=";
     private static final String mailOID = "1.2.840.113549.1.9.1";
     private static final int oidTokenLen = mailOID.length()+1;
+    protected final Logger log = LogManager.getLogger(this.getClass());
     
     @Override
     public String extractPrincipal(X509Certificate x509Certificate, Type type) {
@@ -40,7 +45,7 @@ public class DefaultPrincipalExtractor implements PrincipalExtractor {
 
         if (principal != null) {
 
-            String retval = principal.getName();
+            String retval = principal.getName();            
             final int indexMailStart = retval.indexOf(mailOID+"=");
 
             if(indexMailStart > -1) {
@@ -52,7 +57,7 @@ public class DefaultPrincipalExtractor implements PrincipalExtractor {
                     sm.checkPermission(new SpecialPermission());
                 }
 
-                final String dn = AccessController.doPrivileged(new PrivilegedAction<String>() {
+                final String dnString = AccessController.doPrivileged(new PrivilegedAction<String>() {
                     @SuppressWarnings("restriction")
                     @Override
                     public String run() {                        
@@ -60,16 +65,16 @@ public class DefaultPrincipalExtractor implements PrincipalExtractor {
                     }
                 });
                 
-                int nmStart = dn.toUpperCase().indexOf("EMAILADDRESS=");
+                int nmStart = dnString.toUpperCase().indexOf(EMAILADDRESS_KEY);
                 if(nmStart == -1) {
-                    mailTokenLen = 2;
-                    nmStart = dn.toUpperCase().indexOf("E=");
+                    log.error("Cannot find {} token in {}", EMAILADDRESS_KEY, dnString.toUpperCase());
+                    return retval;
                 }
                 
                 final String oldMail = retval.substring(indexMailStart+oidTokenLen, retval.indexOf(',', indexMailStart+oidTokenLen));
-                final String newMail = dn.substring(nmStart+mailTokenLen, dn.indexOf(',', nmStart+mailTokenLen));
+                final String newMail = dnString.substring(nmStart+mailTokenLen, dnString.indexOf(',', nmStart+mailTokenLen));
                 retval = retval.replaceFirst(oldMail, newMail);
-                retval = retval.replaceFirst(mailOID, "EMAILADDRESS");
+                retval = retval.replaceFirst(mailOID, EMAILADDRESS);
             }
 
             return retval;
