@@ -108,4 +108,9 @@ public class SearchGuardSSLInfoAction extends BaseRestHandler {
             }
         };
     }
+
+    @Override
+    public String getName() {
+        return "Search Guard SSL Info";
+    }
 }

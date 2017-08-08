@@ -52,6 +52,8 @@ import org.elasticsearch.common.settings.SettingsFilter;
 import org.elasticsearch.common.util.BigArrays;
 import org.elasticsearch.common.util.concurrent.ThreadContext;
 import org.elasticsearch.common.xcontent.NamedXContentRegistry;
+import org.elasticsearch.env.Environment;
+import org.elasticsearch.env.NodeEnvironment;
 import org.elasticsearch.http.HttpServerTransport;
 import org.elasticsearch.http.HttpServerTransport.Dispatcher;
 import org.elasticsearch.indices.breaker.CircuitBreakerService;
@@ -170,8 +172,10 @@ public final class SearchGuardSSLPlugin extends Plugin implements ActionPlugin, 
         return handlers;
     }
     
+    
+    
     @Override
-    public List<TransportInterceptor> getTransportInterceptors(ThreadContext threadContext) {
+    public List<TransportInterceptor> getTransportInterceptors(NamedWriteableRegistry namedWriteableRegistry, ThreadContext threadContext) {
         List<TransportInterceptor> interceptors = new ArrayList<TransportInterceptor>(1);
         
         if(transportSSLEnabled && !client) {
@@ -180,8 +184,6 @@ public final class SearchGuardSSLPlugin extends Plugin implements ActionPlugin, 
         
         return interceptors;
     }
-
-
 
     @Override
     public Map<String, Supplier<Transport>> getTransports(Settings settings, ThreadPool threadPool, BigArrays bigArrays,
@@ -196,9 +198,12 @@ public final class SearchGuardSSLPlugin extends Plugin implements ActionPlugin, 
 
     }
     
+    
+    
     @Override
     public Collection<Object> createComponents(Client client, ClusterService clusterService, ThreadPool threadPool,
-            ResourceWatcherService resourceWatcherService, ScriptService scriptService, NamedXContentRegistry xContentRegistry) {
+            ResourceWatcherService resourceWatcherService, ScriptService scriptService, NamedXContentRegistry xContentRegistry,
+            Environment environment, NodeEnvironment nodeEnvironment, NamedWriteableRegistry namedWriteableRegistry) {
 
         final List<Object> components = new ArrayList<>(1);
         

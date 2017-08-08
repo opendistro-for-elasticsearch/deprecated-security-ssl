@@ -128,7 +128,6 @@ implements TransportRequestHandler<T> {
                 final X509Certificate[] x509LocalCerts = Arrays.copyOf(localCerts, localCerts.length, X509Certificate[].class);
                 final String principal = principalExtractor==null?null:principalExtractor.extractPrincipal(x509PeerCerts[0], PrincipalExtractor.Type.TRANSPORT);
                 addAdditionalContextValues(action, request, x509LocalCerts, x509PeerCerts, principal);
-                addAdditionalContextValues(action, request, x509PeerCerts);
                 if(threadContext != null) {
                     //in the case of ssl plugin only: threadContext and principalExtractor are null
                     threadContext.putTransient("_sg_ssl_transport_principal", principal);
@@ -160,16 +159,6 @@ implements TransportRequestHandler<T> {
     }
     
     protected void addAdditionalContextValues(final String action, final TransportRequest request, final X509Certificate[] localCerts, final X509Certificate[] peerCerts, final String principal)
-            throws Exception {
-        // no-op
-    }
-    
-    /**
-     * @deprecated
-     * use addAdditionalContextValues(final String action, final TransportRequest request, final X509Certificate[] localCerts, final X509Certificate[] peerCerts, final String principal) instead
-     */
-    @Deprecated
-    protected void addAdditionalContextValues(final String action, final TransportRequest request, final X509Certificate[] peerCerts)
             throws Exception {
         // no-op
     }

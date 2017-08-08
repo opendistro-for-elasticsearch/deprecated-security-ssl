@@ -26,7 +26,6 @@ import io.netty.handler.codec.DecoderException;
 import io.netty.handler.ssl.NotSslRecordException;
 import io.netty.handler.ssl.SslHandler;
 
-import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 
@@ -60,7 +59,7 @@ public class SearchGuardSSLNettyTransport extends Netty4Transport {
     }
     
     @Override
-    protected void onException(Channel channel, Exception e) throws IOException {
+    protected void onException(Channel channel, Exception e) {
         if (lifecycle.started()) {
             
             Throwable cause = e;
@@ -71,15 +70,15 @@ public class SearchGuardSSLNettyTransport extends Netty4Transport {
             
             if(cause instanceof NotSslRecordException) {
                 logger.warn("Someone ({}) speaks transport plaintext instead of ssl, will close the channel", channel.remoteAddress());
-                disconnectFromNodeChannel(channel, e.getMessage());
+                closeChannelWhileHandlingExceptions(channel);
                 return;
             } else if (cause instanceof SSLException) {
                 logger.error("SSL Problem "+cause.getMessage(),cause);
-                disconnectFromNodeChannel(channel, e.getMessage());
+                closeChannelWhileHandlingExceptions(channel);
                 return;
             } else if (cause instanceof SSLHandshakeException) {
                 logger.error("Problem during handshake "+cause.getMessage());
-                disconnectFromNodeChannel(channel, e.getMessage());
+                closeChannelWhileHandlingExceptions(channel);
                 return;
             }
         }
@@ -87,8 +86,8 @@ public class SearchGuardSSLNettyTransport extends Netty4Transport {
     }
 
     @Override
-    protected ChannelHandler getServerChannelInitializer(String name, Settings remoteAddress) {
-        return new SSLServerChannelInitializer(name, remoteAddress);
+    protected ChannelHandler getServerChannelInitializer(String name) {
+        return new SSLServerChannelInitializer(name);
     }
 
     @Override
@@ -98,8 +97,8 @@ public class SearchGuardSSLNettyTransport extends Netty4Transport {
 
     protected class SSLServerChannelInitializer extends Netty4Transport.ServerChannelInitializer {
 
-        public SSLServerChannelInitializer(String name, Settings profileSettings) {
-            super(name, profileSettings);
+        public SSLServerChannelInitializer(String name) {
+            super(name);
         }
 
         @Override

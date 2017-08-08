@@ -56,7 +56,7 @@ import org.elasticsearch.client.Client;
 import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.cluster.health.ClusterHealthStatus;
 import org.elasticsearch.common.settings.Settings;
-import org.elasticsearch.common.transport.InetSocketTransportAddress;
+import org.elasticsearch.common.transport.TransportAddress;
 import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.node.Node;
 import org.elasticsearch.node.PluginAwareNode;
@@ -138,14 +138,11 @@ public abstract class AbstractUnitTest {
                 .put("node.master", masterNode)
                 .put("cluster.name", clustername)
                 .put("path.data", "data/data")
-                //.put("path.work", "data/work")
                 .put("path.logs", "data/logs")
-                .put("path.conf", "data/config")
-                //.put("index.number_of_shards", "1")
-                //.put("index.number_of_replicas", "0")
                 .put("http.enabled", !dataNode)
                 .put("cluster.routing.allocation.disk.watermark.high","1mb")
                 .put("cluster.routing.allocation.disk.watermark.low","1mb")
+                .put("cluster.routing.allocation.disk.watermark.flood_stage", "1mb")
                 .put("http.cors.enabled", true)
                 .put("node.local", false)
                 .put("transport.type.default", "netty4")
@@ -230,14 +227,14 @@ public abstract class AbstractUnitTest {
 
             for (NodeInfo nodeInfo: nodes) {
                 if (nodeInfo.getHttp() != null && nodeInfo.getHttp().address() != null) {
-                    final InetSocketTransportAddress is = (InetSocketTransportAddress) nodeInfo.getHttp().address().publishAddress();
+                    final TransportAddress is = nodeInfo.getHttp().address().publishAddress();
                     httpPort = is.getPort();
-                    httpHost = is.getHost();
+                    httpHost = is.getAddress();
                 }
 
-                final InetSocketTransportAddress is = (InetSocketTransportAddress) nodeInfo.getTransport().getAddress().publishAddress();
+                final TransportAddress is = nodeInfo.getTransport().getAddress().publishAddress();
                 nodePort = is.getPort();
-                nodeHost = is.getHost();
+                nodeHost = is.getAddress();
             }
         } catch (final ElasticsearchTimeoutException e) {
             throw new IOException("timeout, cluster does not respond to health request, cowardly refusing to continue with operations");

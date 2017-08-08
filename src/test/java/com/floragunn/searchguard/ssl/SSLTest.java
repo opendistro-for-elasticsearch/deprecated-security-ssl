@@ -33,7 +33,6 @@ import javax.net.ssl.TrustManagerFactory;
 
 import org.apache.http.NoHttpResponseException;
 import org.apache.lucene.util.Constants;
-import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.ElasticsearchSecurityException;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthRequest;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthResponse;
@@ -44,7 +43,7 @@ import org.elasticsearch.action.support.WriteRequest.RefreshPolicy;
 import org.elasticsearch.client.transport.NoNodeAvailableException;
 import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.common.settings.Settings;
-import org.elasticsearch.common.transport.InetSocketTransportAddress;
+import org.elasticsearch.common.transport.TransportAddress;
 import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.common.xcontent.XContentType;
 import org.elasticsearch.node.Node;
@@ -55,6 +54,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
+import com.floragunn.searchguard.ssl.util.ExceptionUtils;
 import com.floragunn.searchguard.ssl.util.SSLConfigConstants;
 
 @SuppressWarnings({"resource", "unchecked"})
@@ -88,9 +88,9 @@ public class SSLTest extends AbstractUnitTest {
 
         startES(settings);
 
-        System.out.println(executeSimpleRequest("_searchguard/sslinfo?pretty&show_dn"));
-        Assert.assertTrue(executeSimpleRequest("_searchguard/sslinfo?pretty&show_dn").contains("EMAILADDRESS=abc@xyz.com"));
-        Assert.assertTrue(executeSimpleRequest("_searchguard/sslinfo?pretty&show_dn").contains("local_certificates_list"));
+        System.out.println(executeSimpleRequest("_searchguard/sslinfo?pretty&show_dn=true"));
+        Assert.assertTrue(executeSimpleRequest("_searchguard/sslinfo?pretty&show_dn=true").contains("EMAILADDRESS=abc@xyz.com"));
+        Assert.assertTrue(executeSimpleRequest("_searchguard/sslinfo?pretty&show_dn=true").contains("local_certificates_list"));
         Assert.assertFalse(executeSimpleRequest("_searchguard/sslinfo?pretty&show_dn=false").contains("local_certificates_list"));
         Assert.assertFalse(executeSimpleRequest("_searchguard/sslinfo?pretty").contains("local_certificates_list"));
         Assert.assertTrue(executeSimpleRequest("_nodes/settings?pretty").contains(clustername));
@@ -343,9 +343,10 @@ public class SSLTest extends AbstractUnitTest {
         try {
             startES(settings);
             Assert.fail();
-        } catch (ElasticsearchException e) {
+        } catch (Exception e1) {
+            Throwable e = ExceptionUtils.getRootCause(e1);
             if(allowOpenSSL) {
-                Assert.assertTrue(e.toString(), e.toString().contains("failed to set cipher suite"));
+                Assert.assertTrue(e.toString(), e.toString().contains("no cipher match"));
             } else {
                 Assert.assertTrue(e.toString(), e.toString().contains("no valid cipher"));
             }
@@ -471,7 +472,7 @@ public class SSLTest extends AbstractUnitTest {
             
             log.debug("TransportClient built, connect now to {}:{}", nodeHost, nodePort);
             
-            tc.addTransportAddress(new InetSocketTransportAddress(new InetSocketAddress(nodeHost, nodePort)));
+            tc.addTransportAddress(new TransportAddress(new InetSocketAddress(nodeHost, nodePort)));
             Assert.assertEquals(3, tc.admin().cluster().nodesInfo(new NodesInfoRequest()).actionGet().getNodes().size());            
             log.debug("TransportClient connected");           
             Assert.assertEquals("test", tc.index(new IndexRequest("test","test").setRefreshPolicy(RefreshPolicy.IMMEDIATE).source("{\"a\":5}", XContentType.JSON)).actionGet().getIndex());            
@@ -528,7 +529,7 @@ public class SSLTest extends AbstractUnitTest {
             
             log.debug("TransportClient built, connect now to {}:{}", nodeHost, nodePort);
             
-            tc.addTransportAddress(new InetSocketTransportAddress(new InetSocketAddress(nodeHost, nodePort)));
+            tc.addTransportAddress(new TransportAddress(new InetSocketAddress(nodeHost, nodePort)));
             
             log.debug("TransportClient connected");
             
@@ -601,7 +602,7 @@ public class SSLTest extends AbstractUnitTest {
                 .put("searchguard.ssl.transport.resolve_hostname", false).build();
 
         try (TransportClient tc = new TransportClientImpl(tcSettings, asCollection(SearchGuardSSLPlugin.class))) {
-            tc.addTransportAddress(new InetSocketTransportAddress(new InetSocketAddress(nodeHost, nodePort)));
+            tc.addTransportAddress(new TransportAddress(new InetSocketAddress(nodeHost, nodePort)));
             Assert.assertEquals(3, tc.admin().cluster().nodesInfo(new NodesInfoRequest()).actionGet().getNodes().size());
         }
     }
@@ -667,7 +668,7 @@ public class SSLTest extends AbstractUnitTest {
             
             log.debug("TransportClient built, connect now to {}:{}", nodeHost, nodePort);
             
-            tc.addTransportAddress(new InetSocketTransportAddress(new InetSocketAddress(nodeHost, nodePort)));
+            tc.addTransportAddress(new TransportAddress(new InetSocketAddress(nodeHost, nodePort)));
             Assert.assertEquals(3, tc.admin().cluster().nodesInfo(new NodesInfoRequest()).actionGet().getNodes().size());            
             log.debug("TransportClient connected");
             TestPrincipalExtractor.reset();
