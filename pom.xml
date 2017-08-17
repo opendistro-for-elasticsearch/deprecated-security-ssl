@@ -20,7 +20,7 @@
     <packaging>jar</packaging>
 
     <name>Search Guard SSL</name>
-    <description>Provides SSL for Elasticsearch 5</description>
+    <description>Provides SSL for Elasticsearch 6</description>
     <url>https://github.com/floragunncom/search-guard-ssl</url>
     <inceptionYear>2015</inceptionYear>
     
