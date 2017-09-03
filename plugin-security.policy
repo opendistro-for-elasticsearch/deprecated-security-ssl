@@ -15,7 +15,8 @@
  * 
  */
  
-grant {   
+//grant codeBase "${codebase.search-guard-ssl-6.0.x-HEAD-SNAPSHOT.jar}" {  
+grant { 
   //below permissions are needed for netty native open ssl support
   permission java.lang.RuntimePermission "loadLibrary.*";
   permission java.lang.RuntimePermission "getClassLoader";

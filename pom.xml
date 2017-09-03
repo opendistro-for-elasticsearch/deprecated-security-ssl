@@ -28,7 +28,7 @@
       <repository>
         <id>lucene-repository</id>
         <name>Lucene Maven</name>
-        <url>https://download.elasticsearch.org/lucenesnapshots/00142c9</url>
+        <url>https://download.elasticsearch.org/lucenesnapshots/a128fcb</url>
         <snapshots>
           <enabled>true</enabled>
           <updatePolicy>always</updatePolicy>
@@ -56,7 +56,7 @@
     </licenses>
 
     <properties>
-        <elasticsearch.version>6.0.0-beta1</elasticsearch.version>
+        <elasticsearch.version>6.0.0-beta2</elasticsearch.version>
         <netty-native.version>2.0.5.Final</netty-native.version>
         <dependency.locations.enabled>false</dependency.locations.enabled>
     </properties>
@@ -230,8 +230,6 @@
                     <includes>
                         <include>**/*Test*.java</include>
                     </includes>
-                    <forkCount>0</forkCount>
-                    <reuseForks>false</reuseForks>
                 </configuration>
             </plugin>
             <plugin>
