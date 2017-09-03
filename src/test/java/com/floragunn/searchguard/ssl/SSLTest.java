@@ -567,7 +567,7 @@ public class SSLTest extends AbstractUnitTest {
 
         startES(settings);      
 
-        final Settings tcSettings = Settings.builder().put("cluster.name", clustername).put("node.client", true).put("path.home", ".")
+        final Settings tcSettings = Settings.builder().put("cluster.name", clustername).put("path.home", ".")
                 .put(settings)// -----
                 .build();
 
