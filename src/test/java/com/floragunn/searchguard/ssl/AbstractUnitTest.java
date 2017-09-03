@@ -144,7 +144,6 @@ public abstract class AbstractUnitTest {
                 .put("cluster.routing.allocation.disk.watermark.low","1mb")
                 .put("cluster.routing.allocation.disk.watermark.flood_stage", "1mb")
                 .put("http.cors.enabled", true)
-                .put("node.local", false)
                 .put("transport.type.default", "netty4")
                 .put("node.max_local_storage_nodes", 3)
                 .put("path.home",".");
