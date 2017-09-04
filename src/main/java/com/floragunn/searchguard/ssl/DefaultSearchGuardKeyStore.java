@@ -102,7 +102,13 @@ public class DefaultSearchGuardKeyStore implements SearchGuardKeyStore {
     public DefaultSearchGuardKeyStore(final Settings settings, final Path configPath) {
         super();
         this.settings = settings;
-        env = new Environment(settings, configPath);
+        Environment _env;
+        try {
+            _env = new Environment(settings, configPath);
+        } catch (IllegalStateException e) {
+            _env = null;
+        }
+        env = _env;
         httpSSLEnabled = settings.getAsBoolean(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_ENABLED,
                 SSLConfigConstants.SEARCHGUARD_SSL_HTTP_ENABLED_DEFAULT);
         transportSSLEnabled = settings.getAsBoolean(SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_ENABLED,
