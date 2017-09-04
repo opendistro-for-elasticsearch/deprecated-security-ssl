@@ -20,6 +20,7 @@ package com.floragunn.searchguard.ssl;
 import io.netty.handler.ssl.OpenSsl;
 import io.netty.util.internal.PlatformDependent;
 
+import java.nio.file.Path;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.ArrayList;
@@ -77,28 +78,70 @@ import com.floragunn.searchguard.ssl.transport.SearchGuardSSLTransportIntercepto
 import com.floragunn.searchguard.ssl.util.SSLConfigConstants;
 
 //For ES5 this class has only effect when SSL only plugin is installed
-public final class SearchGuardSSLPlugin extends Plugin implements ActionPlugin, NetworkPlugin {
+public class SearchGuardSSLPlugin extends Plugin implements ActionPlugin, NetworkPlugin {
 
-    private final Logger log = LogManager.getLogger(this.getClass());
-    static final String CLIENT_TYPE = "client.type";
-    private final boolean client;
-    private final boolean httpSSLEnabled;
-    private final boolean transportSSLEnabled;
-    private final Settings settings;
-    private final SearchGuardKeyStore sgks;
-    private PrincipalExtractor principalExtractor;
+    protected final Logger log = LogManager.getLogger(this.getClass());
+    protected static final String CLIENT_TYPE = "client.type";
+    protected final boolean client;
+    protected final boolean httpSSLEnabled;
+    protected final boolean transportSSLEnabled;
+    protected final Settings settings;
+    protected final SearchGuardKeyStore sgks;
+    protected PrincipalExtractor principalExtractor;
+    protected final Path configPath;
+    
+    public SearchGuardSSLPlugin(final Settings settings, final Path configPath) {
+        this(settings, configPath, false);
+    }
 
-    public SearchGuardSSLPlugin(final Settings settings) {
+    protected SearchGuardSSLPlugin(final Settings settings, final Path configPath, boolean disabled) {
+     
+        if(disabled) {
+            this.settings = null;
+            this.client = false;
+            this.httpSSLEnabled = false;
+            this.transportSSLEnabled = false;
+            this.sgks = null;
+            this.configPath = null;
+            return;
+        }
         
-        String rejectClientInitiatedRenegotiation = System.getProperty("jdk.tls.rejectClientInitiatedRenegotiation");
+        this.configPath = configPath;
         
-        if(!Boolean.parseBoolean(rejectClientInitiatedRenegotiation)) {
-            final String renegoMsg = "Consider setting -Djdk.tls.rejectClientInitiatedRenegotiation=true to prevent DoS attacks through client side initiated TLS renegotiation.";
+        if(this.configPath != null) {
+            log.info("Config path is "+this.configPath.toAbsolutePath());
+        } else {
+            log.info("Config path is not set");
+        }
+        
+        final boolean allowClientInitiatedRenegotiation = settings.getAsBoolean(SSLConfigConstants.SEARCHGUARD_SSL_ALLOW_CLIENT_INITIATED_RENEGOTIATION, false);
+        final boolean rejectClientInitiatedRenegotiation = Boolean.parseBoolean(System.getProperty(SSLConfigConstants.JDK_TLS_REJECT_CLIENT_INITIATED_RENEGOTIATION));
+   
+        if(allowClientInitiatedRenegotiation && !rejectClientInitiatedRenegotiation) {
+            final String renegoMsg = "Client side initiated TLS renegotiation enabled. This can open a vulnerablity for DoS attacks through client side initiated TLS renegotiation.";
             log.warn(renegoMsg);
             System.out.println(renegoMsg);
             System.err.println(renegoMsg);
-        } else {
-            log.debug("Client side initiated TLS renegotiation disabled. This can prevent DoS attacks. (jdk.tls.rejectClientInitiatedRenegotiation is true).");
+        } else {   
+            if(!rejectClientInitiatedRenegotiation) {
+                
+                final SecurityManager sm = System.getSecurityManager();
+
+                if (sm != null) {
+                    sm.checkPermission(new SpecialPermission());
+                }
+                
+                AccessController.doPrivileged(new PrivilegedAction<Object>() {
+                    @Override
+                    public Object run() {
+                        System.setProperty(SSLConfigConstants.JDK_TLS_REJECT_CLIENT_INITIATED_RENEGOTIATION, "true");
+                        return null;
+                    }
+                });
+                log.info("Client side initiated TLS renegotiation forcibly disabled. This can prevent DoS attacks. (jdk.tls.rejectClientInitiatedRenegotiation set to true).");
+            } else {
+                log.info("Client side initiated TLS renegotiation already disabled.");
+            }
         }
 
         final SecurityManager sm = System.getSecurityManager();
@@ -129,12 +172,13 @@ public final class SearchGuardSSLPlugin extends Plugin implements ActionPlugin, 
         if (!httpSSLEnabled && !transportSSLEnabled) {
             log.error("SSL not activated for http and/or transport.");
             System.out.println("SSL not activated for http and/or transport.");
+            System.err.println("SSL not activated for http and/or transport.");
         }
         
         if(ExternalSearchGuardKeyStore.hasExternalSslContext(settings)) {
             this.sgks = new ExternalSearchGuardKeyStore(settings);
         } else {
-            this.sgks = new DefaultSearchGuardKeyStore(settings);
+            this.sgks = new DefaultSearchGuardKeyStore(settings, configPath);
         }
     }
     
@@ -148,7 +192,7 @@ public final class SearchGuardSSLPlugin extends Plugin implements ActionPlugin, 
         final Map<String, Supplier<HttpServerTransport>> httpTransports = new HashMap<String, Supplier<HttpServerTransport>>(1);
         if (!client && httpSSLEnabled) {
             
-            final ValidatingDispatcher validatingDispatcher = new ValidatingDispatcher(threadPool.getThreadContext(), dispatcher, settings);
+            final ValidatingDispatcher validatingDispatcher = new ValidatingDispatcher(threadPool.getThreadContext(), dispatcher, settings, configPath);
             final SearchGuardSSLNettyHttpServerTransport sgsnht = new SearchGuardSSLNettyHttpServerTransport(settings, networkService, bigArrays, threadPool, sgks, xContentRegistry, validatingDispatcher);
             validatingDispatcher.setAuditErrorHandler(sgsnht);
             
@@ -166,7 +210,7 @@ public final class SearchGuardSSLPlugin extends Plugin implements ActionPlugin, 
         final List<RestHandler> handlers = new ArrayList<RestHandler>(1);
         
         if (!client) {
-            handlers.add(new SearchGuardSSLInfoAction(settings, restController, sgks, Objects.requireNonNull(principalExtractor)));
+            handlers.add(new SearchGuardSSLInfoAction(settings, configPath, restController, sgks, Objects.requireNonNull(principalExtractor)));
         }
         
         return handlers;

@@ -19,6 +19,7 @@ package com.floragunn.searchguard.ssl;
 
 import java.net.InetSocketAddress;
 import java.net.SocketException;
+import java.nio.file.Paths;
 import java.security.KeyStore;
 import java.security.Security;
 import java.util.ArrayList;
@@ -123,8 +124,8 @@ public class SSLTest extends AbstractUnitTest {
                 .build();
         
         try {
-            String[] enabledCiphers = new DefaultSearchGuardKeyStore(settings).createHTTPSSLEngine().getEnabledCipherSuites();
-            String[] enabledProtocols = new DefaultSearchGuardKeyStore(settings).createHTTPSSLEngine().getEnabledProtocols();
+            String[] enabledCiphers = new DefaultSearchGuardKeyStore(settings, Paths.get(".")).createHTTPSSLEngine().getEnabledCipherSuites();
+            String[] enabledProtocols = new DefaultSearchGuardKeyStore(settings, Paths.get(".")).createHTTPSSLEngine().getEnabledProtocols();
 
             if(allowOpenSSL) {
                 Assert.assertEquals(2, enabledProtocols.length); //SSLv2Hello is always enabled when using openssl
@@ -151,8 +152,8 @@ public class SSLTest extends AbstractUnitTest {
                     .put("path.home",".")
                     .build();
             
-            enabledCiphers = new DefaultSearchGuardKeyStore(settings).createServerTransportSSLEngine().getEnabledCipherSuites();
-            enabledProtocols = new DefaultSearchGuardKeyStore(settings).createServerTransportSSLEngine().getEnabledProtocols();
+            enabledCiphers = new DefaultSearchGuardKeyStore(settings, Paths.get(".")).createServerTransportSSLEngine().getEnabledCipherSuites();
+            enabledProtocols = new DefaultSearchGuardKeyStore(settings, Paths.get(".")).createServerTransportSSLEngine().getEnabledProtocols();
 
             if(allowOpenSSL) {
                 Assert.assertEquals(2, enabledProtocols.length); //SSLv2Hello is always enabled when using openssl
@@ -165,8 +166,8 @@ public class SSLTest extends AbstractUnitTest {
                 Assert.assertEquals(1, enabledCiphers.length);
                 Assert.assertEquals("SSL_RSA_EXPORT_WITH_RC4_40_MD5",enabledCiphers[0]);
             }
-            enabledCiphers = new DefaultSearchGuardKeyStore(settings).createClientTransportSSLEngine(null, -1).getEnabledCipherSuites();
-            enabledProtocols = new DefaultSearchGuardKeyStore(settings).createClientTransportSSLEngine(null, -1).getEnabledProtocols();
+            enabledCiphers = new DefaultSearchGuardKeyStore(settings, Paths.get(".")).createClientTransportSSLEngine(null, -1).getEnabledCipherSuites();
+            enabledProtocols = new DefaultSearchGuardKeyStore(settings, Paths.get(".")).createClientTransportSSLEngine(null, -1).getEnabledProtocols();
 
             if(allowOpenSSL) {
                 Assert.assertEquals(2, enabledProtocols.length); //SSLv2Hello is always enabled when using openssl

@@ -21,6 +21,7 @@ import io.netty.handler.ssl.SslHandler;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.nio.file.Path;
 import java.security.AccessController;
 import java.security.KeyStore;
 import java.security.PrivilegedAction;
@@ -103,7 +104,7 @@ public class SSLRequestHelper {
 
     }
 
-    public static SSLInfo getSSLInfo(final Settings settings, final RestRequest request, PrincipalExtractor principalExtractor) throws SSLPeerUnverifiedException {
+    public static SSLInfo getSSLInfo(final Settings settings, final Path configPath, final RestRequest request, PrincipalExtractor principalExtractor) throws SSLPeerUnverifiedException {
 
         if(request == null || !(request instanceof Netty4HttpRequest)) {
             return null;
@@ -143,7 +144,7 @@ public class SSLRequestHelper {
                     validationFailure = AccessController.doPrivileged(new PrivilegedAction<Boolean>() {
                         @Override
                         public Boolean run() {                        
-                            return !validate(x509CertsF, settings);
+                            return !validate(x509CertsF, settings, configPath);
                         }
                     });
 
@@ -179,7 +180,7 @@ public class SSLRequestHelper {
         return false;
     }
     
-    private static boolean validate(X509Certificate[] x509Certs, final Settings settings) {
+    private static boolean validate(X509Certificate[] x509Certs, final Settings settings, final Path configPath) {
         
         final boolean validateCrl = settings.getAsBoolean(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_CRL_VALIDATE, false);
         
@@ -191,7 +192,7 @@ public class SSLRequestHelper {
             return true;
         }
         
-        final Environment env = new Environment(settings);
+        final Environment env = new Environment(settings, configPath);
         
         try {
         

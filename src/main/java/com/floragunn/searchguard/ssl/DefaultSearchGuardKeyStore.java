@@ -29,6 +29,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.AccessController;
 import java.security.KeyStore;
@@ -98,10 +99,10 @@ public class DefaultSearchGuardKeyStore implements SearchGuardKeyStore {
     private SslContext transportClientSslContext;
     private final Environment env;
 
-    public DefaultSearchGuardKeyStore(final Settings settings) {
+    public DefaultSearchGuardKeyStore(final Settings settings, final Path configPath) {
         super();
         this.settings = settings;
-        env = getEnvironment();
+        env = new Environment(settings, configPath);
         httpSSLEnabled = settings.getAsBoolean(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_ENABLED,
                 SSLConfigConstants.SEARCHGUARD_SSL_HTTP_ENABLED_DEFAULT);
         transportSSLEnabled = settings.getAsBoolean(SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_ENABLED,
@@ -178,14 +179,6 @@ public class DefaultSearchGuardKeyStore implements SearchGuardKeyStore {
         
         if(httpSSLEnabled && SSLConfigConstants.getSecureSSLProtocols(settings, true).length == 0) {
             throw new ElasticsearchSecurityException("no ssl protocols for http");
-        }
-    }
-    
-    private Environment getEnvironment() {        
-        try {
-             return new Environment(settings);
-        } catch (Exception e) {
-            return null;
         }
     }
     

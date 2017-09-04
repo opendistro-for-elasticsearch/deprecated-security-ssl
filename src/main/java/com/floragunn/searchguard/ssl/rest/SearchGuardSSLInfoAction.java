@@ -21,6 +21,7 @@ import static org.elasticsearch.rest.RestRequest.Method.GET;
 import io.netty.handler.ssl.OpenSsl;
 
 import java.io.IOException;
+import java.nio.file.Path;
 import java.security.cert.X509Certificate;
 import java.util.Arrays;
 import java.util.stream.Collectors;
@@ -44,12 +45,14 @@ public class SearchGuardSSLInfoAction extends BaseRestHandler {
 
     private final SearchGuardKeyStore sgks;
     final PrincipalExtractor principalExtractor;
+    private final Path configPath;
 
-    public SearchGuardSSLInfoAction(final Settings settings, final RestController controller,
+    public SearchGuardSSLInfoAction(final Settings settings, final Path configPath, final RestController controller,
             final SearchGuardKeyStore sgks, final PrincipalExtractor principalExtractor) {
         super(settings);
         this.sgks = sgks;
         this.principalExtractor = principalExtractor;
+        this.configPath = configPath;
         controller.registerHandler(GET, "/_searchguard/sslinfo", this);
     }
     
@@ -66,7 +69,7 @@ public class SearchGuardSSLInfoAction extends BaseRestHandler {
 
                 try {
                     
-                    SSLInfo sslInfo = SSLRequestHelper.getSSLInfo(settings, request, principalExtractor);
+                    SSLInfo sslInfo = SSLRequestHelper.getSSLInfo(settings, configPath, request, principalExtractor);
                     X509Certificate[] certs = sslInfo == null?null:sslInfo.getX509Certs();
                     X509Certificate[] localCerts = sslInfo == null?null:sslInfo.getLocalCertificates();
 

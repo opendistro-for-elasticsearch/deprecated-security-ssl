@@ -17,6 +17,8 @@
 
 package com.floragunn.searchguard.ssl.http.netty;
 
+import java.nio.file.Path;
+
 import javax.net.ssl.SSLPeerUnverifiedException;
 
 import org.apache.logging.log4j.LogManager;
@@ -42,12 +44,14 @@ public class ValidatingDispatcher implements Dispatcher {
     private final Dispatcher originalDispatcher;
     private AuditErrorHandler auditErrorHandler;
     private final Settings settings;
+    private final Path configPath;
 
-    public ValidatingDispatcher(final ThreadContext threadContext, final Dispatcher originalDispatcher, final Settings settings) {
+    public ValidatingDispatcher(final ThreadContext threadContext, final Dispatcher originalDispatcher, final Settings settings, final Path configPath) {
         super();
         this.threadContext = threadContext;
         this.originalDispatcher = originalDispatcher;
         this.settings = settings;
+        this.configPath = configPath;
     }
     
     public void setAuditErrorHandler(AuditErrorHandler auditErrorHandler) {
@@ -75,7 +79,7 @@ public class ValidatingDispatcher implements Dispatcher {
         }
         
         try {
-            if(SSLRequestHelper.getSSLInfo(settings, request, null) == null) {
+            if(SSLRequestHelper.getSSLInfo(settings, configPath, request, null) == null) {
                 logger.error("Not an SSL request");
                 throw new ElasticsearchSecurityException("Not an SSL request", RestStatus.INTERNAL_SERVER_ERROR);
             }

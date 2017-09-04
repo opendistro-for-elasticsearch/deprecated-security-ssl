@@ -73,6 +73,10 @@ public final class SSLConfigConstants {
     public static final String SEARCHGUARD_SSL_HTTP_CRL_DISABLE_CRLDP = "searchguard.ssl.http.crl.disable_crldp";   
     public static final String SEARCHGUARD_SSL_HTTP_CRL_VALIDATION_DATE = "searchguard.ssl.http.crl.validation_date";
 
+    public static final String SEARCHGUARD_SSL_ALLOW_CLIENT_INITIATED_RENEGOTIATION = "searchguard.ssl.allow_client_initiated_renegotiation";
+
+    
+    public static final String JDK_TLS_REJECT_CLIENT_INITIATED_RENEGOTIATION = "jdk.tls.rejectClientInitiatedRenegotiation";
     
     private static final String[] _SECURE_SSL_PROTOCOLS = {"TLSv1.2", "TLSv1.1"};
     
