@@ -194,7 +194,7 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
                 <version>3.0.2</version>
-                <inherited>true</inherited>
+                <inherited>true</inherited>                
                 <configuration>
                     <excludes>
                         <exclude>**/*cobertura*</exclude>
@@ -202,10 +202,10 @@
                     <archive>
                         <manifest>
                             <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
-                            <addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
                         </manifest>
                         <manifestEntries>
-                            <Built-By>floragunn</Built-By>
+                            <Built-By>floragunn GmbH</Built-By>
+                            <Build-Time>${maven.build.timestamp}</Build-Time>     
                         </manifestEntries>
                     </archive>
                 </configuration>
