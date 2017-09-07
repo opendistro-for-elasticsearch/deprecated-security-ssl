@@ -109,9 +109,9 @@ public class SearchGuardSSLPlugin extends Plugin implements ActionPlugin, Networ
         this.configPath = configPath;
         
         if(this.configPath != null) {
-            log.info("Config path is "+this.configPath.toAbsolutePath());
+            log.info("ES Config path is "+this.configPath.toAbsolutePath());
         } else {
-            log.info("Config path is not set");
+            log.info("ES Config path is not set");
         }
         
         final boolean allowClientInitiatedRenegotiation = settings.getAsBoolean(SSLConfigConstants.SEARCHGUARD_SSL_ALLOW_CLIENT_INITIATED_RENEGOTIATION, false);
@@ -138,9 +138,9 @@ public class SearchGuardSSLPlugin extends Plugin implements ActionPlugin, Networ
                         return null;
                     }
                 });
-                log.info("Client side initiated TLS renegotiation forcibly disabled. This can prevent DoS attacks. (jdk.tls.rejectClientInitiatedRenegotiation set to true).");
+                log.debug("Client side initiated TLS renegotiation forcibly disabled. This can prevent DoS attacks. (jdk.tls.rejectClientInitiatedRenegotiation set to true).");
             } else {
-                log.info("Client side initiated TLS renegotiation already disabled.");
+                log.debug("Client side initiated TLS renegotiation already disabled.");
             }
         }
 

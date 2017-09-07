@@ -76,7 +76,7 @@ public class DefaultSearchGuardKeyStore implements SearchGuardKeyStore {
 
             if (aesMaxKeyLength < 256) {
                 log.info("AES-256 not supported, max key length for AES is " + aesMaxKeyLength+" bit."
-                        + ". That is not an issue, it just limits possible encryption strength. To enable AES 256 install 'Java Cryptography Extension (JCE) Unlimited Strength Jurisdiction Policy Files'");
+                        + " (That is not an issue, it just limits possible encryption strength. To enable AES 256 install 'Java Cryptography Extension (JCE) Unlimited Strength Jurisdiction Policy Files')");
             }
         } catch (final NoSuchAlgorithmException e) {
             log.error("AES encryption not supported (SG 1). " + e);
@@ -141,33 +141,24 @@ public class DefaultSearchGuardKeyStore implements SearchGuardKeyStore {
         } else {
             sslTransportClientProvider = sslTransportServerProvider = null;
         }
-        
-        log.info("java.version: {}", System.getProperty("java.version"));
-        log.info("java.vendor: {}", System.getProperty("java.vendor"));
-        log.info("java.vm.specification.version: {}", System.getProperty("java.vm.specification.version"));
-        log.info("java.vm.specification.vendor: {}", System.getProperty("java.vm.specification.vendor"));
-        log.info("java.vm.specification.name: {}", System.getProperty("java.vm.specification.name"));
-        log.info("java.vm.name: {}", System.getProperty("java.vm.name"));
-        log.info("java.vm.vendor: {}", System.getProperty("java.vm.vendor"));
-        log.info("java.specification.version: {}", System.getProperty("java.specification.version"));
-        log.info("java.specification.vendor: {}", System.getProperty("java.specification.vendor"));
-        log.info("java.specification.name: {}", System.getProperty("java.specification.name"));
-        log.info("os.name: {}", System.getProperty("os.name"));
-        log.info("os.arch: {}", System.getProperty("os.arch"));
-        log.info("os.version: {}", System.getProperty("os.version"));
 
         initEnabledSSLCiphers();
         initSSLConfig();
         printJCEWarnings();
-
-        log.info("sslTransportClientProvider:{} with ciphers {}", sslTransportClientProvider,
-                getEnabledSSLCiphers(sslTransportClientProvider, false));
-        log.info("sslTransportServerProvider:{} with ciphers {}", sslTransportServerProvider,
-                getEnabledSSLCiphers(sslTransportServerProvider, false));
-        log.info("sslHTTPProvider:{} with ciphers {}", sslHTTPProvider, getEnabledSSLCiphers(sslHTTPProvider, true));
         
-        log.info("sslTransport protocols {}", Arrays.asList(SSLConfigConstants.getSecureSSLProtocols(settings, false)));
-        log.info("sslHTTP protocols {}", Arrays.asList(SSLConfigConstants.getSecureSSLProtocols(settings, true)));
+        log.info("TLS Transport Client Provider : {}", sslTransportClientProvider);
+        log.info("TLS Transport Server Provider : {}", sslTransportServerProvider);
+        log.info("TLS HTTP Provider             : {}", sslHTTPProvider);
+        
+
+        log.debug("sslTransportClientProvider:{} with ciphers {}", sslTransportClientProvider,
+                getEnabledSSLCiphers(sslTransportClientProvider, false));
+        log.debug("sslTransportServerProvider:{} with ciphers {}", sslTransportServerProvider,
+                getEnabledSSLCiphers(sslTransportServerProvider, false));
+        log.debug("sslHTTPProvider:{} with ciphers {}", sslHTTPProvider, getEnabledSSLCiphers(sslHTTPProvider, true));
+        
+        log.info("Enabled TLS protocols for transport layer : {}", Arrays.asList(SSLConfigConstants.getSecureSSLProtocols(settings, false)));
+        log.info("Enabled TLS protocols for HTTP layer      : {}", Arrays.asList(SSLConfigConstants.getSecureSSLProtocols(settings, true)));
         
         
         if(transportSSLEnabled && (getEnabledSSLCiphers(sslTransportClientProvider, false).isEmpty()
@@ -533,7 +524,7 @@ public class DefaultSearchGuardKeyStore implements SearchGuardKeyStore {
             serverContext.init(null, null, null);
             engine = serverContext.createSSLEngine();
             final List<String> jdkSupportedCiphers = new ArrayList<>(Arrays.asList(engine.getSupportedCipherSuites()));
-            log.info("JVM supports the following {} ciphers for https {}", jdkSupportedCiphers.size(), jdkSupportedCiphers);
+            log.debug("JVM supports the following {} ciphers for https {}", jdkSupportedCiphers.size(), jdkSupportedCiphers);
             jdkSupportedCiphers.retainAll(secureSSLCiphers);
             engine.setEnabledCipherSuites(jdkSupportedCiphers.toArray(new String[0]));
 
@@ -574,7 +565,7 @@ public class DefaultSearchGuardKeyStore implements SearchGuardKeyStore {
             serverContext.init(null, null, null);
             engine = serverContext.createSSLEngine();
             final List<String> jdkSupportedCiphers = new ArrayList<>(Arrays.asList(engine.getSupportedCipherSuites()));
-            log.info("JVM supports the following {} ciphers for transport {}", jdkSupportedCiphers.size(), jdkSupportedCiphers);
+            log.debug("JVM supports the following {} ciphers for transport {}", jdkSupportedCiphers.size(), jdkSupportedCiphers);
             jdkSupportedCiphers.retainAll(secureSSLCiphers);
             engine.setEnabledCipherSuites(jdkSupportedCiphers.toArray(new String[0]));
 
