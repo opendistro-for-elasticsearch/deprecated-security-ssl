@@ -103,6 +103,16 @@ public class SearchGuardSSLPlugin extends Plugin implements ActionPlugin, Networ
             this.transportSSLEnabled = false;
             this.sgks = null;
             this.configPath = null;
+            
+            AccessController.doPrivileged(new PrivilegedAction<Object>() {
+                @Override
+                public Object run() {
+                    System.setProperty("es.set.netty.runtime.available.processors", "false");
+                    return null;
+                }
+            });
+            
+            
             return;
         }
         
