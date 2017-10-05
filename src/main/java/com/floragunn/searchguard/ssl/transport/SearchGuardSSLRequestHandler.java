@@ -81,13 +81,7 @@ implements TransportRequestHandler<T> {
             channel.sendResponse(exception);
             throw exception;
         }
-        
-        if("netty3".equals(channel.getChannelType()) || "netty4".equals(channel.getChannelType())) {
-            final Exception exception = new ElasticsearchException(channel.getChannelType()+" not supported");
-            channel.sendResponse(exception);
-            throw exception;
-        }
-        
+ 
         if (!"netty".equals(channel.getChannelType())) { //netty4
             messageReceivedDecorate(request, actualHandler, channel, task);
             return;
@@ -141,18 +135,18 @@ implements TransportRequestHandler<T> {
                 final String msg = "No X509 transport client certificates found (SG 12)";
                 //log.error(msg);
                 final Exception exception = new ElasticsearchException(msg);
-                errorThrown(exception, request, action);
+                errorThrown(exception, request, action, task);
                 channel.sendResponse(exception);
                 throw exception;
             }
 
         } catch (final SSLPeerUnverifiedException e) {
-            errorThrown(e, request, action);
+            errorThrown(e, request, action, task);
             final Exception exception = ExceptionsHelper.convertToElastic(e);
             channel.sendResponse(exception);
             throw exception;
         } catch (final Exception e) {
-            errorThrown(e, request, action);
+            errorThrown(e, request, action, task);
             throw e;
         }
         
@@ -167,7 +161,7 @@ implements TransportRequestHandler<T> {
         actualHandler.messageReceived(request, transportChannel, task);
     }
     
-    protected void errorThrown(Throwable t, final TransportRequest request, String action) {
+    protected void errorThrown(Throwable t, final TransportRequest request, String action, Task task) {
         // no-op
     }
 }
