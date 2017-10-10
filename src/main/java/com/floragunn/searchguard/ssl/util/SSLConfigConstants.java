@@ -75,6 +75,7 @@ public final class SSLConfigConstants {
 
     public static final String SEARCHGUARD_SSL_ALLOW_CLIENT_INITIATED_RENEGOTIATION = "searchguard.ssl.allow_client_initiated_renegotiation";
 
+    public static final String DEFAULT_STORE_PASSWORD = "changeit"; //#16
     
     public static final String JDK_TLS_REJECT_CLIENT_INITIATED_RENEGOTIATION = "jdk.tls.rejectClientInitiatedRenegotiation";
     

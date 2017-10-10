@@ -68,7 +68,6 @@ import com.floragunn.searchguard.ssl.util.SSLConfigConstants;
 public class DefaultSearchGuardKeyStore implements SearchGuardKeyStore {
 
     private static final String DEFAULT_STORE_TYPE = "JKS";
-    private static final String DEFAULT_STORE_PASSWORD = "changeit"; //#16
 
     private void printJCEWarnings() {
         try {
@@ -219,7 +218,7 @@ public class DefaultSearchGuardKeyStore implements SearchGuardKeyStore {
                 
                 final String keystoreFilePath = resolve(SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_KEYSTORE_FILEPATH, true);
                 final String keystoreType = settings.get(SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_KEYSTORE_TYPE, DEFAULT_STORE_TYPE);
-                final String keystorePassword = settings.get(SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_KEYSTORE_PASSWORD, DEFAULT_STORE_PASSWORD);
+                final String keystorePassword = settings.get(SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_KEYSTORE_PASSWORD, SSLConfigConstants.DEFAULT_STORE_PASSWORD);
                 final String keystoreAlias = settings.get(SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_KEYSTORE_ALIAS, null);
 
                 final String truststoreFilePath = resolve(SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_TRUSTSTORE_FILEPATH, true);
@@ -230,7 +229,7 @@ public class DefaultSearchGuardKeyStore implements SearchGuardKeyStore {
                 }
 
                 final String truststoreType = settings.get(SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_TRUSTSTORE_TYPE, DEFAULT_STORE_TYPE);
-                final String truststorePassword = settings.get(SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_TRUSTSTORE_PASSWORD, DEFAULT_STORE_PASSWORD);
+                final String truststorePassword = settings.get(SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_TRUSTSTORE_PASSWORD, SSLConfigConstants.DEFAULT_STORE_PASSWORD);
                 final String truststoreAlias = settings.get(SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_TRUSTSTORE_ALIAS, null);
 
                 try {
@@ -311,7 +310,7 @@ public class DefaultSearchGuardKeyStore implements SearchGuardKeyStore {
                 
                 final String keystoreFilePath = resolve(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_KEYSTORE_FILEPATH, true);
                 final String keystoreType = settings.get(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_KEYSTORE_TYPE, DEFAULT_STORE_TYPE);
-                final String keystorePassword = settings.get(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_KEYSTORE_PASSWORD, DEFAULT_STORE_PASSWORD);
+                final String keystorePassword = settings.get(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_KEYSTORE_PASSWORD, SSLConfigConstants.DEFAULT_STORE_PASSWORD);
                 final String keystoreAlias = settings.get(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_KEYSTORE_ALIAS, null);            
 
                 log.info("HTTPS client auth mode {}", httpClientAuthMode);
@@ -365,7 +364,7 @@ public class DefaultSearchGuardKeyStore implements SearchGuardKeyStore {
                         final String truststoreFilePath = resolve(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_TRUSTSTORE_FILEPATH, true);
                         
                         final String truststoreType = settings.get(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_TRUSTSTORE_TYPE, DEFAULT_STORE_TYPE);
-                        final String truststorePassword = settings.get(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_TRUSTSTORE_PASSWORD, DEFAULT_STORE_PASSWORD);
+                        final String truststorePassword = settings.get(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_TRUSTSTORE_PASSWORD, SSLConfigConstants.DEFAULT_STORE_PASSWORD);
                         final String truststoreAlias = settings.get(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_TRUSTSTORE_ALIAS, null);
 
                         final KeyStore ts = KeyStore.getInstance(truststoreType);
