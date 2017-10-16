@@ -10,3 +10,4 @@ rm -f ./*.csr
 rm -f ./*.key*
 rm -f ./*tmp*
 rm -f ./*.crl
+rm -f ./*.p7b

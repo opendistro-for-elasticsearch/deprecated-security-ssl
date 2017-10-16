@@ -344,6 +344,12 @@ public class SearchGuardSSLPlugin extends Plugin implements ActionPlugin, Networ
        final Settings.Builder builder = Settings.builder();
         
        if(!client && httpSSLEnabled) {
+           
+           if(settings.get("http.compression") == null) {
+               builder.put("http.compression", false);
+               log.info("Disabled https compression by default to mitigate BREACH attacks. You can enable it by setting 'http.compression: true' in elasticsearch.yml");
+           }
+           
            builder.put(NetworkModule.HTTP_TYPE_KEY, "com.floragunn.searchguard.ssl.http.netty.SearchGuardSSLNettyHttpServerTransport");
        }
         
