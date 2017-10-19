@@ -1,0 +1,34 @@
+version: 2
+jobs:
+  build:
+    working_directory: ~/circleci-sg
+    docker:
+      - image: circleci/openjdk:8-jdk-browsers
+    steps:
+      - run:
+          name: Versions
+          command: 'uname -a;java -version'
+      - run:
+          name: Install openssl and libapr1
+          command: 'sudo apt-get -yqq update; sudo apt-get -yqq install openssl libapr1'
+      - checkout
+      - restore_cache:
+          key: circleci-sg-{{ checksum "pom.xml" }}
+      - run: mvn dependency:go-offline
+      - save_cache:
+          paths:
+            - ~/.m2
+          key: circleci-sg-{{ checksum "pom.xml" }}
+      - run: mvn verify
+      - store_test_results:
+          path: target/surefire-reports
+      #- store_artifacts:
+      #    path: target/demo-java-spring-0.0.1-SNAPSHOT.jar
+      - deploy:
+          name: Maybe Deploy
+          command: |
+            if [ "${CIRCLE_BRANCH}" == "master" ]; then
+              mvn deploy -DskipTests -s settings.xml
+            fi
+
+#logging
