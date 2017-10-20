@@ -7,10 +7,7 @@ jobs:
     steps:
       - run:
           name: Versions
-          command: 'uname -a;java -version'
-      - run:
-          name: Install openssl and libapr1
-          command: 'sudo apt-get -yqq update; sudo apt-get -yqq install openssl libapr1'
+          command: 'uname -a;java -version;openssl version'
       - checkout
       - restore_cache:
           key: circleci-sg-{{ checksum "pom.xml" }}
@@ -19,7 +16,7 @@ jobs:
           paths:
             - ~/.m2
           key: circleci-sg-{{ checksum "pom.xml" }}
-      - run: mvn verify
+      - run: SG_TEST_OPENSSL_OPT=true mvn verify
       - store_test_results:
           path: target/surefire-reports
       #- store_artifacts:
