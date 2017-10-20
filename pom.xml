@@ -1,18 +1,30 @@
-<?xml version="1.0" encoding="UTF-8"?><!-- Copyright 2015-2017 floragunn GmbH
-    Licensed under the Apache License, Version 2.0 (the "License"); you may not 
-    use this file except in compliance with the License. You may obtain a copy 
-    of the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required 
-    by applicable law or agreed to in writing, software distributed under the 
-    License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS 
-    OF ANY KIND, either express or implied. See the License for the specific 
-    language governing permissions and limitations under the License. -->
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright 2015-2017 floragunn GmbH
+  ~
+  ~ This program is licensed to you under the Apache License Version 2.0,
+  ~ and you may not use this file except in compliance with the Apache License Version 2.0.
+  ~ You may obtain a copy of the Apache License Version 2.0 at http://www.apache.org/licenses/LICENSE-2.0.
+  ~
+  ~ Unless required by applicable law or agreed to in writing,
+  ~ software distributed under the Apache License Version 2.0 is distributed on an
+  ~ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the Apache License Version 2.0 for the specific language governing permissions and limitations there under.
+-->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <prerequisites>
         <maven>3.1.0</maven>
     </prerequisites>
+
+    <parent>
+        <groupId>com.floragunn</groupId>
+        <artifactId>search-guard-parent</artifactId>
+        <version>6.1-SNAPSHOT</version>
+    </parent>
 
     <groupId>com.floragunn</groupId>
     <artifactId>search-guard-ssl</artifactId>
@@ -23,17 +35,6 @@
     <description>Provides SSL for Elasticsearch 6</description>
     <url>https://github.com/floragunncom/search-guard-ssl</url>
     <inceptionYear>2015</inceptionYear>
-    
-    <distributionManagement>
-        <snapshotRepository>
-            <id>ossrh-fg</id>
-            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
-        </snapshotRepository>
-        <repository>
-            <id>ossrh-fg</id>
-            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
-        </repository>
-    </distributionManagement>
 
     <licenses>
         <license>
@@ -45,11 +46,7 @@
 
     <properties>
         <elasticsearch.version>6.0.0-rc1</elasticsearch.version>
-        <netty-native.version>2.0.6.Final</netty-native.version>
-        <dependency.locations.enabled>false</dependency.locations.enabled>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <sonar.jacoco.itReportPath>${project.basedir}/../target/jacoco-it.exec</sonar.jacoco.itReportPath>
+        <netty-native.version>2.0.5.Final</netty-native.version>
     </properties>
 
     <scm>
@@ -64,22 +61,8 @@
         <url>https://github.com/floragunncom/search-guard-ssl/issues</url>
     </issueManagement>
 
-    <developers>
-        <developer>
-            <email>info (at) search-guard (dot) com</email>
-            <name>floragunn Gmbh</name>
-            <url>http://www.floragunn.com</url>
-            <id>floragunncom</id>
-        </developer>
-    </developers>
+    <contributors/>
 
-    <contributors />
-
-    <parent>
-        <groupId>org.sonatype.oss</groupId>
-        <artifactId>oss-parent</artifactId>
-        <version>9</version>
-    </parent>
 
     <dependencies>
         <dependency>
@@ -88,15 +71,15 @@
             <version>${elasticsearch.version}</version>
             <scope>provided</scope>
         </dependency>
-        
+
         <dependency>
-              <groupId>io.netty</groupId>
-              <artifactId>netty-tcnative</artifactId>
-              <version>${netty-native.version}</version>
-              <classifier>${os.detected.classifier}</classifier>
-              <scope>provided</scope>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-tcnative</artifactId>
+            <version>${netty-native.version}</version>
+            <classifier>${os.detected.classifier}</classifier>
+            <scope>provided</scope>
         </dependency>
-        
+
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-core</artifactId>
@@ -114,137 +97,44 @@
         <dependency>
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
-            <version>2.5</version>
             <scope>test</scope>
         </dependency>
 
         <dependency>
             <groupId>org.hamcrest</groupId>
             <artifactId>hamcrest-all</artifactId>
-            <version>1.3</version>
             <scope>test</scope>
         </dependency>
-        
+
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <version>4.12</version>
             <scope>test</scope>
         </dependency>
 
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>fluent-hc</artifactId>
-            <version>4.5.2</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
+
     <build>
-        <testResources>
-            <testResource>
-                <directory>${basedir}/src/test/resources</directory>
-                <filtering>false</filtering>
-                <includes>
-                    <include>**/*</include>
-                </includes>
-            </testResource>
-        </testResources>
         <plugins>
-            <plugin>
-                <artifactId>maven-clean-plugin</artifactId>
-                <version>3.0.0</version>
-                <configuration>
-                    <filesets>
-                        <fileset>
-                            <directory>data</directory>
-                        </fileset>
-                    </filesets>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-enforcer-plugin</artifactId>
-                <version>1.4.1</version>
-                <executions>
-                    <execution>
-                        <id>enforce-java</id>
-                        <goals>
-                            <goal>enforce</goal>
-                        </goals>
-                        <configuration>
-                            <rules>
-                                <requireJavaVersion>
-                                    <version>1.8</version>
-                                </requireJavaVersion>
-                            </rules>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
-                <version>3.0.2</version>
-                <inherited>true</inherited>                
-                <configuration>
-                    <excludes>
-                        <exclude>**/*cobertura*</exclude>
-                    </excludes>
-                    <archive>
-                        <manifest>
-                            <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
-                        </manifest>
-                        <manifestEntries>
-                            <Built-By>floragunn GmbH</Built-By>
-                            <Build-Time>${maven.build.timestamp}</Build-Time>
-                            <git-sha1>${git.commit.id}</git-sha1>     
-                        </manifestEntries>
-                    </archive>
-                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.5.1</version>
-                <configuration>
-                    <source>1.8</source>
-                    <target>1.8</target>
-                    <encoding>UTF-8</encoding>
-                    <showDeprecation>true</showDeprecation>
-                    <showWarnings>true</showWarnings>
-                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>2.20.1</version>
-                <configuration>
-                    <includes>
-                        <include>**/*Test*.java</include>
-                    </includes>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.jacoco</groupId>
-                <artifactId>jacoco-maven-plugin</artifactId>
-                <version>0.7.9</version>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-source-plugin</artifactId>
-                <version>3.0.1</version>
-                <executions>
-                    <execution>
-                        <id>attach-sources</id>
-                        <goals>
-                            <goal>jar</goal>
-                        </goals>
-                    </execution>
-                </executions>
             </plugin>
             <plugin>
                 <artifactId>maven-assembly-plugin</artifactId>
-                <version>2.6</version>
                 <configuration>
                     <appendAssemblyId>false</appendAssemblyId>
                     <outputDirectory>${project.build.directory}/releases/</outputDirectory>
@@ -252,140 +142,7 @@
                         <descriptor>${basedir}/src/main/assemblies/plugin.xml</descriptor>
                     </descriptors>
                 </configuration>
-                <executions>
-                    <execution>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>single</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-release-plugin</artifactId>
-                <version>2.5.3</version>
-                <configuration>
-                    <tagNameFormat>v@{project.version}</tagNameFormat>
-                    <pushChanges>false</pushChanges>
-                    <localCheckout>true</localCheckout>
-                    <autoVersionSubmodules>true</autoVersionSubmodules>
-                    <useReleaseProfile>false</useReleaseProfile>
-                    <releaseProfiles>release</releaseProfiles>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>pl.project13.maven</groupId>
-                <artifactId>git-commit-id-plugin</artifactId>
-                <version>2.2.3</version>
-                <executions>
-                  <execution>
-                    <id>get-the-git-infos</id>
-                    <goals>
-                      <goal>revision</goal>
-                    </goals>
-                  </execution>
-                  <execution>
-                    <id>validate-the-git-infos</id>
-                    <goals>
-                      <goal>validateRevision</goal>
-                    </goals>
-                    <!-- *NOTE*: The default phase of validateRevision is verify, but 
-                      in case you want to change it, you can do so by adding the phase here -->
-                    <phase>package</phase>
-                  </execution>
-                </executions>
-                <configuration>
-                    <generateGitPropertiesFile>true</generateGitPropertiesFile>
-                    <excludeProperties>
-                         <excludeProperty>git.build.host</excludeProperty>
-                         <excludeProperty>git.commit.user.*</excludeProperty>
-                         <excludeProperty>git.build.user.*</excludeProperty>
-                    </excludeProperties>
-                </configuration>
             </plugin>
         </plugins>
-        <extensions>
-        <extension>
-          <groupId>kr.motd.maven</groupId>
-          <artifactId>os-maven-plugin</artifactId>
-          <version>1.4.0.Final</version>
-        </extension>
-    </extensions>
     </build>
-    
-    <profiles>
-        <profile>
-            <id>release</id>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-gpg-plugin</artifactId>
-                        <version>1.6</version>
-                        <configuration>
-                            <keyname>${gpg.keyname}</keyname>
-                            <passphraseServerId>${gpg.keyname}</passphraseServerId>
-                        </configuration>
-                        <executions>
-                            <execution>
-                                <id>sign-artifacts</id>
-                                <phase>verify</phase>
-                                <goals>
-                                    <goal>sign</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-        <profile>
-      <id>sonar-coverage</id>
-      <activation>
-        <activeByDefault>true</activeByDefault>
-      </activation>
-      <build>
-        <pluginManagement>
-          <plugins>
-            <plugin>
-              <groupId>org.jacoco</groupId>
-              <artifactId>jacoco-maven-plugin</artifactId>
-              <version>0.7.8</version>
-            </plugin>
-          </plugins>
-        </pluginManagement>
-        <plugins>
-          <plugin>
-            <groupId>org.jacoco</groupId>
-            <artifactId>jacoco-maven-plugin</artifactId>
-            <configuration>
-              <append>true</append>
-            </configuration>
-            <executions>
-              <execution>
-                <id>agent-for-ut</id>
-                <goals>
-                  <goal>prepare-agent</goal>
-                </goals>
-              </execution>
-              <execution>
-                <id>agent-for-it</id>
-                <goals>
-                  <goal>prepare-agent-integration</goal>
-                </goals>
-              </execution>
-              <execution>
-                <id>jacoco-site</id>
-                <phase>verify</phase>
-                <goals>
-                  <goal>report</goal>
-                </goals>
-              </execution>
-            </executions>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
-    </profiles>         
 </project>
