@@ -105,6 +105,10 @@ public class SearchGuardSSLInfoAction extends BaseRestHandler {
                     builder.field("error", e1.toString());
                     builder.endObject();
                     response = new BytesRestResponse(RestStatus.INTERNAL_SERVER_ERROR, builder);
+                } finally {
+                    if(builder != null) {
+                        builder.close();
+                    }
                 }
                 
                 channel.sendResponse(response);

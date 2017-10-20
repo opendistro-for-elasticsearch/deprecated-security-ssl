@@ -223,8 +223,9 @@ public class SSLRequestHelper {
                 //final String truststoreAlias = settings.get(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_TRUSTSTORE_ALIAS, null);
     
                 final KeyStore ts = KeyStore.getInstance(truststoreType);
-                ts.load(new FileInputStream(new File(env.configFile().resolve(truststore).toAbsolutePath().toString())), (truststorePassword == null || truststorePassword.length() == 0) ?null:truststorePassword.toCharArray());
-                
+                try(FileInputStream fin = new FileInputStream(new File(env.configFile().resolve(truststore).toAbsolutePath().toString()))) {
+                    ts.load(fin, (truststorePassword == null || truststorePassword.length() == 0) ?null:truststorePassword.toCharArray());
+                }
                 validator = new CertificateValidator(ts, crls);
             } else {
                 final File trustedCas = env.configFile().resolve(settings.get(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_PEMTRUSTEDCAS_FILEPATH, "")).toAbsolutePath().toFile();
