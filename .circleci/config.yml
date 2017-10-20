@@ -16,7 +16,8 @@ jobs:
           paths:
             - ~/.m2
           key: circleci-sg-{{ checksum "pom.xml" }}
-      - run: SG_TEST_OPENSSL_OPT=true mvn verify
+      - run: SG_TEST_OPENSSL_OPT=true mvn -Pcoverage verify
+      - run: SG_TEST_OPENSSL_OPT=true mvn -Pcoverage sonar:sonar -Dsonar.organization=floragunncom-github -Dsonar.login=$SONAR_LOGIN -Dsonar.host.url=https://sonarcloud.io
       - store_test_results:
           path: target/surefire-reports
       #- store_artifacts:
