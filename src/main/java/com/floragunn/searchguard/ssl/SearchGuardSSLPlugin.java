@@ -275,7 +275,7 @@ public class SearchGuardSSLPlugin extends Plugin implements ActionPlugin, Networ
                 Class<?> principalExtractorClazz = Class.forName(principalExtractorClass);
                 principalExtractor = (PrincipalExtractor) principalExtractorClazz.newInstance();
             } catch (Exception e) {
-                log.error("Unable to load '{}' due to {}", e, principalExtractorClass, e.toString());
+                log.error("Unable to load '{}' due to", principalExtractorClass, e);
                 throw new ElasticsearchException(e);
             }
         }

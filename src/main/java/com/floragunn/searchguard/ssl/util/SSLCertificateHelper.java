@@ -172,7 +172,7 @@ public class SSLCertificateHelper {
                 }
             }
         } catch (Exception e) {
-            log.error("Error logging keystore "+e+" {}", ExceptionsHelper.stackTrace(e));
+            log.error("Error logging keystore due to "+e, e);
         }
     }
     
