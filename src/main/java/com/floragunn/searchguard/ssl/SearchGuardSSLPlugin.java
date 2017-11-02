@@ -89,6 +89,7 @@ public class SearchGuardSSLPlugin extends Plugin implements ActionPlugin, Networ
     protected final SearchGuardKeyStore sgks;
     protected PrincipalExtractor principalExtractor;
     protected final Path configPath;
+    private final static SslExceptionHandler NOOP_SSL_EXCEPTION_HANDLER = new SslExceptionHandler() {};
     
     public SearchGuardSSLPlugin(final Settings settings, final Path configPath) {
         this(settings, configPath, false);
@@ -202,9 +203,8 @@ public class SearchGuardSSLPlugin extends Plugin implements ActionPlugin, Networ
         final Map<String, Supplier<HttpServerTransport>> httpTransports = new HashMap<String, Supplier<HttpServerTransport>>(1);
         if (!client && httpSSLEnabled) {
             
-            final ValidatingDispatcher validatingDispatcher = new ValidatingDispatcher(threadPool.getThreadContext(), dispatcher, settings, configPath);
-            final SearchGuardSSLNettyHttpServerTransport sgsnht = new SearchGuardSSLNettyHttpServerTransport(settings, networkService, bigArrays, threadPool, sgks, xContentRegistry, validatingDispatcher);
-            validatingDispatcher.setAuditErrorHandler(sgsnht);
+            final ValidatingDispatcher validatingDispatcher = new ValidatingDispatcher(threadPool.getThreadContext(), dispatcher, settings, configPath, NOOP_SSL_EXCEPTION_HANDLER);
+            final SearchGuardSSLNettyHttpServerTransport sgsnht = new SearchGuardSSLNettyHttpServerTransport(settings, networkService, bigArrays, threadPool, sgks, xContentRegistry, validatingDispatcher, NOOP_SSL_EXCEPTION_HANDLER);
             
             httpTransports.put("com.floragunn.searchguard.ssl.http.netty.SearchGuardSSLNettyHttpServerTransport", () -> sgsnht);
             
@@ -233,7 +233,7 @@ public class SearchGuardSSLPlugin extends Plugin implements ActionPlugin, Networ
         List<TransportInterceptor> interceptors = new ArrayList<TransportInterceptor>(1);
         
         if(transportSSLEnabled && !client) {
-            interceptors.add(new SearchGuardSSLTransportInterceptor(settings, null, null));
+            interceptors.add(new SearchGuardSSLTransportInterceptor(settings, null, null, NOOP_SSL_EXCEPTION_HANDLER));
         }
         
         return interceptors;
@@ -246,7 +246,7 @@ public class SearchGuardSSLPlugin extends Plugin implements ActionPlugin, Networ
         Map<String, Supplier<Transport>> transports = new HashMap<String, Supplier<Transport>>();
         if (transportSSLEnabled) {
             transports.put("com.floragunn.searchguard.ssl.http.netty.SearchGuardSSLNettyTransport", 
-                    () -> new SearchGuardSSLNettyTransport(settings, threadPool, networkService, bigArrays, namedWriteableRegistry, circuitBreakerService, sgks));
+                    () -> new SearchGuardSSLNettyTransport(settings, threadPool, networkService, bigArrays, namedWriteableRegistry, circuitBreakerService, sgks, NOOP_SSL_EXCEPTION_HANDLER));
         }
         return transports;
 

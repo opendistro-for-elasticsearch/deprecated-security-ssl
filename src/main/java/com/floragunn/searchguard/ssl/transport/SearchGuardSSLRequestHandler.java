@@ -39,6 +39,7 @@ import org.elasticsearch.transport.TransportChannel;
 import org.elasticsearch.transport.TransportRequest;
 import org.elasticsearch.transport.TransportRequestHandler;
 
+import com.floragunn.searchguard.ssl.SslExceptionHandler;
 import com.floragunn.searchguard.ssl.util.ExceptionUtils;
 import com.floragunn.searchguard.ssl.util.SSLRequestHelper;
 
@@ -50,13 +51,16 @@ implements TransportRequestHandler<T> {
     private final ThreadPool threadPool;
     protected final Logger log = LogManager.getLogger(this.getClass());
     private final PrincipalExtractor principalExtractor;
+    private final SslExceptionHandler errorHandler;
 
-    public SearchGuardSSLRequestHandler(String action, TransportRequestHandler<T> actualHandler, ThreadPool threadPool, final PrincipalExtractor principalExtractor) {
+    public SearchGuardSSLRequestHandler(String action, TransportRequestHandler<T> actualHandler, 
+            ThreadPool threadPool, final PrincipalExtractor principalExtractor, final SslExceptionHandler errorHandler) {
         super();
         this.action = action;
         this.actualHandler = actualHandler;
         this.threadPool = threadPool;
         this.principalExtractor = principalExtractor;
+        this.errorHandler = errorHandler;
     }
     
     protected ThreadContext getThreadContext() {
@@ -135,18 +139,18 @@ implements TransportRequestHandler<T> {
                 final String msg = "No X509 transport client certificates found (SG 12)";
                 //log.error(msg);
                 final Exception exception = new ElasticsearchException(msg);
-                errorThrown(exception, request, action, task);
+                errorHandler.logError(exception, request, action, task, 0);
                 channel.sendResponse(exception);
                 throw exception;
             }
 
         } catch (final SSLPeerUnverifiedException e) {
-            errorThrown(e, request, action, task);
+            errorHandler.logError(e, request, action, task, 0);
             final Exception exception = ExceptionsHelper.convertToElastic(e);
             channel.sendResponse(exception);
             throw exception;
         } catch (final Exception e) {
-            errorThrown(e, request, action, task);
+            errorHandler.logError(e, request, action, task, 0);
             throw e;
         }
         
@@ -159,9 +163,5 @@ implements TransportRequestHandler<T> {
     
     protected void messageReceivedDecorate(final T request, final TransportRequestHandler<T> actualHandler, final TransportChannel transportChannel, Task task) throws Exception {
         actualHandler.messageReceived(request, transportChannel, task);
-    }
-    
-    protected void errorThrown(Throwable t, final TransportRequest request, String action, Task task) {
-        // no-op
     }
 }

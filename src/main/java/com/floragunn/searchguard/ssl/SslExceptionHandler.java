@@ -15,12 +15,23 @@
  * 
  */
 
-package com.floragunn.searchguard.ssl.http.netty;
+package com.floragunn.searchguard.ssl;
 
 import org.elasticsearch.rest.RestRequest;
+import org.elasticsearch.tasks.Task;
+import org.elasticsearch.transport.TransportRequest;
 
-public interface AuditErrorHandler {
+public interface SslExceptionHandler {
     
-    void logError(Throwable t, final RestRequest request);
-
+    default void logError(Throwable t, RestRequest request, int type) {
+        //no-op
+    }
+    
+    default void logError(Throwable t, boolean isRest) {
+      //no-op
+    }
+    
+    default void logError(Throwable t, final TransportRequest request, String action, Task task, int type) {
+      //no-op
+    }
 }

@@ -33,6 +33,7 @@ import org.elasticsearch.rest.RestChannel;
 import org.elasticsearch.rest.RestRequest;
 import org.elasticsearch.rest.RestStatus;
 
+import com.floragunn.searchguard.ssl.SslExceptionHandler;
 import com.floragunn.searchguard.ssl.util.ExceptionUtils;
 import com.floragunn.searchguard.ssl.util.SSLRequestHelper;
 
@@ -42,20 +43,18 @@ public class ValidatingDispatcher implements Dispatcher {
 
     private final ThreadContext threadContext;
     private final Dispatcher originalDispatcher;
-    private AuditErrorHandler auditErrorHandler;
+    private final SslExceptionHandler errorHandler;
     private final Settings settings;
     private final Path configPath;
 
-    public ValidatingDispatcher(final ThreadContext threadContext, final Dispatcher originalDispatcher, final Settings settings, final Path configPath) {
+    public ValidatingDispatcher(final ThreadContext threadContext, final Dispatcher originalDispatcher, 
+            final Settings settings, final Path configPath, final SslExceptionHandler errorHandler) {
         super();
         this.threadContext = threadContext;
         this.originalDispatcher = originalDispatcher;
         this.settings = settings;
         this.configPath = configPath;
-    }
-    
-    public void setAuditErrorHandler(AuditErrorHandler auditErrorHandler) {
-        this.auditErrorHandler = auditErrorHandler;
+        this.errorHandler = errorHandler;
     }
 
     @Override
@@ -74,7 +73,7 @@ public class ValidatingDispatcher implements Dispatcher {
         
         if(SSLRequestHelper.containsBadHeader(threadContext, "_sg_ssl_")) {
             final ElasticsearchException exception = ExceptionUtils.createBadHeaderException();
-            auditErrorHandler.logError(exception, request);
+            errorHandler.logError(exception, request, 1);
             throw exception;
         }
         
@@ -85,7 +84,7 @@ public class ValidatingDispatcher implements Dispatcher {
             }
         } catch (SSLPeerUnverifiedException e) {
             logger.error("No client certificates found but such are needed (SG 8).");
-            auditErrorHandler.logError(e, request);
+            errorHandler.logError(e, request, 0);
             throw ExceptionsHelper.convertToElastic(e);
         }
     }

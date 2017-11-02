@@ -33,21 +33,24 @@ import org.elasticsearch.common.util.BigArrays;
 import org.elasticsearch.common.util.concurrent.ThreadContext;
 import org.elasticsearch.common.xcontent.NamedXContentRegistry;
 import org.elasticsearch.http.netty4.Netty4HttpServerTransport;
-import org.elasticsearch.rest.RestRequest;
 import org.elasticsearch.threadpool.ThreadPool;
 
+import com.floragunn.searchguard.ssl.SslExceptionHandler;
 import com.floragunn.searchguard.ssl.SearchGuardKeyStore;
 
-public class SearchGuardSSLNettyHttpServerTransport extends Netty4HttpServerTransport implements AuditErrorHandler {
+public class SearchGuardSSLNettyHttpServerTransport extends Netty4HttpServerTransport {
 
     private final SearchGuardKeyStore sgks;
     private final ThreadContext threadContext;
+    private final SslExceptionHandler errorHandler;
     
     public SearchGuardSSLNettyHttpServerTransport(final Settings settings, final NetworkService networkService, final BigArrays bigArrays,
-            final ThreadPool threadPool, final SearchGuardKeyStore sgks, final NamedXContentRegistry namedXContentRegistry, final ValidatingDispatcher dispatcher) {
+            final ThreadPool threadPool, final SearchGuardKeyStore sgks, final NamedXContentRegistry namedXContentRegistry, final ValidatingDispatcher dispatcher,
+            final SslExceptionHandler errorHandler) {
         super(settings, networkService, bigArrays, threadPool, namedXContentRegistry, dispatcher);
         this.sgks = sgks;
         this.threadContext = threadPool.getThreadContext();
+        this.errorHandler = errorHandler;
     }
 
     @Override
@@ -56,7 +59,7 @@ public class SearchGuardSSLNettyHttpServerTransport extends Netty4HttpServerTran
     }
 
     @Override
-    protected void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+    protected final void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
         if(this.lifecycle.started()) {
             
             if(cause instanceof DecoderException && cause != null) {
@@ -76,6 +79,8 @@ public class SearchGuardSSLNettyHttpServerTransport extends Netty4HttpServerTran
                 ctx.channel().close();
                 return;
             }
+            
+            errorHandler.logError(cause, true);
         }
         
         super.exceptionCaught(ctx, cause);
@@ -94,13 +99,4 @@ public class SearchGuardSSLNettyHttpServerTransport extends Netty4HttpServerTran
             ch.pipeline().addFirst("ssl_http", sslHandler);
         }
     }
-
-    public final void logError(Throwable t, final RestRequest request) {
-        errorThrown(t, request);
-    }
-    
-    protected void errorThrown(Throwable t, final RestRequest request) {
-        // no-op
-    }
-
 }

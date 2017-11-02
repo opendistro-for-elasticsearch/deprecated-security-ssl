@@ -25,20 +25,27 @@ import org.elasticsearch.transport.TransportInterceptor;
 import org.elasticsearch.transport.TransportRequest;
 import org.elasticsearch.transport.TransportRequestHandler;
 
+import com.floragunn.searchguard.ssl.SslExceptionHandler;
+
 public final class SearchGuardSSLTransportInterceptor implements TransportInterceptor {
     
     protected final Logger log = LogManager.getLogger(this.getClass());
     protected final ThreadPool threadPool;
     protected final PrincipalExtractor principalExtractor;
+    protected final SslExceptionHandler errorHandler;
     
-    public SearchGuardSSLTransportInterceptor(final Settings settings, final  ThreadPool threadPool, PrincipalExtractor principalExtractor) {
+    public SearchGuardSSLTransportInterceptor(final Settings settings, final  ThreadPool threadPool, 
+            PrincipalExtractor principalExtractor, final SslExceptionHandler errorHandler) {
         this.threadPool = threadPool;
         this.principalExtractor = principalExtractor;
+        this.errorHandler = errorHandler;
     }
 
     @Override
     public <T extends TransportRequest> TransportRequestHandler<T> interceptHandler(String action, String executor, boolean forceExecution,
             TransportRequestHandler<T> actualHandler) {
-        return new SearchGuardSSLRequestHandler<T>(action, actualHandler, threadPool, principalExtractor);
+        return new SearchGuardSSLRequestHandler<T>(action, actualHandler, threadPool, principalExtractor, errorHandler);
     }
+    
+    
 }

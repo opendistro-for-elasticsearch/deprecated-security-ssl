@@ -44,22 +44,25 @@ import org.elasticsearch.indices.breaker.CircuitBreakerService;
 import org.elasticsearch.threadpool.ThreadPool;
 import org.elasticsearch.transport.netty4.Netty4Transport;
 
+import com.floragunn.searchguard.ssl.SslExceptionHandler;
 import com.floragunn.searchguard.ssl.SearchGuardKeyStore;
 import com.floragunn.searchguard.ssl.util.SSLConfigConstants;
 
 public class SearchGuardSSLNettyTransport extends Netty4Transport {
 
     private final SearchGuardKeyStore sgks;
+    private final SslExceptionHandler errorHandler;
 
     public SearchGuardSSLNettyTransport(final Settings settings, final ThreadPool threadPool, final NetworkService networkService,
             final BigArrays bigArrays, final NamedWriteableRegistry namedWriteableRegistry,
-            final CircuitBreakerService circuitBreakerService, final SearchGuardKeyStore sgks) {
+            final CircuitBreakerService circuitBreakerService, final SearchGuardKeyStore sgks, final SslExceptionHandler errorHandler) {
         super(settings, threadPool, networkService, bigArrays, namedWriteableRegistry, circuitBreakerService);
         this.sgks = sgks;
+        this.errorHandler = errorHandler;
     }
     
     @Override
-    protected void onException(Channel channel, Exception e) {
+    protected final void onException(Channel channel, Exception e) {
         if (lifecycle.started()) {
             
             Throwable cause = e;
@@ -81,6 +84,8 @@ public class SearchGuardSSLNettyTransport extends Netty4Transport {
                 closeChannelWhileHandlingExceptions(channel);
                 return;
             }
+            
+            errorHandler.logError(cause, false);
         }
         super.onException(channel, e);
     }
@@ -109,7 +114,7 @@ public class SearchGuardSSLNettyTransport extends Netty4Transport {
         }
         
         @Override
-        public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+        public final void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
             if(SearchGuardSSLNettyTransport.this.lifecycle.started()) {
                 
                 if(cause instanceof DecoderException && cause != null) {
@@ -129,6 +134,8 @@ public class SearchGuardSSLNettyTransport extends Netty4Transport {
                     ctx.channel().close();
                     return;
                 }
+                
+                errorHandler.logError(cause, false);
             }
             
             super.exceptionCaught(ctx, cause);
@@ -140,14 +147,44 @@ public class SearchGuardSSLNettyTransport extends Netty4Transport {
         private final SearchGuardKeyStore sgks;
         private final boolean hostnameVerificationEnabled;
         private final boolean hostnameVerificationResovleHostName;
+        private final SslExceptionHandler errorHandler;
         
 
         private ClientSSLHandler(final SearchGuardKeyStore sgks, final boolean hostnameVerificationEnabled,
-                final boolean hostnameVerificationResovleHostName) {
+                final boolean hostnameVerificationResovleHostName, final SslExceptionHandler errorHandler) {
             this.sgks = sgks;
             this.hostnameVerificationEnabled = hostnameVerificationEnabled;
             this.hostnameVerificationResovleHostName = hostnameVerificationResovleHostName;
+            this.errorHandler = errorHandler;
         }
+        
+
+        @Override
+        public final void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+            if(cause instanceof DecoderException && cause != null) {
+                cause = cause.getCause();
+            }
+            
+            if(cause instanceof NotSslRecordException) {
+                log.warn("Someone ({}) speaks transport plaintext instead of ssl, will close the channel", ctx.channel().remoteAddress());
+                ctx.channel().close();
+                return;
+            } else if (cause instanceof SSLException) {
+                log.error("SSL Problem "+cause.getMessage(),cause);
+                ctx.channel().close();
+                return;
+            } else if (cause instanceof SSLHandshakeException) {
+                log.error("Problem during handshake "+cause.getMessage());
+                ctx.channel().close();
+                return;
+            }
+            
+            errorHandler.logError(cause, false);
+            
+            super.exceptionCaught(ctx, cause);
+        }
+
+
 
         @Override
         public void connect(ChannelHandlerContext ctx, SocketAddress remoteAddress, SocketAddress localAddress, ChannelPromise promise) throws Exception {
@@ -194,11 +231,11 @@ public class SearchGuardSSLNettyTransport extends Netty4Transport {
         protected void initChannel(Channel ch) throws Exception {
             super.initChannel(ch);
             ch.pipeline().addFirst("client_ssl_handler", new ClientSSLHandler(sgks, hostnameVerificationEnabled,
-                    hostnameVerificationResovleHostName));
+                    hostnameVerificationResovleHostName, errorHandler));
         }
         
         @Override
-        public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+        public final void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
             if(SearchGuardSSLNettyTransport.this.lifecycle.started()) {
                 
                 if(cause instanceof DecoderException && cause != null) {
@@ -218,6 +255,8 @@ public class SearchGuardSSLNettyTransport extends Netty4Transport {
                     ctx.channel().close();
                     return;
                 }
+                
+                errorHandler.logError(cause, false);
             }
             
             super.exceptionCaught(ctx, cause);
