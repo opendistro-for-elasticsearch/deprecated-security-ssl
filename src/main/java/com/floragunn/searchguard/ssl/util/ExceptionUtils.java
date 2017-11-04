@@ -40,7 +40,7 @@ public class ExceptionUtils {
             return null;
         }
         
-        if(e.getMessage().contains(msg)) {
+        if(e.getMessage() != null && e.getMessage().contains(msg)) {
             return e;
         }
         
