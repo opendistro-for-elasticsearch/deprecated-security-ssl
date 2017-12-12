@@ -71,6 +71,8 @@ public class SearchGuardSSLNettyTransport extends Netty4Transport {
                 cause = e.getCause();
             }
             
+            errorHandler.logError(cause, false);
+            
             if(cause instanceof NotSslRecordException) {
                 logger.warn("Someone ({}) speaks transport plaintext instead of ssl, will close the channel", channel.remoteAddress());
                 closeChannelWhileHandlingExceptions(channel);
@@ -84,8 +86,6 @@ public class SearchGuardSSLNettyTransport extends Netty4Transport {
                 closeChannelWhileHandlingExceptions(channel);
                 return;
             }
-            
-            errorHandler.logError(cause, false);
         }
         super.onException(channel, e);
     }
@@ -121,6 +121,8 @@ public class SearchGuardSSLNettyTransport extends Netty4Transport {
                     cause = cause.getCause();
                 }
                 
+                errorHandler.logError(cause, false);
+                
                 if(cause instanceof NotSslRecordException) {
                     logger.warn("Someone ({}) speaks transport plaintext instead of ssl, will close the channel", ctx.channel().remoteAddress());
                     ctx.channel().close();
@@ -134,8 +136,6 @@ public class SearchGuardSSLNettyTransport extends Netty4Transport {
                     ctx.channel().close();
                     return;
                 }
-                
-                errorHandler.logError(cause, false);
             }
             
             super.exceptionCaught(ctx, cause);
@@ -165,6 +165,8 @@ public class SearchGuardSSLNettyTransport extends Netty4Transport {
                 cause = cause.getCause();
             }
             
+            errorHandler.logError(cause, false);
+            
             if(cause instanceof NotSslRecordException) {
                 log.warn("Someone ({}) speaks transport plaintext instead of ssl, will close the channel", ctx.channel().remoteAddress());
                 ctx.channel().close();
@@ -178,9 +180,7 @@ public class SearchGuardSSLNettyTransport extends Netty4Transport {
                 ctx.channel().close();
                 return;
             }
-            
-            errorHandler.logError(cause, false);
-            
+
             super.exceptionCaught(ctx, cause);
         }
 
@@ -242,6 +242,8 @@ public class SearchGuardSSLNettyTransport extends Netty4Transport {
                     cause = cause.getCause();
                 }
                 
+                errorHandler.logError(cause, false);
+                
                 if(cause instanceof NotSslRecordException) {
                     logger.warn("Someone ({}) speaks transport plaintext instead of ssl, will close the channel", ctx.channel().remoteAddress());
                     ctx.channel().close();
@@ -255,8 +257,7 @@ public class SearchGuardSSLNettyTransport extends Netty4Transport {
                     ctx.channel().close();
                     return;
                 }
-                
-                errorHandler.logError(cause, false);
+
             }
             
             super.exceptionCaught(ctx, cause);

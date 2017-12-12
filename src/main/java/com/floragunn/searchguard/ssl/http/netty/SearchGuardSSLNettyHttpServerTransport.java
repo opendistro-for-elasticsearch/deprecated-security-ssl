@@ -66,6 +66,8 @@ public class SearchGuardSSLNettyHttpServerTransport extends Netty4HttpServerTran
                 cause = cause.getCause();
             }
             
+            errorHandler.logError(cause, true);
+            
             if(cause instanceof NotSslRecordException) {
                 logger.warn("Someone ({}) speaks http plaintext instead of ssl, will close the channel", ctx.channel().remoteAddress());
                 ctx.channel().close();
@@ -80,7 +82,6 @@ public class SearchGuardSSLNettyHttpServerTransport extends Netty4HttpServerTran
                 return;
             }
             
-            errorHandler.logError(cause, true);
         }
         
         super.exceptionCaught(ctx, cause);
