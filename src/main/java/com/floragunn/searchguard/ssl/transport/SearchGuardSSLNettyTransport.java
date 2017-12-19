@@ -42,6 +42,7 @@ import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.util.BigArrays;
 import org.elasticsearch.indices.breaker.CircuitBreakerService;
 import org.elasticsearch.threadpool.ThreadPool;
+import org.elasticsearch.transport.TcpChannel;
 import org.elasticsearch.transport.netty4.Netty4Transport;
 
 import com.floragunn.searchguard.ssl.SslExceptionHandler;
@@ -60,9 +61,11 @@ public class SearchGuardSSLNettyTransport extends Netty4Transport {
         this.sgks = sgks;
         this.errorHandler = errorHandler;
     }
-    
+
     @Override
-    protected final void onException(Channel channel, Exception e) {
+    protected void onException(TcpChannel channel, Exception e) {
+        
+        
         if (lifecycle.started()) {
             
             Throwable cause = e;
@@ -74,16 +77,16 @@ public class SearchGuardSSLNettyTransport extends Netty4Transport {
             errorHandler.logError(cause, false);
             
             if(cause instanceof NotSslRecordException) {
-                logger.warn("Someone ({}) speaks transport plaintext instead of ssl, will close the channel", channel.remoteAddress());
-                closeChannelWhileHandlingExceptions(channel);
+                logger.warn("Someone ({}) speaks transport plaintext instead of ssl, will close the channel", "??remoteaddress??");
+                TcpChannel.closeChannel(channel, false);
                 return;
             } else if (cause instanceof SSLException) {
                 logger.error("SSL Problem "+cause.getMessage(),cause);
-                closeChannelWhileHandlingExceptions(channel);
+                TcpChannel.closeChannel(channel, false);
                 return;
             } else if (cause instanceof SSLHandshakeException) {
                 logger.error("Problem during handshake "+cause.getMessage());
-                closeChannelWhileHandlingExceptions(channel);
+                TcpChannel.closeChannel(channel, false);
                 return;
             }
         }

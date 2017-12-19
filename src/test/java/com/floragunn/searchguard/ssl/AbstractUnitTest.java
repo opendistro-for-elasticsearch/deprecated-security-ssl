@@ -26,6 +26,8 @@ import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.security.KeyStore;
 import java.util.Arrays;
 import java.util.Collection;
@@ -240,7 +242,7 @@ public abstract class AbstractUnitTest {
         }
     }
 
-    public File getAbsoluteFilePathFromClassPath(final String fileNameFromClasspath) {
+    public Path getAbsoluteFilePathFromClassPath(final String fileNameFromClasspath) {
         File file = null;
         final URL fileUrl = AbstractUnitTest.class.getClassLoader().getResource(fileNameFromClasspath);
         if (fileUrl != null) {
@@ -251,7 +253,7 @@ public abstract class AbstractUnitTest {
             }
 
             if (file.exists() && file.canRead()) {
-                return file;
+                return Paths.get(file.getAbsolutePath());
             } else {
                 log.error("Cannot read from {}, maybe the file does not exists? ", file.getAbsolutePath());
             }
@@ -296,10 +298,10 @@ public abstract class AbstractUnitTest {
             log.debug("Configure HTTP client with SSL");
 
             final KeyStore myTrustStore = KeyStore.getInstance("JKS");
-            myTrustStore.load(new FileInputStream(getAbsoluteFilePathFromClassPath("truststore.jks")), "changeit".toCharArray());
+            myTrustStore.load(new FileInputStream(getAbsoluteFilePathFromClassPath("truststore.jks").toFile()), "changeit".toCharArray());
 
             final KeyStore keyStore = KeyStore.getInstance("JKS");
-            keyStore.load(new FileInputStream(getAbsoluteFilePathFromClassPath(keystore)), "changeit".toCharArray());
+            keyStore.load(new FileInputStream(getAbsoluteFilePathFromClassPath(keystore).toFile()), "changeit".toCharArray());
 
             final SSLContextBuilder sslContextbBuilder = SSLContexts.custom().useProtocol("TLS");
 
