@@ -52,10 +52,10 @@ public class ExceptionUtils {
     }
 
     public static ElasticsearchException createBadHeaderException() {
-        
-        return new ElasticsearchException("bad header found. "
-                + "This typically means that one node tried to connect to another with "
-                + "a non-node certificate (it had no OID or the searchguard.nodes_dn setting was incorrectly configured) or that someone"
-                + "is spoofing requests. See https://github.com/floragunncom/search-guard-docs/blob/master/tls_node_certificates.md");
+        return new ElasticsearchException("Illegal parameter in http or transport request found."+System.lineSeparator()
+                + "This means that one node try to connect to another with "+System.lineSeparator()
+                + "a non-node certificate (no OID or searchguard.nodes_dn incorrect configured) or that someone "+System.lineSeparator()
+                + "is spoofing requests. Check you TLS certificate setup as described here: "
+                + "See http://docs.search-guard.com/latest/troubleshooting-tls");
     }
 }
