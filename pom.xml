@@ -74,7 +74,7 @@
             <groupId>io.netty</groupId>
             <artifactId>netty-tcnative</artifactId>
             <version>${netty-native.version}</version>
-            <classifier>osx-x86_64</classifier>
+            <classifier>${os.detected.classifier}</classifier>
             <scope>provided</scope>
         </dependency>
 
