@@ -37,7 +37,7 @@
   </licenses>
 
   <properties>
-    <elasticsearch.version>6.2.1</elasticsearch.version>
+    <elasticsearch.version>6.2.2</elasticsearch.version>
 
     <!-- deps -->
     <netty-native.version>2.0.7.Final</netty-native.version>
