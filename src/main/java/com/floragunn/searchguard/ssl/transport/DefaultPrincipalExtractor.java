@@ -70,11 +70,18 @@ public class DefaultPrincipalExtractor implements PrincipalExtractor {
                     log.error("Cannot find {} token in {}", EMAILADDRESS_KEY, dnString.toUpperCase());
                     return retval;
                 }
-                
-                final String oldMail = retval.substring(indexMailStart+MAIL_OID_TOKEN_LEN, retval.indexOf(',', indexMailStart+MAIL_OID_TOKEN_LEN));
-                final String newMail = dnString.substring(nmStart+mailTokenLen, dnString.indexOf(',', nmStart+mailTokenLen));
-                retval = retval.replaceFirst(oldMail, newMail);
-                retval = retval.replaceFirst(MAIL_OID, EMAILADDRESS);
+
+                try {
+                    int endindexOld = retval.indexOf(',', indexMailStart+MAIL_OID_TOKEN_LEN);
+                    final String oldMail = endindexOld>-1? retval.substring(indexMailStart+MAIL_OID_TOKEN_LEN, endindexOld):retval.substring(indexMailStart+MAIL_OID_TOKEN_LEN);
+                    int endindexNew = dnString.indexOf(',', nmStart+mailTokenLen);
+                    final String newMail = endindexNew>-1? dnString.substring(nmStart+mailTokenLen, endindexNew):dnString.substring(nmStart+mailTokenLen);
+                    retval = retval.replaceFirst(oldMail, newMail);
+                    retval = retval.replaceFirst(MAIL_OID, EMAILADDRESS);
+                } catch (Exception e) {
+                    log.error("unexpected exception parsing emailaddress "+e,e);
+                    retval = dnString;
+                }                    
             }
 
             return retval;
