@@ -75,7 +75,7 @@ public class DefaultSearchGuardKeyStore implements SearchGuardKeyStore {
 
             if (aesMaxKeyLength < 256) {
                 log.info("AES-256 not supported, max key length for AES is " + aesMaxKeyLength+" bit."
-                        + " (That is not an issue, it just limits possible encryption strength. To enable AES 256 install 'Java Cryptography Extension (JCE) Unlimited Strength Jurisdiction Policy Files')");
+                        + " (This is not an issue, it just limits possible encryption strength. To enable AES 256, install 'Java Cryptography Extension (JCE) Unlimited Strength Jurisdiction Policy Files')");
             }
         } catch (final NoSuchAlgorithmException e) {
             log.error("AES encryption not supported (SG 1). " + e);
@@ -225,7 +225,7 @@ public class DefaultSearchGuardKeyStore implements SearchGuardKeyStore {
                 
                 if(settings.get(SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_TRUSTSTORE_FILEPATH, null) == null) {
                     throw new ElasticsearchException(SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_TRUSTSTORE_FILEPATH
-                            + " must be set if transport ssl is reqested.");
+                            + " must be set if transport ssl is requested.");
                 }
 
                 final String truststoreType = settings.get(SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_TRUSTSTORE_TYPE, DEFAULT_STORE_TYPE);
@@ -474,7 +474,7 @@ public class DefaultSearchGuardKeyStore implements SearchGuardKeyStore {
 
     private void logOpenSSLInfos() {
         if (OpenSsl.isAvailable()) {
-            log.info("Open SSL " + OpenSsl.versionString() + " ("+OpenSsl.version()+") available");
+            log.info("OpenSSL " + OpenSsl.versionString() + " ("+OpenSsl.version()+") available");
             
             if(OpenSsl.version() < 0x10002000L) {
                 log.warn("Outdated OpenSSL version detected. You should update to 1.0.2k or later. Currently installed: "+OpenSsl.versionString());
@@ -484,9 +484,9 @@ public class DefaultSearchGuardKeyStore implements SearchGuardKeyStore {
                 log.warn("Your OpenSSL version "+OpenSsl.versionString()+" does not support hostname verification. You should update to 1.0.2k or later.");
             }
 
-            log.debug("Open SSL available ciphers " + OpenSsl.availableOpenSslCipherSuites());
+            log.debug("OpenSSL available ciphers " + OpenSsl.availableOpenSslCipherSuites());
         } else {
-            log.info("Open SSL not available (this is not an error, we simply fallback to built-in JDK SSL) because of " + OpenSsl.unavailabilityCause());
+            log.info("OpenSSL not available (this is not an error, we simply fallback to built-in JDK SSL) because of " + OpenSsl.unavailabilityCause());
         }
     }
 
@@ -685,8 +685,8 @@ public class DefaultSearchGuardKeyStore implements SearchGuardKeyStore {
     private void logExplanation(Exception e) {
         if(ExceptionUtils.findMsg(e, "not contain valid private key") != null) {
             log.error("Your keystore or PEM does not contain a key. "
-                    + "If you sepcified a key password try removing it. "
-                    + "If you not sepcified a key password maybe you one because the key is password protected. "
+                    + "If you specified a key password, try removing it. "
+                    + "If you did not specify a key password, perhaps you need to if the key is in fact password-protected. "
                     + "Maybe you just confused keys and certificates.");
         }
         
