@@ -72,7 +72,7 @@ public class SSLTest extends AbstractUnitTest {
         enableHTTPClientSSL = true;
         trustHTTPServerCertificate = true;
         sendHTTPClientCertificate = true;
-        keystore = "unittestspecial1-keystore.jks";
+        keystore = "node-untspec5-keystore.p12";
 
         final Settings settings = Settings.builder().put("searchguard.ssl.transport.enabled", false)
                 .put("searchguard.ssl.http.enabled", true)
@@ -90,7 +90,7 @@ public class SSLTest extends AbstractUnitTest {
         startES(settings);
 
         System.out.println(executeSimpleRequest("_searchguard/sslinfo?pretty&show_dn=true"));
-        Assert.assertTrue(executeSimpleRequest("_searchguard/sslinfo?pretty&show_dn=true").contains("EMAILADDRESS=abc@xyz.com"));
+        Assert.assertTrue(executeSimpleRequest("_searchguard/sslinfo?pretty&show_dn=true").contains("EMAILADDRESS=unt@tst.com"));
         Assert.assertTrue(executeSimpleRequest("_searchguard/sslinfo?pretty&show_dn=true").contains("local_certificates_list"));
         Assert.assertFalse(executeSimpleRequest("_searchguard/sslinfo?pretty&show_dn=false").contains("local_certificates_list"));
         Assert.assertFalse(executeSimpleRequest("_searchguard/sslinfo?pretty").contains("local_certificates_list"));

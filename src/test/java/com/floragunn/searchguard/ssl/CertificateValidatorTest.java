@@ -44,7 +44,7 @@ import com.floragunn.searchguard.ssl.util.ExceptionUtils;
 
 public class CertificateValidatorTest {
     
-    public static final Date CRL_DATE = new Date(1501267142000L);
+    public static final Date CRL_DATE = new Date(1525546426000L);
     protected final Logger log = LogManager.getLogger(this.getClass());
     
     @Test
