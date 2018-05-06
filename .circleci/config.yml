@@ -30,4 +30,18 @@ jobs:
               mvn deploy -DskipTests -s settings.xml
             fi
 
-#logging
+workflows:
+  version: 2
+  commit:
+    jobs:
+      - build
+  nightly:
+    triggers:
+      - schedule:
+          cron: "0 1 * * *"
+          filters:
+            branches:
+              only:
+                - master
+    jobs:
+      - build
