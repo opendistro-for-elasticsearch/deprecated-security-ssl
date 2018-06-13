@@ -4,7 +4,7 @@ set -e
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 cd $DIR
 
-ES_VERSION=6.2.2
+ES_VERSION=6.3.0
 NETTY_NATIVE_VERSION=2.0.7.Final
 NETTY_NATIVE_CLASSIFIER=non-fedora-linux-x86_64
 
@@ -36,6 +36,8 @@ echo "searchguard.ssl.transport.enforce_hostname_verification: false" >> elastic
 echo "searchguard.ssl.http.enabled: true" >> elasticsearch-$ES_VERSION/config/elasticsearch.yml
 echo "searchguard.ssl.http.keystore_filepath: node-0-keystore.jks" >> elasticsearch-$ES_VERSION/config/elasticsearch.yml
 echo "searchguard.ssl.http.truststore_filepath: truststore.jks" >> elasticsearch-$ES_VERSION/config/elasticsearch.yml
+echo "xpack.security.enabled: false" >> elasticsearch-$ES_VERSION/config/elasticsearch.yml
+
 
 cp src/test/resources/*.jks elasticsearch-$ES_VERSION/config/
 
