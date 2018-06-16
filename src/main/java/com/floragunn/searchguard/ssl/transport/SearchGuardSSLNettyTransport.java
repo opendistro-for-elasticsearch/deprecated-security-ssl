@@ -77,7 +77,7 @@ public class SearchGuardSSLNettyTransport extends Netty4Transport {
             errorHandler.logError(cause, false);
             
             if(cause instanceof NotSslRecordException) {
-                logger.warn("Someone ({}) speaks transport plaintext instead of ssl, will close the channel", "??remoteaddress??");
+                logger.warn("Someone ({}) speaks transport plaintext instead of ssl, will close the channel", channel.getLocalAddress());
                 TcpChannel.closeChannel(channel, false);
                 return;
             } else if (cause instanceof SSLException) {
