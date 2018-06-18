@@ -300,7 +300,7 @@ public abstract class AbstractUnitTest {
             final KeyStore myTrustStore = KeyStore.getInstance("JKS");
             myTrustStore.load(new FileInputStream(getAbsoluteFilePathFromClassPath("truststore.jks").toFile()), "changeit".toCharArray());
 
-            final KeyStore keyStore = KeyStore.getInstance("JKS");
+            final KeyStore keyStore = KeyStore.getInstance(keystore.toLowerCase().endsWith("p12")?"PKCS12":"JKS");
             keyStore.load(new FileInputStream(getAbsoluteFilePathFromClassPath(keystore).toFile()), "changeit".toCharArray());
 
             final SSLContextBuilder sslContextbBuilder = SSLContexts.custom().useProtocol("TLS");
