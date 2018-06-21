@@ -16,7 +16,7 @@ jobs:
           paths:
             - ~/.m2
           key: circleci-sg-{{ checksum "pom.xml" }}
-      - run: ./smoketest.sh
+      #- run: ./smoketest.sh
       - run: SG_TEST_OPENSSL_OPT=true mvn -Pcoverage verify
       - store_test_results:
           path: target/surefire-reports
