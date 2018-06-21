@@ -23,11 +23,13 @@ jobs:
       #- store_artifacts:
       #    path: target/demo-java-spring-0.0.1-SNAPSHOT.jar
       - deploy:
-          name: Maybe Deploy
+          name: Deploy
           command: |
+            
+            mvn deploy -DskipTests -s settings.xml
+          
             if [ "${CIRCLE_BRANCH}" == "master" ]; then
               SG_TEST_OPENSSL_OPT=true mvn -Pcoverage sonar:sonar -Dsonar.organization=floragunncom-github -Dsonar.login=$SONAR_LOGIN -Dsonar.host.url=https://sonarcloud.io
-              mvn deploy -DskipTests -s settings.xml
             fi
 
 workflows:
