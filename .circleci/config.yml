@@ -29,9 +29,13 @@ jobs:
             
             mvn deploy -DskipTests -s settings.xml
           
-            if [ "${CIRCLE_BRANCH}" == "master" ]; then
-              SG_TEST_OPENSSL_OPT=true mvn -Pcoverage sonar:sonar -Dsonar.organization=floragunncom-github -Dsonar.login=$SONAR_LOGIN -Dsonar.host.url=https://sonarcloud.io
-            fi
+            # Java 11 does currently crash because of some problems with jacoco code coverage
+            # an update to jacoco >= 0.8.3 (when available) should fix it
+            # Maybe sonar is also not ready to work with Java 11
+            
+            #if [ "${CIRCLE_BRANCH}" == "master" ]; then
+            #  SG_TEST_OPENSSL_OPT=true mvn -Pcoverage sonar:sonar -Dsonar.organization=floragunncom-github -Dsonar.login=$SONAR_LOGIN -Dsonar.host.url=https://sonarcloud.io
+            #fi
 
 workflows:
   version: 2
