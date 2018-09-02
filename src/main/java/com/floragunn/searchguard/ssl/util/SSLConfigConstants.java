@@ -79,7 +79,7 @@ public final class SSLConfigConstants {
     
     public static final String JDK_TLS_REJECT_CLIENT_INITIATED_RENEGOTIATION = "jdk.tls.rejectClientInitiatedRenegotiation";
     
-    private static final String[] _SECURE_SSL_PROTOCOLS = {"TLSv1.2", "TLSv1.1"};
+    private static final String[] _SECURE_SSL_PROTOCOLS = {"TLSv1.3", "TLSv1.2", "TLSv1.1"};
     
     public static final String[] getSecureSSLProtocols(Settings settings, boolean http)
     {
@@ -167,6 +167,13 @@ public final class SSLConfigConstants {
         "TLS_DHE_RSA_WITH_AES_256_CBC_SHA256",
         "TLS_DHE_DSS_WITH_AES_256_CBC_SHA",
         "TLS_DHE_RSA_WITH_AES_256_CBC_SHA",
+        
+        //TLS 1.3 Java
+        "TLS_AES_128_GCM_SHA256",
+        "TLS_AES_256_GCM_SHA384",
+        
+        //TLS 1.3 OpenSSL
+        "TLS_CHACHA20_POLY1305_SHA256",
         
         //IBM
         "SSL_ECDHE_RSA_WITH_AES_128_GCM_SHA256",

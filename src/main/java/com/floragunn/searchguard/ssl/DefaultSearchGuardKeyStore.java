@@ -52,12 +52,11 @@ import javax.net.ssl.SSLEngine;
 import javax.net.ssl.SSLException;
 import javax.net.ssl.SSLParameters;
 
-import org.elasticsearch.ElasticsearchException;
-import org.elasticsearch.ElasticsearchSecurityException;
-import org.elasticsearch.ExceptionsHelper;
-import org.elasticsearch.SpecialPermission;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.elasticsearch.ElasticsearchException;
+import org.elasticsearch.ElasticsearchSecurityException;
+import org.elasticsearch.SpecialPermission;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.env.Environment;
 
@@ -89,10 +88,17 @@ public class DefaultSearchGuardKeyStore implements SearchGuardKeyStore {
     public final SslProvider sslTransportClientProvider;
     private final boolean httpSSLEnabled;
     private final boolean transportSSLEnabled;
+    
     private List<String> enabledHttpCiphersJDKProvider;
     private List<String> enabledHttpCiphersOpenSSLProvider;
     private List<String> enabledTransportCiphersJDKProvider;
     private List<String> enabledTransportCiphersOpenSSLProvider;
+    
+    private List<String> enabledHttpProtocolsJDKProvider;
+    private List<String> enabledHttpProtocolsOpenSSLProvider;
+    private List<String> enabledTransportProtocolsJDKProvider;
+    private List<String> enabledTransportProtocolsOpenSSLProvider;
+    
     private SslContext httpSslContext;
     private SslContext transportServerSslContext;
     private SslContext transportClientSslContext;
@@ -156,9 +162,16 @@ public class DefaultSearchGuardKeyStore implements SearchGuardKeyStore {
         log.debug("sslHTTPProvider:{} with ciphers {}", sslHTTPProvider, getEnabledSSLCiphers(sslHTTPProvider, true));
 
         log.info("Enabled TLS protocols for transport layer : {}",
-                Arrays.asList(SSLConfigConstants.getSecureSSLProtocols(settings, false)));
+                Arrays.toString(getEnabledSSLProtocols(sslTransportServerProvider, false)));
         log.info("Enabled TLS protocols for HTTP layer      : {}",
-                Arrays.asList(SSLConfigConstants.getSecureSSLProtocols(settings, true)));
+                Arrays.toString(getEnabledSSLProtocols(sslHTTPProvider, true)));
+        
+        
+        log.debug("sslTransportClientProvider:{} with protocols {}", sslTransportClientProvider,
+                getEnabledSSLProtocols(sslTransportClientProvider, false));
+        log.debug("sslTransportServerProvider:{} with protocols {}", sslTransportServerProvider,
+                getEnabledSSLProtocols(sslTransportServerProvider, false));
+        log.debug("sslHTTPProvider:{} with protocols {}", sslHTTPProvider, getEnabledSSLProtocols(sslHTTPProvider, true));
 
         if (transportSSLEnabled && (getEnabledSSLCiphers(sslTransportClientProvider, false).isEmpty()
                 || getEnabledSSLCiphers(sslTransportServerProvider, false).isEmpty())) {
@@ -166,15 +179,19 @@ public class DefaultSearchGuardKeyStore implements SearchGuardKeyStore {
         }
 
         if (httpSSLEnabled && getEnabledSSLCiphers(sslHTTPProvider, true).isEmpty()) {
-            throw new ElasticsearchSecurityException("no valid cipher suites for http");
+            throw new ElasticsearchSecurityException("no valid cipher suites for https");
         }
 
-        if (transportSSLEnabled && SSLConfigConstants.getSecureSSLProtocols(settings, false).length == 0) {
+        if (transportSSLEnabled && getEnabledSSLCiphers(sslTransportServerProvider, false).isEmpty()) {
+            throw new ElasticsearchSecurityException("no ssl protocols for transport protocol");
+        }
+        
+        if (transportSSLEnabled && getEnabledSSLCiphers(sslTransportClientProvider, false).isEmpty()) {
             throw new ElasticsearchSecurityException("no ssl protocols for transport protocol");
         }
 
-        if (httpSSLEnabled && SSLConfigConstants.getSecureSSLProtocols(settings, true).length == 0) {
-            throw new ElasticsearchSecurityException("no ssl protocols for http");
+        if (httpSSLEnabled && getEnabledSSLCiphers(sslHTTPProvider, true).isEmpty()) {
+            throw new ElasticsearchSecurityException("no ssl protocols for https");
         }
     }
 
@@ -482,8 +499,9 @@ public class DefaultSearchGuardKeyStore implements SearchGuardKeyStore {
     }
 
     public SSLEngine createHTTPSSLEngine() throws SSLException {
+
         final SSLEngine engine = httpSslContext.newEngine(PooledByteBufAllocator.DEFAULT);
-        engine.setEnabledProtocols(SSLConfigConstants.getSecureSSLProtocols(settings, true));
+        engine.setEnabledProtocols(getEnabledSSLProtocols(this.sslHTTPProvider, true));
         return engine;
 
     }
@@ -491,7 +509,7 @@ public class DefaultSearchGuardKeyStore implements SearchGuardKeyStore {
     public SSLEngine createServerTransportSSLEngine() throws SSLException {
 
         final SSLEngine engine = transportServerSslContext.newEngine(PooledByteBufAllocator.DEFAULT);
-        engine.setEnabledProtocols(SSLConfigConstants.getSecureSSLProtocols(settings, false));
+        engine.setEnabledProtocols(getEnabledSSLProtocols(this.sslTransportServerProvider, false));
         return engine;
 
     }
@@ -505,11 +523,11 @@ public class DefaultSearchGuardKeyStore implements SearchGuardKeyStore {
             final SSLParameters sslParams = new SSLParameters();
             sslParams.setEndpointIdentificationAlgorithm("HTTPS");
             engine.setSSLParameters(sslParams);
-            engine.setEnabledProtocols(SSLConfigConstants.getSecureSSLProtocols(settings, false));
+            engine.setEnabledProtocols(getEnabledSSLProtocols(this.sslTransportClientProvider, false));
             return engine;
         } else {
             final SSLEngine engine = transportClientSslContext.newEngine(PooledByteBufAllocator.DEFAULT);
-            engine.setEnabledProtocols(SSLConfigConstants.getSecureSSLProtocols(settings, false));
+            engine.setEnabledProtocols(getEnabledSSLProtocols(this.sslTransportClientProvider, false));
             return engine;
         }
 
@@ -565,83 +583,98 @@ public class DefaultSearchGuardKeyStore implements SearchGuardKeyStore {
         }
 
     }
+    
+    private String[] getEnabledSSLProtocols(final SslProvider provider, boolean http) {
+        if (provider == null) {
+            return new String[0];
+        }
+
+        if (http) {
+            return (provider == SslProvider.JDK ? enabledHttpProtocolsJDKProvider : enabledHttpProtocolsOpenSSLProvider).toArray(new String[0]);
+        } else {
+            return (provider == SslProvider.JDK ? enabledTransportProtocolsJDKProvider
+                    : enabledTransportProtocolsOpenSSLProvider).toArray(new String[0]);
+        }
+
+    }
 
     private void initEnabledSSLCiphers() {
 
-        List<String> secureSSLCiphers = SSLConfigConstants.getSecureSSLCiphers(settings, true);
+        final List<String> secureHttpSSLCiphers = SSLConfigConstants.getSecureSSLCiphers(settings, true);
+        final List<String> secureTransportSSLCiphers = SSLConfigConstants.getSecureSSLCiphers(settings, false);
+        final List<String> secureHttpSSLProtocols = Arrays.asList(SSLConfigConstants.getSecureSSLProtocols(settings, true));
+        final List<String> secureTransportSSLProtocols = Arrays.asList(SSLConfigConstants.getSecureSSLProtocols(settings, false));
 
         if (OpenSsl.isAvailable()) {
-            final Set<String> openSSLSecureCiphers = new HashSet<>();
-            for (final String secure : secureSSLCiphers) {
+            final Set<String> openSSLSecureHttpCiphers = new HashSet<>();
+            for (final String secure : secureHttpSSLCiphers) {
                 if (OpenSsl.isCipherSuiteAvailable(secure)) {
-                    openSSLSecureCiphers.add(secure);
+                    openSSLSecureHttpCiphers.add(secure);
                 }
             }
+            
+            
+            log.debug("OPENSSL "+OpenSsl.versionString()+" supports the following ciphers (java-style) {}", OpenSsl.availableJavaCipherSuites());
+            log.debug("OPENSSL "+OpenSsl.versionString()+" supports the following ciphers (openssl-style) {}", OpenSsl.availableOpenSslCipherSuites());
 
             enabledHttpCiphersOpenSSLProvider = Collections
-                    .unmodifiableList(new ArrayList<String>(openSSLSecureCiphers));
+                    .unmodifiableList(new ArrayList<String>(openSSLSecureHttpCiphers));
         } else {
             enabledHttpCiphersOpenSSLProvider = Collections.emptyList();
         }
 
-        SSLEngine engine = null;
-        try {
-            final SSLContext serverContext = SSLContext.getInstance("TLS");
-            serverContext.init(null, null, null);
-            engine = serverContext.createSSLEngine();
-            final List<String> jdkSupportedCiphers = new ArrayList<>(Arrays.asList(engine.getSupportedCipherSuites()));
-            log.debug("JVM supports the following {} ciphers for https {}", jdkSupportedCiphers.size(),
-                    jdkSupportedCiphers);
-            jdkSupportedCiphers.retainAll(secureSSLCiphers);
-            engine.setEnabledCipherSuites(jdkSupportedCiphers.toArray(new String[0]));
-
-            enabledHttpCiphersJDKProvider = Collections
-                    .unmodifiableList(Arrays.asList(engine.getEnabledCipherSuites()));
-        } catch (final Throwable e) {
-            log.error("Unable to determine supported ciphers due to " + ExceptionsHelper.stackTrace(e));
-            enabledHttpCiphersJDKProvider = secureSSLCiphers;
-        } finally {
-            if (engine != null) {
-                try {
-                    engine.closeInbound();
-                } catch (SSLException e) {
-                    log.debug("Unable to close inbound ssl engine", e);
-                }
-                engine.closeOutbound();
-            }
-        }
-
-        secureSSLCiphers = SSLConfigConstants.getSecureSSLCiphers(settings, false);
-
         if (OpenSsl.isAvailable()) {
-            final Set<String> openSSLSecureCiphers = new HashSet<>();
-            for (final String secure : secureSSLCiphers) {
+            final Set<String> openSSLSecureTransportCiphers = new HashSet<>();
+            for (final String secure : secureTransportSSLCiphers) {
                 if (OpenSsl.isCipherSuiteAvailable(secure)) {
-                    openSSLSecureCiphers.add(secure);
+                    openSSLSecureTransportCiphers.add(secure);
                 }
             }
 
             enabledTransportCiphersOpenSSLProvider = Collections
-                    .unmodifiableList(new ArrayList<String>(openSSLSecureCiphers));
+                    .unmodifiableList(new ArrayList<String>(openSSLSecureTransportCiphers));
         } else {
             enabledTransportCiphersOpenSSLProvider = Collections.emptyList();
         }
+        
+        if(OpenSsl.isAvailable() && OpenSsl.version() > 0x10101009L) {
+            enabledHttpProtocolsOpenSSLProvider = new ArrayList(Arrays.asList("TLSv1.3","TLSv1.2","TLSv1.1"));
+            enabledHttpProtocolsOpenSSLProvider.retainAll(secureHttpSSLProtocols);
+            enabledTransportProtocolsOpenSSLProvider = new ArrayList(Arrays.asList("TLSv1.3","TLSv1.2","TLSv1.1"));
+            enabledTransportProtocolsOpenSSLProvider.retainAll(secureTransportSSLProtocols);
+            
+            log.info("OpenSSL supports TLSv1.3");
+            
+        } else if(OpenSsl.isAvailable()){
+            enabledHttpProtocolsOpenSSLProvider = new ArrayList(Arrays.asList("TLSv1.2","TLSv1.1"));
+            enabledHttpProtocolsOpenSSLProvider.retainAll(secureHttpSSLProtocols);
+            enabledTransportProtocolsOpenSSLProvider = new ArrayList(Arrays.asList("TLSv1.2","TLSv1.1"));
+            enabledTransportProtocolsOpenSSLProvider.retainAll(secureTransportSSLProtocols);
+        } else {
+            enabledHttpProtocolsOpenSSLProvider = Collections.emptyList();
+            enabledTransportProtocolsOpenSSLProvider = Collections.emptyList();
+        }
 
+        SSLEngine engine = null;
+        List<String> jdkSupportedCiphers = null;
+        List<String> jdkSupportedProtocols = null;
         try {
             final SSLContext serverContext = SSLContext.getInstance("TLS");
             serverContext.init(null, null, null);
             engine = serverContext.createSSLEngine();
-            final List<String> jdkSupportedCiphers = new ArrayList<>(Arrays.asList(engine.getSupportedCipherSuites()));
-            log.debug("JVM supports the following {} ciphers for transport {}", jdkSupportedCiphers.size(),
+            jdkSupportedCiphers = Arrays.asList(engine.getEnabledCipherSuites());
+            jdkSupportedProtocols = Arrays.asList(engine.getEnabledProtocols());
+            log.debug("JVM supports the following {} protocols {}", jdkSupportedProtocols.size(),
+                    jdkSupportedProtocols);
+            log.debug("JVM supports the following {} ciphers {}", jdkSupportedCiphers.size(),
                     jdkSupportedCiphers);
-            jdkSupportedCiphers.retainAll(secureSSLCiphers);
-            engine.setEnabledCipherSuites(jdkSupportedCiphers.toArray(new String[0]));
-
-            enabledTransportCiphersJDKProvider = Collections
-                    .unmodifiableList(Arrays.asList(engine.getEnabledCipherSuites()));
+            
+            if(jdkSupportedProtocols.contains("TLSv1.3")) {
+                log.info("JVM supports TLSv1.3");
+            }
+            
         } catch (final Throwable e) {
-            log.error("Unable to determine supported ciphers due to " + ExceptionsHelper.stackTrace(e));
-            enabledTransportCiphersJDKProvider = secureSSLCiphers;
+            log.error("Unable to determine supported ciphers due to " + e, e);
         } finally {
             if (engine != null) {
                 try {
@@ -652,6 +685,22 @@ public class DefaultSearchGuardKeyStore implements SearchGuardKeyStore {
                 engine.closeOutbound();
             }
         }
+
+        if(jdkSupportedCiphers == null || jdkSupportedCiphers.isEmpty() || jdkSupportedProtocols == null || jdkSupportedProtocols.isEmpty()) {
+            throw new ElasticsearchException("Unable to determine supported ciphers or protocols");
+        }
+        
+        enabledHttpCiphersJDKProvider = new ArrayList<String>(jdkSupportedCiphers);
+        enabledHttpCiphersJDKProvider.retainAll(secureHttpSSLCiphers);
+        
+        enabledTransportCiphersJDKProvider = new ArrayList<String>(jdkSupportedCiphers);
+        enabledTransportCiphersJDKProvider.retainAll(secureTransportSSLCiphers);
+        
+        enabledHttpProtocolsJDKProvider = new ArrayList<String>(jdkSupportedProtocols);
+        enabledHttpProtocolsJDKProvider.retainAll(secureHttpSSLProtocols);
+        
+        enabledTransportProtocolsJDKProvider = new ArrayList<String>(jdkSupportedProtocols);
+        enabledTransportProtocolsJDKProvider.retainAll(secureTransportSSLProtocols);
     }
 
     private SslContext buildSSLServerContext(final PrivateKey _key, final X509Certificate[] _cert,

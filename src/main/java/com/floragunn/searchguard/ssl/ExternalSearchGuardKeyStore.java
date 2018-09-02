@@ -17,6 +17,9 @@
 
 package com.floragunn.searchguard.ssl;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
@@ -67,17 +70,18 @@ public class ExternalSearchGuardKeyStore implements SearchGuardKeyStore {
     @Override
     public SSLEngine createClientTransportSSLEngine(final String peerHost, final int peerPort) throws SSLException {
         if (peerHost != null) {
-            final SSLEngine engine = externalSslContext.createSSLEngine(peerHost, peerPort);
-            
+            final SSLEngine engine = externalSslContext.createSSLEngine(peerHost, peerPort);            
             final SSLParameters sslParams = new SSLParameters();
             sslParams.setEndpointIdentificationAlgorithm("HTTPS");
             engine.setSSLParameters(sslParams);
-            engine.setEnabledProtocols(SSLConfigConstants.getSecureSSLProtocols(settings, false));
+            engine.setEnabledProtocols(evalSecure(engine.getEnabledProtocols(), SSLConfigConstants.getSecureSSLProtocols(settings, false)));
+            engine.setEnabledCipherSuites(evalSecure(engine.getEnabledCipherSuites(), SSLConfigConstants.getSecureSSLCiphers(settings, false).toArray(new String[0])));
             engine.setUseClientMode(true);
             return engine;
         } else {
             final SSLEngine engine = externalSslContext.createSSLEngine();
-            engine.setEnabledProtocols(SSLConfigConstants.getSecureSSLProtocols(settings, false));
+            engine.setEnabledProtocols(evalSecure(engine.getEnabledProtocols(), SSLConfigConstants.getSecureSSLProtocols(settings, false)));
+            engine.setEnabledCipherSuites(evalSecure(engine.getEnabledCipherSuites(), SSLConfigConstants.getSecureSSLCiphers(settings, false).toArray(new String[0])));
             engine.setUseClientMode(true);
             return engine;
         }
@@ -125,4 +129,11 @@ public class ExternalSearchGuardKeyStore implements SearchGuardKeyStore {
     public static void removeAllExternalSslContexts() {
         contextMap.clear();
     }
+    
+    private String[] evalSecure(String[] engineEnabled, String[] secure) {
+        List<String> tmp = new ArrayList<>(Arrays.asList(engineEnabled));
+        tmp.retainAll(Arrays.asList(secure));
+        return tmp.toArray(new String[0]);
+    }
+
 }

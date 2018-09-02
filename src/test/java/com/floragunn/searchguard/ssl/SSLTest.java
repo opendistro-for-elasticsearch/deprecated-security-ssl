@@ -17,6 +17,8 @@
 
 package com.floragunn.searchguard.ssl;
 
+import io.netty.util.internal.PlatformDependent;
+
 import java.net.InetSocketAddress;
 import java.net.SocketException;
 import java.nio.file.Paths;
@@ -29,6 +31,7 @@ import java.util.List;
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLEngine;
+import javax.net.ssl.SSLException;
 import javax.net.ssl.SSLHandshakeException;
 import javax.net.ssl.TrustManagerFactory;
 
@@ -51,6 +54,7 @@ import org.elasticsearch.node.Node;
 import org.elasticsearch.node.PluginAwareNode;
 import org.elasticsearch.transport.Netty4Plugin;
 import org.junit.Assert;
+import org.junit.Assume;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -420,12 +424,9 @@ public class SSLTest extends AbstractUnitTest {
         try {
             executeSimpleRequest("");
             Assert.fail();
-        } catch (SSLHandshakeException e) {
+        } catch (SocketException | SSLException e) {
             //expected
             System.out.println("Expected SSLHandshakeException "+e.toString());
-        } catch (SocketException e) {
-            //expected
-            System.out.println("Expected SocketException "+e.toString());
         } catch (Exception e) {
             e.printStackTrace();
             Assert.fail("Unexpected exception "+e.toString());
@@ -637,7 +638,7 @@ public class SSLTest extends AbstractUnitTest {
     @Test
     public void testUnmodifieableCipherProtocolConfig() throws Exception {
         SSLConfigConstants.getSecureSSLProtocols(Settings.EMPTY, false)[0] = "bogus";
-        Assert.assertEquals("TLSv1.2", SSLConfigConstants.getSecureSSLProtocols(Settings.EMPTY, false)[0]);
+        Assert.assertEquals("TLSv1.3", SSLConfigConstants.getSecureSSLProtocols(Settings.EMPTY, false)[0]);
         
         try {
             SSLConfigConstants.getSecureSSLCiphers(Settings.EMPTY, false).set(0, "bogus");
@@ -753,5 +754,42 @@ public class SSLTest extends AbstractUnitTest {
 
         Assert.assertTrue(executeSimpleRequest("_nodes/settings?pretty").contains(clustername));
         
+    }
+    
+    @Test
+    public void testNodeClientSSLwithJavaTLSv13() throws Exception {
+        
+        //Java TLS 1.3 is available since Java 11
+        Assume.assumeTrue(!allowOpenSSL && PlatformDependent.javaVersion() >= 11);
+
+        final Settings settings = Settings.builder().put("searchguard.ssl.transport.enabled", true)
+                .put(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_ENABLE_OPENSSL_IF_AVAILABLE, allowOpenSSL)
+                .put(SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_ENABLE_OPENSSL_IF_AVAILABLE, allowOpenSSL)
+                .put(SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_KEYSTORE_ALIAS, "node-0")
+                .put("searchguard.ssl.transport.keystore_filepath", getAbsoluteFilePathFromClassPath("node-0-keystore.jks"))
+                .put("searchguard.ssl.transport.truststore_filepath", getAbsoluteFilePathFromClassPath("truststore.jks"))
+                .put("searchguard.ssl.transport.enforce_hostname_verification", false)
+                .put("searchguard.ssl.transport.resolve_hostname", false)
+                .putList(SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_ENABLED_PROTOCOLS, "TLSv1.3")
+                .putList(SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_ENABLED_CIPHERS, "TLS_AES_128_GCM_SHA256")
+                .build();
+
+        startES(settings);      
+
+        final Settings tcSettings = Settings.builder().put("cluster.name", clustername).put("path.home", ".")
+                .put(settings)// -----
+                .build();
+
+        try (Node node = new PluginAwareNode(tcSettings, Netty4Plugin.class, SearchGuardSSLPlugin.class).start()) {
+            ClusterHealthResponse res = node.client().admin().cluster().health(new ClusterHealthRequest().waitForNodes("4").timeout(TimeValue.timeValueSeconds(5))).actionGet();
+            Assert.assertFalse(res.isTimedOut());
+            Assert.assertEquals(4, res.getNumberOfNodes());
+            Assert.assertEquals(4, node.client().admin().cluster().nodesInfo(new NodesInfoRequest()).actionGet().getNodes().size());
+        }
+
+        Assert.assertFalse(executeSimpleRequest("_nodes/stats?pretty").contains("\"tx_size_in_bytes\" : 0"));
+        Assert.assertFalse(executeSimpleRequest("_nodes/stats?pretty").contains("\"rx_count\" : 0"));
+        Assert.assertFalse(executeSimpleRequest("_nodes/stats?pretty").contains("\"rx_size_in_bytes\" : 0"));
+        Assert.assertFalse(executeSimpleRequest("_nodes/stats?pretty").contains("\"tx_count\" : 0"));
     }
 }
