@@ -4,51 +4,54 @@ jobs:
     working_directory: ~/circleci-sg
     resource_class: xlarge
     docker:
-      - image: circleci/openjdk:11-jdk-browsers
+      # Java 11 does currently crash, hopefully solved with GA release
+      # So for now we default to Java 10
+      - image: "circleci/openjdk:${SG_JAVA_BUILD_VERSION:-10}-jdk-browsers"
     steps:
+      - run:
+          name: Install and Update
+          command: sudo apt-get update -yqq && sudo apt-get install -yqq libapr1 openssl libxml2-utils
       - run:
           name: Versions
           command: 'uname -a;java -version;openssl version'
       - checkout
       - restore_cache:
-          key: circleci-sg-{{ checksum "pom.xml" }}
-      - run: mvn dependency:go-offline
-      - save_cache:
-          paths:
-            - ~/.m2
-          key: circleci-sg-{{ checksum "pom.xml" }}
+          keys:
+            - maven-repo-v3-{{ .Branch }}-{{ checksum "pom.xml" }}
+            - maven-repo-v3-{{ .Branch }}-
+            - maven-repo-v3-
       #- run: ./smoketest.sh
-      - run: SG_TEST_OPENSSL_OPT=true mvn verify
+      - run: SG_TEST_OPENSSL_OPT=true mvn -U -Pcoverage verify
       - store_test_results:
           path: target/surefire-reports
-      #- store_artifacts:
-      #    path: target/demo-java-spring-0.0.1-SNAPSHOT.jar
       - deploy:
           name: Deploy
           command: |
             
-            mvn deploy -DskipTests -s settings.xml
-          
-            # Java 11 does currently crash because of some problems with jacoco code coverage
-            # an update to jacoco >= 0.8.3 (when available) should fix it
-            # Maybe sonar is also not ready to work with Java 11
+            mvn deploy -U -DskipTests -s settings.xml
             
-            #if [ "${CIRCLE_BRANCH}" == "master" ]; then
-            #  SG_TEST_OPENSSL_OPT=true mvn -Pcoverage sonar:sonar -Dsonar.organization=floragunncom-github -Dsonar.login=$SONAR_LOGIN -Dsonar.host.url=https://sonarcloud.io
-            #fi
+            set +e
+            
+            if [ "${CIRCLE_BRANCH}" == "master" ]; then
+              SG_TEST_OPENSSL_OPT=true mvn -U -Pcoverage sonar:sonar -Dsonar.organization=floragunncom-github -Dsonar.login=$SONAR_LOGIN -Dsonar.host.url=https://sonarcloud.io
+            fi
+      - save_cache:
+          paths:
+            - ~/.m2
+          key: maven-repo-v3-{{ .Branch }}-{{ checksum "pom.xml" }}
 
-workflows:
-  version: 2
-  commit:
-    jobs:
-      - build
-  nightly:
-    triggers:
-      - schedule:
-          cron: "0 1 * * *"
-          filters:
-            branches:
-              only:
-                - master
-    jobs:
-      - build
+#workflows:
+#  version: 2
+#  commit:
+#    jobs:
+#      - build
+#  nightly:
+#    triggers:
+#      - schedule:
+#          cron: "0 1 * * *"
+#          filters:
+#            branches:
+#              only:
+#                - master
+#    jobs:
+#      - build
