@@ -27,6 +27,7 @@ import java.security.Security;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Random;
 
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
@@ -574,6 +575,7 @@ public class SSLTest extends AbstractUnitTest {
         startES(settings);      
 
         final Settings tcSettings = Settings.builder().put("cluster.name", clustername).put("path.home", ".")
+                .put("node.name", "client_node_" + new Random().nextInt())
                 .put(settings)// -----
                 .build();
 
@@ -777,6 +779,7 @@ public class SSLTest extends AbstractUnitTest {
         startES(settings);      
 
         final Settings tcSettings = Settings.builder().put("cluster.name", clustername).put("path.home", ".")
+                .put("node.name", "client_node_" + new Random().nextInt())
                 .put(settings)// -----
                 .build();
 

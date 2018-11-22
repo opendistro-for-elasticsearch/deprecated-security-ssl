@@ -36,6 +36,7 @@ import javax.net.ssl.SSLHandshakeException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.elasticsearch.ExceptionsHelper;
+import org.elasticsearch.cluster.node.DiscoveryNode;
 import org.elasticsearch.common.io.stream.NamedWriteableRegistry;
 import org.elasticsearch.common.network.NetworkService;
 import org.elasticsearch.common.settings.Settings;
@@ -97,10 +98,10 @@ public class SearchGuardSSLNettyTransport extends Netty4Transport {
     protected ChannelHandler getServerChannelInitializer(String name) {
         return new SSLServerChannelInitializer(name);
     }
-
+    
     @Override
-    protected ChannelHandler getClientChannelInitializer() {
-        return new SSLClientChannelInitializer();
+    protected ChannelHandler getClientChannelInitializer(DiscoveryNode node) {
+        return new SSLClientChannelInitializer(node);
     }
 
     protected class SSLServerChannelInitializer extends Netty4Transport.ServerChannelInitializer {
@@ -223,7 +224,7 @@ public class SearchGuardSSLNettyTransport extends Netty4Transport {
         private final boolean hostnameVerificationEnabled;
         private final boolean hostnameVerificationResovleHostName;
 
-        public SSLClientChannelInitializer() {
+        public SSLClientChannelInitializer(DiscoveryNode node) {
             hostnameVerificationEnabled = settings.getAsBoolean(
                     SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_ENFORCE_HOSTNAME_VERIFICATION, true);
             hostnameVerificationResovleHostName = settings.getAsBoolean(

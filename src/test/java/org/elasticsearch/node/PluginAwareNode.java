@@ -19,6 +19,7 @@ package org.elasticsearch.node;
 
 import java.util.Arrays;
 
+import org.elasticsearch.common.logging.LogConfigurator;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.plugins.Plugin;
 
@@ -26,6 +27,12 @@ public class PluginAwareNode extends Node {
 
     @SafeVarargs
     public PluginAwareNode(final Settings preparedSettings, final Class<? extends Plugin>... plugins) {
-        super(InternalSettingsPreparer.prepareEnvironment(preparedSettings, null), Arrays.asList(plugins));
+        super(InternalSettingsPreparer.prepareEnvironment(preparedSettings, null), Arrays.asList(plugins), true);
+    }
+
+    @Override
+    protected void registerDerivedNodeNameWithLogger(String nodeName) {
+        System.out.println("nn "+nodeName);
+        LogConfigurator.setNodeName(nodeName);
     }
 }
