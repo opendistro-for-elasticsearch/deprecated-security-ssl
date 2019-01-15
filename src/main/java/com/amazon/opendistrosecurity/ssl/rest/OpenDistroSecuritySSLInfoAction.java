@@ -36,19 +36,19 @@ import org.elasticsearch.rest.RestController;
 import org.elasticsearch.rest.RestRequest;
 import org.elasticsearch.rest.RestStatus;
 
-import com.amazon.opendistrosecurity.ssl.SearchGuardKeyStore;
+import com.amazon.opendistrosecurity.ssl.OpenDistroSecurityKeyStore;
 import com.amazon.opendistrosecurity.ssl.transport.PrincipalExtractor;
 import com.amazon.opendistrosecurity.ssl.util.SSLRequestHelper;
 import com.amazon.opendistrosecurity.ssl.util.SSLRequestHelper.SSLInfo;
 
-public class SearchGuardSSLInfoAction extends BaseRestHandler {
+public class OpenDistroSecuritySSLInfoAction extends BaseRestHandler {
 
-    private final SearchGuardKeyStore sgks;
+    private final OpenDistroSecurityKeyStore sgks;
     final PrincipalExtractor principalExtractor;
     private final Path configPath;
 
-    public SearchGuardSSLInfoAction(final Settings settings, final Path configPath, final RestController controller,
-            final SearchGuardKeyStore sgks, final PrincipalExtractor principalExtractor) {
+    public OpenDistroSecuritySSLInfoAction(final Settings settings, final Path configPath, final RestController controller,
+            final OpenDistroSecurityKeyStore sgks, final PrincipalExtractor principalExtractor) {
         super(settings);
         this.sgks = sgks;
         this.principalExtractor = principalExtractor;

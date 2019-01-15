@@ -45,7 +45,7 @@ import com.amazon.opendistrosecurity.ssl.SslExceptionHandler;
 import com.amazon.opendistrosecurity.ssl.util.ExceptionUtils;
 import com.amazon.opendistrosecurity.ssl.util.SSLRequestHelper;
 
-public class SearchGuardSSLRequestHandler<T extends TransportRequest>
+public class OpenDistroSecuritySSLRequestHandler<T extends TransportRequest>
 implements TransportRequestHandler<T> {
     
     private final String action;
@@ -55,7 +55,7 @@ implements TransportRequestHandler<T> {
     private final PrincipalExtractor principalExtractor;
     private final SslExceptionHandler errorHandler;
 
-    public SearchGuardSSLRequestHandler(String action, TransportRequestHandler<T> actualHandler, 
+    public OpenDistroSecuritySSLRequestHandler(String action, TransportRequestHandler<T> actualHandler, 
             ThreadPool threadPool, final PrincipalExtractor principalExtractor, final SslExceptionHandler errorHandler) {
         super();
         this.action = action;

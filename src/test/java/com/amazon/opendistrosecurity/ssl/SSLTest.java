@@ -60,9 +60,9 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-import com.amazon.opendistrosecurity.ssl.DefaultSearchGuardKeyStore;
-import com.amazon.opendistrosecurity.ssl.ExternalSearchGuardKeyStore;
-import com.amazon.opendistrosecurity.ssl.SearchGuardSSLPlugin;
+import com.amazon.opendistrosecurity.ssl.DefaultOpenDistroSecurityKeyStore;
+import com.amazon.opendistrosecurity.ssl.ExternalOpenDistroSecurityKeyStore;
+import com.amazon.opendistrosecurity.ssl.OpenDistroSecuritySSLPlugin;
 import com.amazon.opendistrosecurity.ssl.util.ExceptionUtils;
 import com.amazon.opendistrosecurity.ssl.util.SSLConfigConstants;
 
@@ -132,8 +132,8 @@ public class SSLTest extends AbstractUnitTest {
                 .build();
         
         try {
-            String[] enabledCiphers = new DefaultSearchGuardKeyStore(settings, Paths.get(".")).createHTTPSSLEngine().getEnabledCipherSuites();
-            String[] enabledProtocols = new DefaultSearchGuardKeyStore(settings, Paths.get(".")).createHTTPSSLEngine().getEnabledProtocols();
+            String[] enabledCiphers = new DefaultOpenDistroSecurityKeyStore(settings, Paths.get(".")).createHTTPSSLEngine().getEnabledCipherSuites();
+            String[] enabledProtocols = new DefaultOpenDistroSecurityKeyStore(settings, Paths.get(".")).createHTTPSSLEngine().getEnabledProtocols();
 
             if(allowOpenSSL) {
                 Assert.assertEquals(2, enabledProtocols.length); //SSLv2Hello is always enabled when using openssl
@@ -160,8 +160,8 @@ public class SSLTest extends AbstractUnitTest {
                     .put("path.home",".")
                     .build();
             
-            enabledCiphers = new DefaultSearchGuardKeyStore(settings, Paths.get(".")).createServerTransportSSLEngine().getEnabledCipherSuites();
-            enabledProtocols = new DefaultSearchGuardKeyStore(settings, Paths.get(".")).createServerTransportSSLEngine().getEnabledProtocols();
+            enabledCiphers = new DefaultOpenDistroSecurityKeyStore(settings, Paths.get(".")).createServerTransportSSLEngine().getEnabledCipherSuites();
+            enabledProtocols = new DefaultOpenDistroSecurityKeyStore(settings, Paths.get(".")).createServerTransportSSLEngine().getEnabledProtocols();
 
             if(allowOpenSSL) {
                 Assert.assertEquals(2, enabledProtocols.length); //SSLv2Hello is always enabled when using openssl
@@ -174,8 +174,8 @@ public class SSLTest extends AbstractUnitTest {
                 Assert.assertEquals(1, enabledCiphers.length);
                 Assert.assertEquals("SSL_RSA_EXPORT_WITH_RC4_40_MD5",enabledCiphers[0]);
             }
-            enabledCiphers = new DefaultSearchGuardKeyStore(settings, Paths.get(".")).createClientTransportSSLEngine(null, -1).getEnabledCipherSuites();
-            enabledProtocols = new DefaultSearchGuardKeyStore(settings, Paths.get(".")).createClientTransportSSLEngine(null, -1).getEnabledProtocols();
+            enabledCiphers = new DefaultOpenDistroSecurityKeyStore(settings, Paths.get(".")).createClientTransportSSLEngine(null, -1).getEnabledCipherSuites();
+            enabledProtocols = new DefaultOpenDistroSecurityKeyStore(settings, Paths.get(".")).createClientTransportSSLEngine(null, -1).getEnabledProtocols();
 
             if(allowOpenSSL) {
                 Assert.assertEquals(2, enabledProtocols.length); //SSLv2Hello is always enabled when using openssl
@@ -478,7 +478,7 @@ public class SSLTest extends AbstractUnitTest {
 
         final Settings tcSettings = Settings.builder().put("cluster.name", clustername).put(settings).build();
 
-        try (TransportClient tc = new TransportClientImpl(tcSettings, asCollection(SearchGuardSSLPlugin.class))) {
+        try (TransportClient tc = new TransportClientImpl(tcSettings, asCollection(OpenDistroSecuritySSLPlugin.class))) {
             
             log.debug("TransportClient built, connect now to {}:{}", nodeHost, nodePort);
             
@@ -533,9 +533,9 @@ public class SSLTest extends AbstractUnitTest {
         
         SSLContext sslContext = SSLContext.getInstance("TLSv1.2");
         sslContext.init(kmf.getKeyManagers(), tmf.getTrustManagers(), null);
-        ExternalSearchGuardKeyStore.registerExternalSslContext("abcx", sslContext);
+        ExternalOpenDistroSecurityKeyStore.registerExternalSslContext("abcx", sslContext);
         
-        try (TransportClient tc = new TransportClientImpl(tcSettings, asCollection(SearchGuardSSLPlugin.class))) {
+        try (TransportClient tc = new TransportClientImpl(tcSettings, asCollection(OpenDistroSecuritySSLPlugin.class))) {
             
             log.debug("TransportClient built, connect now to {}:{}", nodeHost, nodePort);
             
@@ -582,7 +582,7 @@ public class SSLTest extends AbstractUnitTest {
                 .put(settings)// -----
                 .build();
 
-        try (Node node = new PluginAwareNode(tcSettings, Netty4Plugin.class, SearchGuardSSLPlugin.class).start()) {
+        try (Node node = new PluginAwareNode(tcSettings, Netty4Plugin.class, OpenDistroSecuritySSLPlugin.class).start()) {
             ClusterHealthResponse res = node.client().admin().cluster().health(new ClusterHealthRequest().waitForNodes("4").timeout(TimeValue.timeValueSeconds(5))).actionGet();
             Assert.assertFalse(res.isTimedOut());
             Assert.assertEquals(4, res.getNumberOfNodes());
@@ -617,7 +617,7 @@ public class SSLTest extends AbstractUnitTest {
                 .put("searchguard.ssl.transport.enforce_hostname_verification", false)
                 .put("searchguard.ssl.transport.resolve_hostname", false).build();
 
-        try (TransportClient tc = new TransportClientImpl(tcSettings, asCollection(SearchGuardSSLPlugin.class))) {
+        try (TransportClient tc = new TransportClientImpl(tcSettings, asCollection(OpenDistroSecuritySSLPlugin.class))) {
             tc.addTransportAddress(new TransportAddress(new InetSocketAddress(nodeHost, nodePort)));
             Assert.assertEquals(3, tc.admin().cluster().nodesInfo(new NodesInfoRequest()).actionGet().getNodes().size());
         }
@@ -680,7 +680,7 @@ public class SSLTest extends AbstractUnitTest {
 
         final Settings tcSettings = Settings.builder().put("cluster.name", clustername).put("path.home", ".").put(settings).build();
 
-        try (TransportClient tc = new TransportClientImpl(tcSettings, asCollection(SearchGuardSSLPlugin.class))) {
+        try (TransportClient tc = new TransportClientImpl(tcSettings, asCollection(OpenDistroSecuritySSLPlugin.class))) {
             
             log.debug("TransportClient built, connect now to {}:{}", nodeHost, nodePort);
             
@@ -786,7 +786,7 @@ public class SSLTest extends AbstractUnitTest {
                 .put(settings)// -----
                 .build();
 
-        try (Node node = new PluginAwareNode(tcSettings, Netty4Plugin.class, SearchGuardSSLPlugin.class).start()) {
+        try (Node node = new PluginAwareNode(tcSettings, Netty4Plugin.class, OpenDistroSecuritySSLPlugin.class).start()) {
             ClusterHealthResponse res = node.client().admin().cluster().health(new ClusterHealthRequest().waitForNodes("4").timeout(TimeValue.timeValueSeconds(5))).actionGet();
             Assert.assertFalse(res.isTimedOut());
             Assert.assertEquals(4, res.getNumberOfNodes());

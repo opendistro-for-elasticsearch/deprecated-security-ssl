@@ -64,7 +64,7 @@ import com.amazon.opendistrosecurity.ssl.util.ExceptionUtils;
 import com.amazon.opendistrosecurity.ssl.util.SSLCertificateHelper;
 import com.amazon.opendistrosecurity.ssl.util.SSLConfigConstants;
 
-public class DefaultSearchGuardKeyStore implements SearchGuardKeyStore {
+public class DefaultOpenDistroSecurityKeyStore implements OpenDistroSecurityKeyStore {
 
     private static final String DEFAULT_STORE_TYPE = "JKS";
 
@@ -104,7 +104,7 @@ public class DefaultSearchGuardKeyStore implements SearchGuardKeyStore {
     private SslContext transportClientSslContext;
     private final Environment env;
 
-    public DefaultSearchGuardKeyStore(final Settings settings, final Path configPath) {
+    public DefaultOpenDistroSecurityKeyStore(final Settings settings, final Path configPath) {
         super();
         this.settings = settings;
         Environment _env;
@@ -353,7 +353,7 @@ public class DefaultSearchGuardKeyStore implements SearchGuardKeyStore {
             }
         }
 
-        final boolean client = !"node".equals(this.settings.get(SearchGuardSSLPlugin.CLIENT_TYPE));
+        final boolean client = !"node".equals(this.settings.get(OpenDistroSecuritySSLPlugin.CLIENT_TYPE));
 
         if (!client && httpSSLEnabled) {
 

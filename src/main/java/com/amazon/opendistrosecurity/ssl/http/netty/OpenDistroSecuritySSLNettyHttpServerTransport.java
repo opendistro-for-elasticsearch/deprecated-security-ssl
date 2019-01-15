@@ -35,17 +35,17 @@ import org.elasticsearch.common.xcontent.NamedXContentRegistry;
 import org.elasticsearch.http.netty4.Netty4HttpServerTransport;
 import org.elasticsearch.threadpool.ThreadPool;
 
-import com.amazon.opendistrosecurity.ssl.SearchGuardKeyStore;
+import com.amazon.opendistrosecurity.ssl.OpenDistroSecurityKeyStore;
 import com.amazon.opendistrosecurity.ssl.SslExceptionHandler;
 
-public class SearchGuardSSLNettyHttpServerTransport extends Netty4HttpServerTransport {
+public class OpenDistroSecuritySSLNettyHttpServerTransport extends Netty4HttpServerTransport {
 
-    private final SearchGuardKeyStore sgks;
+    private final OpenDistroSecurityKeyStore sgks;
     private final ThreadContext threadContext;
     private final SslExceptionHandler errorHandler;
     
-    public SearchGuardSSLNettyHttpServerTransport(final Settings settings, final NetworkService networkService, final BigArrays bigArrays,
-            final ThreadPool threadPool, final SearchGuardKeyStore sgks, final NamedXContentRegistry namedXContentRegistry, final ValidatingDispatcher dispatcher,
+    public OpenDistroSecuritySSLNettyHttpServerTransport(final Settings settings, final NetworkService networkService, final BigArrays bigArrays,
+            final ThreadPool threadPool, final OpenDistroSecurityKeyStore sgks, final NamedXContentRegistry namedXContentRegistry, final ValidatingDispatcher dispatcher,
             final SslExceptionHandler errorHandler) {
         super(settings, networkService, bigArrays, threadPool, namedXContentRegistry, dispatcher);
         this.sgks = sgks;
@@ -89,14 +89,14 @@ public class SearchGuardSSLNettyHttpServerTransport extends Netty4HttpServerTran
 
     protected class SSLHttpChannelHandler extends Netty4HttpServerTransport.HttpChannelHandler {
         
-        protected SSLHttpChannelHandler(Netty4HttpServerTransport transport, final SearchGuardKeyStore sgks) {
-            super(transport, SearchGuardSSLNettyHttpServerTransport.this.detailedErrorsEnabled, SearchGuardSSLNettyHttpServerTransport.this.threadContext);
+        protected SSLHttpChannelHandler(Netty4HttpServerTransport transport, final OpenDistroSecurityKeyStore sgks) {
+            super(transport, OpenDistroSecuritySSLNettyHttpServerTransport.this.detailedErrorsEnabled, OpenDistroSecuritySSLNettyHttpServerTransport.this.threadContext);
         }
 
         @Override
         protected void initChannel(Channel ch) throws Exception {
             super.initChannel(ch);
-            final SslHandler sslHandler = new SslHandler(SearchGuardSSLNettyHttpServerTransport.this.sgks.createHTTPSSLEngine());
+            final SslHandler sslHandler = new SslHandler(OpenDistroSecuritySSLNettyHttpServerTransport.this.sgks.createHTTPSSLEngine());
             ch.pipeline().addFirst("ssl_http", sslHandler);
         }
     }

@@ -46,18 +46,18 @@ import org.elasticsearch.threadpool.ThreadPool;
 import org.elasticsearch.transport.TcpChannel;
 import org.elasticsearch.transport.netty4.Netty4Transport;
 
-import com.amazon.opendistrosecurity.ssl.SearchGuardKeyStore;
+import com.amazon.opendistrosecurity.ssl.OpenDistroSecurityKeyStore;
 import com.amazon.opendistrosecurity.ssl.SslExceptionHandler;
 import com.amazon.opendistrosecurity.ssl.util.SSLConfigConstants;
 
-public class SearchGuardSSLNettyTransport extends Netty4Transport {
+public class OpenDistroSecuritySSLNettyTransport extends Netty4Transport {
 
-    private final SearchGuardKeyStore sgks;
+    private final OpenDistroSecurityKeyStore sgks;
     private final SslExceptionHandler errorHandler;
 
-    public SearchGuardSSLNettyTransport(final Settings settings, final ThreadPool threadPool, final NetworkService networkService,
+    public OpenDistroSecuritySSLNettyTransport(final Settings settings, final ThreadPool threadPool, final NetworkService networkService,
             final BigArrays bigArrays, final NamedWriteableRegistry namedWriteableRegistry,
-            final CircuitBreakerService circuitBreakerService, final SearchGuardKeyStore sgks, final SslExceptionHandler errorHandler) {
+            final CircuitBreakerService circuitBreakerService, final OpenDistroSecurityKeyStore sgks, final SslExceptionHandler errorHandler) {
         super(settings, threadPool, networkService, bigArrays, namedWriteableRegistry, circuitBreakerService);
         this.sgks = sgks;
         this.errorHandler = errorHandler;
@@ -119,7 +119,7 @@ public class SearchGuardSSLNettyTransport extends Netty4Transport {
         
         @Override
         public final void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-            if(SearchGuardSSLNettyTransport.this.lifecycle.started()) {
+            if(OpenDistroSecuritySSLNettyTransport.this.lifecycle.started()) {
                 
                 if(cause instanceof DecoderException && cause != null) {
                     cause = cause.getCause();
@@ -148,13 +148,13 @@ public class SearchGuardSSLNettyTransport extends Netty4Transport {
 
     protected static class ClientSSLHandler extends ChannelOutboundHandlerAdapter {
         private final Logger log = LogManager.getLogger(this.getClass());
-        private final SearchGuardKeyStore sgks;
+        private final OpenDistroSecurityKeyStore sgks;
         private final boolean hostnameVerificationEnabled;
         private final boolean hostnameVerificationResovleHostName;
         private final SslExceptionHandler errorHandler;
         
 
-        private ClientSSLHandler(final SearchGuardKeyStore sgks, final boolean hostnameVerificationEnabled,
+        private ClientSSLHandler(final OpenDistroSecurityKeyStore sgks, final boolean hostnameVerificationEnabled,
                 final boolean hostnameVerificationResovleHostName, final SslExceptionHandler errorHandler) {
             this.sgks = sgks;
             this.hostnameVerificationEnabled = hostnameVerificationEnabled;
@@ -240,7 +240,7 @@ public class SearchGuardSSLNettyTransport extends Netty4Transport {
         
         @Override
         public final void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-            if(SearchGuardSSLNettyTransport.this.lifecycle.started()) {
+            if(OpenDistroSecuritySSLNettyTransport.this.lifecycle.started()) {
                 
                 if(cause instanceof DecoderException && cause != null) {
                     cause = cause.getCause();

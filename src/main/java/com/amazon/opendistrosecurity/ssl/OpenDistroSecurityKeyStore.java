@@ -20,7 +20,7 @@ package com.amazon.opendistrosecurity.ssl;
 import javax.net.ssl.SSLEngine;
 import javax.net.ssl.SSLException;
 
-public interface SearchGuardKeyStore {
+public interface OpenDistroSecurityKeyStore {
 
     public SSLEngine createHTTPSSLEngine() throws SSLException;
 

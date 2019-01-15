@@ -27,14 +27,14 @@ import org.elasticsearch.transport.TransportRequestHandler;
 
 import com.amazon.opendistrosecurity.ssl.SslExceptionHandler;
 
-public final class SearchGuardSSLTransportInterceptor implements TransportInterceptor {
+public final class OpenDistroSecuritySSLTransportInterceptor implements TransportInterceptor {
     
     protected final Logger log = LogManager.getLogger(this.getClass());
     protected final ThreadPool threadPool;
     protected final PrincipalExtractor principalExtractor;
     protected final SslExceptionHandler errorHandler;
     
-    public SearchGuardSSLTransportInterceptor(final Settings settings, final  ThreadPool threadPool, 
+    public OpenDistroSecuritySSLTransportInterceptor(final Settings settings, final  ThreadPool threadPool, 
             PrincipalExtractor principalExtractor, final SslExceptionHandler errorHandler) {
         this.threadPool = threadPool;
         this.principalExtractor = principalExtractor;
@@ -44,7 +44,7 @@ public final class SearchGuardSSLTransportInterceptor implements TransportInterc
     @Override
     public <T extends TransportRequest> TransportRequestHandler<T> interceptHandler(String action, String executor, boolean forceExecution,
             TransportRequestHandler<T> actualHandler) {
-        return new SearchGuardSSLRequestHandler<T>(action, actualHandler, threadPool, principalExtractor, errorHandler);
+        return new OpenDistroSecuritySSLRequestHandler<T>(action, actualHandler, threadPool, principalExtractor, errorHandler);
     }
     
     

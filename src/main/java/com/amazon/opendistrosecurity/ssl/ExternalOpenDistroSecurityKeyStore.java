@@ -34,14 +34,14 @@ import org.elasticsearch.common.settings.Settings;
 
 import com.amazon.opendistrosecurity.ssl.util.SSLConfigConstants;
 
-public class ExternalSearchGuardKeyStore implements SearchGuardKeyStore {
+public class ExternalOpenDistroSecurityKeyStore implements OpenDistroSecurityKeyStore {
 
     private static final String EXTERNAL = "EXTERNAL";
     private static final Map<String, SSLContext> contextMap = new ConcurrentHashMap<String, SSLContext>();
     private final SSLContext externalSslContext;
     private final Settings settings;
 
-    public ExternalSearchGuardKeyStore(final Settings settings) {
+    public ExternalOpenDistroSecurityKeyStore(final Settings settings) {
         this.settings = Objects.requireNonNull(settings);
         final String externalContextId = settings
                 .get(SSLConfigConstants.SEARCHGUARD_SSL_CLIENT_EXTERNAL_CONTEXT_ID, null);

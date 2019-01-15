@@ -71,7 +71,7 @@ import org.junit.rules.TestName;
 import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
 
-import com.amazon.opendistrosecurity.ssl.SearchGuardSSLPlugin;
+import com.amazon.opendistrosecurity.ssl.OpenDistroSecuritySSLPlugin;
 
 @SuppressWarnings({"unchecked"})
 public abstract class AbstractUnitTest {
@@ -169,11 +169,11 @@ public abstract class AbstractUnitTest {
         FileUtils.deleteDirectory(new File("data"));
 
         esNode1 = new PluginAwareNode(getDefaultSettingsBuilder(1, false, true).put(
-                settings == null ? Settings.Builder.EMPTY_SETTINGS : settings).build(), Netty4Plugin.class, SearchGuardSSLPlugin.class);
+                settings == null ? Settings.Builder.EMPTY_SETTINGS : settings).build(), Netty4Plugin.class, OpenDistroSecuritySSLPlugin.class);
         esNode2 = new PluginAwareNode(getDefaultSettingsBuilder(2, true, true).put(
-                settings == null ? Settings.Builder.EMPTY_SETTINGS : settings).build(), Netty4Plugin.class, SearchGuardSSLPlugin.class);
+                settings == null ? Settings.Builder.EMPTY_SETTINGS : settings).build(), Netty4Plugin.class, OpenDistroSecuritySSLPlugin.class);
         esNode3 = new PluginAwareNode(getDefaultSettingsBuilder(3, true, false).put(
-                settings == null ? Settings.Builder.EMPTY_SETTINGS : settings).build(), Netty4Plugin.class, SearchGuardSSLPlugin.class);
+                settings == null ? Settings.Builder.EMPTY_SETTINGS : settings).build(), Netty4Plugin.class, OpenDistroSecuritySSLPlugin.class);
 
         esNode1.start();
         esNode2.start();

@@ -70,16 +70,16 @@ import org.elasticsearch.transport.Transport;
 import org.elasticsearch.transport.TransportInterceptor;
 import org.elasticsearch.watcher.ResourceWatcherService;
 
-import com.amazon.opendistrosecurity.ssl.http.netty.SearchGuardSSLNettyHttpServerTransport;
+import com.amazon.opendistrosecurity.ssl.http.netty.OpenDistroSecuritySSLNettyHttpServerTransport;
 import com.amazon.opendistrosecurity.ssl.http.netty.ValidatingDispatcher;
-import com.amazon.opendistrosecurity.ssl.rest.SearchGuardSSLInfoAction;
+import com.amazon.opendistrosecurity.ssl.rest.OpenDistroSecuritySSLInfoAction;
 import com.amazon.opendistrosecurity.ssl.transport.PrincipalExtractor;
-import com.amazon.opendistrosecurity.ssl.transport.SearchGuardSSLNettyTransport;
-import com.amazon.opendistrosecurity.ssl.transport.SearchGuardSSLTransportInterceptor;
+import com.amazon.opendistrosecurity.ssl.transport.OpenDistroSecuritySSLNettyTransport;
+import com.amazon.opendistrosecurity.ssl.transport.OpenDistroSecuritySSLTransportInterceptor;
 import com.amazon.opendistrosecurity.ssl.util.SSLConfigConstants;
 
 //For ES5 this class has only effect when SSL only plugin is installed
-public class SearchGuardSSLPlugin extends Plugin implements ActionPlugin, NetworkPlugin {
+public class OpenDistroSecuritySSLPlugin extends Plugin implements ActionPlugin, NetworkPlugin {
 
     protected final Logger log = LogManager.getLogger(this.getClass());
     protected static final String CLIENT_TYPE = "client.type";
@@ -87,16 +87,16 @@ public class SearchGuardSSLPlugin extends Plugin implements ActionPlugin, Networ
     protected final boolean httpSSLEnabled;
     protected final boolean transportSSLEnabled;
     protected final Settings settings;
-    protected final SearchGuardKeyStore sgks;
+    protected final OpenDistroSecurityKeyStore sgks;
     protected PrincipalExtractor principalExtractor;
     protected final Path configPath;
     private final static SslExceptionHandler NOOP_SSL_EXCEPTION_HANDLER = new SslExceptionHandler() {};
     
-    public SearchGuardSSLPlugin(final Settings settings, final Path configPath) {
+    public OpenDistroSecuritySSLPlugin(final Settings settings, final Path configPath) {
         this(settings, configPath, false);
     }
 
-    protected SearchGuardSSLPlugin(final Settings settings, final Path configPath, boolean disabled) {
+    protected OpenDistroSecuritySSLPlugin(final Settings settings, final Path configPath, boolean disabled) {
      
         if(disabled) {
             this.settings = null;
@@ -174,7 +174,7 @@ public class SearchGuardSSLPlugin extends Plugin implements ActionPlugin, Networ
         });
 
         this.settings = settings;
-        client = !"node".equals(this.settings.get(SearchGuardSSLPlugin.CLIENT_TYPE));
+        client = !"node".equals(this.settings.get(OpenDistroSecuritySSLPlugin.CLIENT_TYPE));
         
         httpSSLEnabled = settings.getAsBoolean(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_ENABLED,
                 SSLConfigConstants.SEARCHGUARD_SSL_HTTP_ENABLED_DEFAULT);
@@ -187,10 +187,10 @@ public class SearchGuardSSLPlugin extends Plugin implements ActionPlugin, Networ
             System.err.println("SSL not activated for http and/or transport.");
         }
         
-        if(ExternalSearchGuardKeyStore.hasExternalSslContext(settings)) {
-            this.sgks = new ExternalSearchGuardKeyStore(settings);
+        if(ExternalOpenDistroSecurityKeyStore.hasExternalSslContext(settings)) {
+            this.sgks = new ExternalOpenDistroSecurityKeyStore(settings);
         } else {
-            this.sgks = new DefaultSearchGuardKeyStore(settings, configPath);
+            this.sgks = new DefaultOpenDistroSecurityKeyStore(settings, configPath);
         }
     }
     
@@ -205,9 +205,9 @@ public class SearchGuardSSLPlugin extends Plugin implements ActionPlugin, Networ
         if (!client && httpSSLEnabled) {
             
             final ValidatingDispatcher validatingDispatcher = new ValidatingDispatcher(threadPool.getThreadContext(), dispatcher, settings, configPath, NOOP_SSL_EXCEPTION_HANDLER);
-            final SearchGuardSSLNettyHttpServerTransport sgsnht = new SearchGuardSSLNettyHttpServerTransport(settings, networkService, bigArrays, threadPool, sgks, xContentRegistry, validatingDispatcher, NOOP_SSL_EXCEPTION_HANDLER);
+            final OpenDistroSecuritySSLNettyHttpServerTransport sgsnht = new OpenDistroSecuritySSLNettyHttpServerTransport(settings, networkService, bigArrays, threadPool, sgks, xContentRegistry, validatingDispatcher, NOOP_SSL_EXCEPTION_HANDLER);
             
-            httpTransports.put("com.amazon.opendistrosecurity.ssl.http.netty.SearchGuardSSLNettyHttpServerTransport", () -> sgsnht);
+            httpTransports.put("com.amazon.opendistrosecurity.ssl.http.netty.OpenDistroSecuritySSLNettyHttpServerTransport", () -> sgsnht);
             
         }
         return httpTransports;
@@ -221,7 +221,7 @@ public class SearchGuardSSLPlugin extends Plugin implements ActionPlugin, Networ
         final List<RestHandler> handlers = new ArrayList<RestHandler>(1);
         
         if (!client) {
-            handlers.add(new SearchGuardSSLInfoAction(settings, configPath, restController, sgks, Objects.requireNonNull(principalExtractor)));
+            handlers.add(new OpenDistroSecuritySSLInfoAction(settings, configPath, restController, sgks, Objects.requireNonNull(principalExtractor)));
         }
         
         return handlers;
@@ -234,7 +234,7 @@ public class SearchGuardSSLPlugin extends Plugin implements ActionPlugin, Networ
         List<TransportInterceptor> interceptors = new ArrayList<TransportInterceptor>(1);
         
         if(transportSSLEnabled && !client) {
-            interceptors.add(new SearchGuardSSLTransportInterceptor(settings, null, null, NOOP_SSL_EXCEPTION_HANDLER));
+            interceptors.add(new OpenDistroSecuritySSLTransportInterceptor(settings, null, null, NOOP_SSL_EXCEPTION_HANDLER));
         }
         
         return interceptors;
@@ -249,7 +249,7 @@ public class SearchGuardSSLPlugin extends Plugin implements ActionPlugin, Networ
         Map<String, Supplier<Transport>> transports = new HashMap<String, Supplier<Transport>>();
         if (transportSSLEnabled) {
             transports.put("com.amazon.opendistrosecurity.ssl.http.netty.SearchGuardSSLNettyTransport", 
-                    () -> new SearchGuardSSLNettyTransport(settings, threadPool, networkService, bigArrays, namedWriteableRegistry, circuitBreakerService, sgks, NOOP_SSL_EXCEPTION_HANDLER));
+                    () -> new OpenDistroSecuritySSLNettyTransport(settings, threadPool, networkService, bigArrays, namedWriteableRegistry, circuitBreakerService, sgks, NOOP_SSL_EXCEPTION_HANDLER));
         }
         return transports;
 
@@ -353,7 +353,7 @@ public class SearchGuardSSLPlugin extends Plugin implements ActionPlugin, Networ
                log.info("Disabled https compression by default to mitigate BREACH attacks. You can enable it by setting 'http.compression: true' in elasticsearch.yml");
            }
            
-           builder.put(NetworkModule.HTTP_TYPE_KEY, "com.amazon.opendistrosecurity.ssl.http.netty.SearchGuardSSLNettyHttpServerTransport");
+           builder.put(NetworkModule.HTTP_TYPE_KEY, "com.amazon.opendistrosecurity.ssl.http.netty.OpenDistroSecuritySSLNettyHttpServerTransport");
        }
         
        if (transportSSLEnabled) {
