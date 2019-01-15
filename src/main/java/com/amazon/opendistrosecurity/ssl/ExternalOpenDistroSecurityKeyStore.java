@@ -44,7 +44,7 @@ public class ExternalOpenDistroSecurityKeyStore implements OpenDistroSecurityKey
     public ExternalOpenDistroSecurityKeyStore(final Settings settings) {
         this.settings = Objects.requireNonNull(settings);
         final String externalContextId = settings
-                .get(SSLConfigConstants.SEARCHGUARD_SSL_CLIENT_EXTERNAL_CONTEXT_ID, null);
+                .get(SSLConfigConstants.OPENDISTROSECURITY_SSL_CLIENT_EXTERNAL_CONTEXT_ID, null);
                 
         if(externalContextId == null || externalContextId.length() == 0) {
             throw new ElasticsearchException("no external ssl context id was set");
@@ -109,7 +109,7 @@ public class ExternalOpenDistroSecurityKeyStore implements OpenDistroSecurityKey
     public static boolean hasExternalSslContext(Settings settings) {
         
         final String externalContextId = settings
-                .get(SSLConfigConstants.SEARCHGUARD_SSL_CLIENT_EXTERNAL_CONTEXT_ID, null);
+                .get(SSLConfigConstants.OPENDISTROSECURITY_SSL_CLIENT_EXTERNAL_CONTEXT_ID, null);
                 
         if(externalContextId == null || externalContextId.length() == 0) {
             return false;

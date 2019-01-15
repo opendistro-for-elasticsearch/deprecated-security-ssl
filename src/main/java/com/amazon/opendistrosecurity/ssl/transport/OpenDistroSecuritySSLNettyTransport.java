@@ -226,9 +226,9 @@ public class OpenDistroSecuritySSLNettyTransport extends Netty4Transport {
 
         public SSLClientChannelInitializer(DiscoveryNode node) {
             hostnameVerificationEnabled = settings.getAsBoolean(
-                    SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_ENFORCE_HOSTNAME_VERIFICATION, true);
+                    SSLConfigConstants.OPENDISTROSECURITY_SSL_TRANSPORT_ENFORCE_HOSTNAME_VERIFICATION, true);
             hostnameVerificationResovleHostName = settings.getAsBoolean(
-                    SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_ENFORCE_HOSTNAME_VERIFICATION_RESOLVE_HOST_NAME, true);
+                    SSLConfigConstants.OPENDISTROSECURITY_SSL_TRANSPORT_ENFORCE_HOSTNAME_VERIFICATION_RESOLVE_HOST_NAME, true);
         }
 
         @Override

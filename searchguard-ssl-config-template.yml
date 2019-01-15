@@ -9,56 +9,56 @@
 #                                                                                           #
 #############################################################################################
 # Enable or disable node-to-node ssl encryption (default: true)
-#searchguard.ssl.transport.enabled: false
+#opendistrosecurity.ssl.transport.enabled: false
 # JKS or PKCS12 (default: JKS)
-#searchguard.ssl.transport.keystore_type: PKCS12
+#opendistrosecurity.ssl.transport.keystore_type: PKCS12
 # Relative path to the keystore file (mandatory, this stores the server certificates), must be placed under the config/ dir
-#searchguard.ssl.transport.keystore_filepath: keystore_node1.jks
+#opendistrosecurity.ssl.transport.keystore_filepath: keystore_node1.jks
 # Alias name (default: first alias which could be found)
-#searchguard.ssl.transport.keystore_alias: my_alias
+#opendistrosecurity.ssl.transport.keystore_alias: my_alias
 # Keystore password (default: changeit)
-#searchguard.ssl.transport.keystore_password: changeit
+#opendistrosecurity.ssl.transport.keystore_password: changeit
 
 # JKS or PKCS12 (default: JKS)
-#searchguard.ssl.transport.truststore_type: PKCS12
+#opendistrosecurity.ssl.transport.truststore_type: PKCS12
 # Relative path to the truststore file (mandatory, this stores the client/root certificates), must be placed under the config/ dir
-#searchguard.ssl.transport.truststore_filepath: truststore.jks
+#opendistrosecurity.ssl.transport.truststore_filepath: truststore.jks
 # Alias name (default: trust all aliases)
-#searchguard.ssl.transport.truststore_alias: my_alias
+#opendistrosecurity.ssl.transport.truststore_alias: my_alias
 # Truststore password (default: changeit)
-#searchguard.ssl.transport.truststore_password: changeit
+#opendistrosecurity.ssl.transport.truststore_password: changeit
 # Enforce hostname verification (default: true)
-#searchguard.ssl.transport.enforce_hostname_verification: true
+#opendistrosecurity.ssl.transport.enforce_hostname_verification: true
 # If hostname verification is enabled specify if hostname should be resolved (default: true)
-#searchguard.ssl.transport.resolve_hostname: true
+#opendistrosecurity.ssl.transport.resolve_hostname: true
 # Use native Open SSL instead of JDK SSL if available (default: true)
-#searchguard.ssl.transport.enable_openssl_if_available: false
+#opendistrosecurity.ssl.transport.enable_openssl_if_available: false
 
 # As an alternative to JKS/PCKS12 based configuration 
 # you can also use X.509 PEM certificates and PKCS #8 keys.
 # This, for example, makes it pretty easy to configure letsencrypt certificates.
 
 # Relative path to the certificates key file (PKCS #8), must be placed under the config/ dir
-#searchguard.ssl.transport.pemkey_filepath: privkey.pem
+#opendistrosecurity.ssl.transport.pemkey_filepath: privkey.pem
 # Key password (omit this setting if the key has no password)
-#searchguard.ssl.transport.pemkey_password: "secret"
+#opendistrosecurity.ssl.transport.pemkey_password: "secret"
 # X509 node certificate chain in PEM format, must be placed under the config/ dir
-#searchguard.ssl.transport.pemcert_filepath: fullchain.pem
+#opendistrosecurity.ssl.transport.pemcert_filepath: fullchain.pem
 # Trusted certificates
-#searchguard.ssl.transport.pemtrustedcas_filepath: chain.pem
+#opendistrosecurity.ssl.transport.pemtrustedcas_filepath: chain.pem
     
 
 # Enabled SSL cipher suites for transport protocol (only Java format is supported)
 # WARNING: Expert setting, do only use if you know what you are doing
 # If you set wrong values here this this could be a security risk
-#searchguard.ssl.transport.enabled_ciphers:
+#opendistrosecurity.ssl.transport.enabled_ciphers:
 #  - "TLS_DHE_RSA_WITH_AES_256_CBC_SHA"
 #  - "TLS_DHE_DSS_WITH_AES_128_CBC_SHA256"
   
 # Enabled SSL protocols for transport protocol (only Java format is supported)
 # WARNING: Expert setting, do only use if you know what you are doing
 # If you set wrong values here this this could be a security risk  
-#searchguard.ssl.transport.enabled_protocols:
+#opendistrosecurity.ssl.transport.enabled_protocols:
 #  - "TLSv1.2"
 
 #############################################################################################
@@ -66,84 +66,84 @@
 #                                                                                           #
 #############################################################################################
 # Enable or disable rest layer security - https, (default: false)
-#searchguard.ssl.http.enabled: true
+#opendistrosecurity.ssl.http.enabled: true
 # JKS or PKCS12 (default: JKS)
-#searchguard.ssl.http.keystore_type: PKCS12
+#opendistrosecurity.ssl.http.keystore_type: PKCS12
 # Relative path to the keystore file (this stores the server certificates), must be placed under the config/ dir
-#searchguard.ssl.http.keystore_filepath: keystore_https_node1.jks
+#opendistrosecurity.ssl.http.keystore_filepath: keystore_https_node1.jks
 # Alias name (default: first alias which could be found)
-#searchguard.ssl.http.keystore_alias: my_alias
+#opendistrosecurity.ssl.http.keystore_alias: my_alias
 # Keystore password (default: changeit)
-#searchguard.ssl.http.keystore_password: changeit
+#opendistrosecurity.ssl.http.keystore_password: changeit
 # Do the clients (typically the browser or the proxy) have to authenticate themself to the http server, default is OPTIONAL
 # To enforce authentication use REQUIRE, to completely disable client certificates use NONE
-#searchguard.ssl.http.clientauth_mode: REQUIRE
+#opendistrosecurity.ssl.http.clientauth_mode: REQUIRE
 # JKS or PKCS12 (default: JKS)
-#searchguard.ssl.http.truststore_type: PKCS12
+#opendistrosecurity.ssl.http.truststore_type: PKCS12
 # Relative path to the truststore file (this stores the client certificates), must be placed under the config/ dir
-#searchguard.ssl.http.truststore_filepath: truststore_https.jks
+#opendistrosecurity.ssl.http.truststore_filepath: truststore_https.jks
 # Alias name (default: first alias which could be found)
-#searchguard.ssl.http.truststore_alias: my_alias
+#opendistrosecurity.ssl.http.truststore_alias: my_alias
 # Truststore password (default: changeit)
-#searchguard.ssl.http.truststore_password: changeit
+#opendistrosecurity.ssl.http.truststore_password: changeit
 # Use native Open SSL instead of JDK SSL if available (default: true)
-#searchguard.ssl.http.enable_openssl_if_available: false
+#opendistrosecurity.ssl.http.enable_openssl_if_available: false
 
 # As an alternative to JKS/PCKS12 based configuration 
 # you can also use X.509 PEM certificates and PKCS #8 keys.
 # This, for example, makes it pretty easy to configure letsencrypt certificates.
 
 # Relative path to the certificates key file (PKCS #8), must be placed under the config/ dir
-#searchguard.ssl.http.pemkey_filepath: privkey.pem
+#opendistrosecurity.ssl.http.pemkey_filepath: privkey.pem
 # Key password (omit this setting if the key has no password)
-#searchguard.ssl.http.pemkey_password: "secret"
+#opendistrosecurity.ssl.http.pemkey_password: "secret"
 # X509 node certificate chain in PEM format, must be placed under the config/ dir
-#searchguard.ssl.http.pemcert_filepath: fullchain.pem
+#opendistrosecurity.ssl.http.pemcert_filepath: fullchain.pem
 # Trusted certificates
-#searchguard.ssl.http.pemtrustedcas_filepath: chain.pem
+#opendistrosecurity.ssl.http.pemtrustedcas_filepath: chain.pem
 
 # Enabled SSL cipher suites for http protocol (only Java format is supported)
 # WARNING: Expert setting, do only use if you know what you are doing
 # If you set wrong values here this this could be a security risk
-#searchguard.ssl.http.enabled_ciphers:
+#opendistrosecurity.ssl.http.enabled_ciphers:
 #  - "TLS_DHE_RSA_WITH_AES_256_CBC_SHA"
 #  - "TLS_DHE_DSS_WITH_AES_128_CBC_SHA256"
 
 # Enabled SSL protocols for http protocol (only Java format is supported)
 # WARNING: Expert setting, do only use if you know what you are doing
 # If you set wrong values here this this could be a security risk  
-#searchguard.ssl.http.enabled_protocols:
+#opendistrosecurity.ssl.http.enabled_protocols:
 #  - "TLSv1.2"
 
 # Enables the usage of custom SSLContext's for Transport clients
 # This setting does only apply to Transport clients
 # WARNING: Expert setting, do only use if you know what you are doing
 # If you set wrong values here this this could be a security risk  
-#searchguard.ssl.client.external_context_id: myid
+#opendistrosecurity.ssl.client.external_context_id: myid
     
 # Class name of a class which is in classpath and implements com.amazon.opendistrosecurity.ssl.transport.PrincipalExtractor
 # used to resolve the string representation of an principal from a x509 certificate
 # WARNING: Expert setting, do only use if you know what you are doing
 # If you set wrong values here this this could be a security risk 
-#searchguard.ssl.transport.principal_extractor_class: com.example.sg.MyPrincipalExtractor
+#opendistrosecurity.ssl.transport.principal_extractor_class: com.example.sg.MyPrincipalExtractor
 
 # CRL validation of HTTP client certificates
 # WARNING: Expert setting, do only use if you know what you are doing
 # If you set wrong values here this this could be a security risk 
 # Set to true to enable CRL validation (default is false)
-#searchguard.ssl.http.crl.validate: true
+#opendistrosecurity.ssl.http.crl.validate: true
 # File based static revocation list, by default this is null
 # if null then either OCSP or CRLDP needs to be enabled
 # CRL file must be in config/ dir, so this path is relative here
-#searchguard.ssl.http.crl.file_path: mycrl.crl
+#opendistrosecurity.ssl.http.crl.file_path: mycrl.crl
 # Default is false (means we prefer OCSP over static CRL file)
-#searchguard.ssl.http.crl.prefer_crlfile_over_ocsp: true
+#opendistrosecurity.ssl.http.crl.prefer_crlfile_over_ocsp: true
 # Default is true (means we do not validate intermediate certificates)
-#searchguard.ssl.http.crl.check_only_end_entities: false
+#opendistrosecurity.ssl.http.crl.check_only_end_entities: false
 # Default is false (means we use OCSP if available)
-#searchguard.ssl.http.crl.disable_ocsp: true
+#opendistrosecurity.ssl.http.crl.disable_ocsp: true
 # Default is false (means we use CRLDP if available)
-#searchguard.ssl.http.crl.disable_crldp: true
+#opendistrosecurity.ssl.http.crl.disable_crldp: true
 # Sets the time (as unix epoch timestamp) for which the validity of the certification path should be determined
 # If not set of set to -1 then the current time will be used
-#searchguard.ssl.http.crl.validation_date: 1496070074
+#opendistrosecurity.ssl.http.crl.validation_date: 1496070074

@@ -82,17 +82,17 @@ public class SSLTest extends AbstractUnitTest {
         sendHTTPClientCertificate = true;
         keystore = "node-untspec5-keystore.p12";
 
-        final Settings settings = Settings.builder().put("searchguard.ssl.transport.enabled", false)
-                .put("searchguard.ssl.http.enabled", true)
-                .put(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_ENABLE_OPENSSL_IF_AVAILABLE, allowOpenSSL)
-                .put(SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_ENABLE_OPENSSL_IF_AVAILABLE, allowOpenSSL)
-                .put("searchguard.ssl.http.clientauth_mode", "REQUIRE")
-                .putList(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_ENABLED_PROTOCOLS, "TLSv1.1","TLSv1.2")
-                .putList(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_ENABLED_CIPHERS, "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256")
-                .putList(SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_ENABLED_PROTOCOLS, "TLSv1.1","TLSv1.2")
-                .putList(SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_ENABLED_CIPHERS, "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256")
-                .put("searchguard.ssl.http.keystore_filepath", getAbsoluteFilePathFromClassPath("node-0-keystore.jks"))
-                .put("searchguard.ssl.http.truststore_filepath", getAbsoluteFilePathFromClassPath("truststore.jks"))
+        final Settings settings = Settings.builder().put("opendistrosecurity.ssl.transport.enabled", false)
+                .put("opendistrosecurity.ssl.http.enabled", true)
+                .put(SSLConfigConstants.OPENDISTROSECURITY_SSL_HTTP_ENABLE_OPENSSL_IF_AVAILABLE, allowOpenSSL)
+                .put(SSLConfigConstants.OPENDISTROSECURITY_SSL_TRANSPORT_ENABLE_OPENSSL_IF_AVAILABLE, allowOpenSSL)
+                .put("opendistrosecurity.ssl.http.clientauth_mode", "REQUIRE")
+                .putList(SSLConfigConstants.OPENDISTROSECURITY_SSL_HTTP_ENABLED_PROTOCOLS, "TLSv1.1","TLSv1.2")
+                .putList(SSLConfigConstants.OPENDISTROSECURITY_SSL_HTTP_ENABLED_CIPHERS, "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256")
+                .putList(SSLConfigConstants.OPENDISTROSECURITY_SSL_TRANSPORT_ENABLED_PROTOCOLS, "TLSv1.1","TLSv1.2")
+                .putList(SSLConfigConstants.OPENDISTROSECURITY_SSL_TRANSPORT_ENABLED_CIPHERS, "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256")
+                .put("opendistrosecurity.ssl.http.keystore_filepath", getAbsoluteFilePathFromClassPath("node-0-keystore.jks"))
+                .put("opendistrosecurity.ssl.http.truststore_filepath", getAbsoluteFilePathFromClassPath("truststore.jks"))
                 .build();
 
         startES(settings);
@@ -116,17 +116,17 @@ public class SSLTest extends AbstractUnitTest {
         System.out.println("Disabled algos: "+Security.getProperty("jdk.tls.disabledAlgorithms"));
         System.out.println("allowOpenSSL: "+allowOpenSSL);
 
-        Settings settings = Settings.builder().put("searchguard.ssl.transport.enabled", false)
-                .put(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_KEYSTORE_ALIAS, "node-0").put("searchguard.ssl.http.enabled", true)
-                .put(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_ENABLE_OPENSSL_IF_AVAILABLE, allowOpenSSL)
-                .put(SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_ENABLE_OPENSSL_IF_AVAILABLE, allowOpenSSL)
-                .put("searchguard.ssl.http.clientauth_mode", "REQUIRE")
-                .put("searchguard.ssl.http.keystore_filepath", getAbsoluteFilePathFromClassPath("node-0-keystore.jks"))
-                .put("searchguard.ssl.http.truststore_filepath", getAbsoluteFilePathFromClassPath("truststore.jks"))
+        Settings settings = Settings.builder().put("opendistrosecurity.ssl.transport.enabled", false)
+                .put(SSLConfigConstants.OPENDISTROSECURITY_SSL_HTTP_KEYSTORE_ALIAS, "node-0").put("opendistrosecurity.ssl.http.enabled", true)
+                .put(SSLConfigConstants.OPENDISTROSECURITY_SSL_HTTP_ENABLE_OPENSSL_IF_AVAILABLE, allowOpenSSL)
+                .put(SSLConfigConstants.OPENDISTROSECURITY_SSL_TRANSPORT_ENABLE_OPENSSL_IF_AVAILABLE, allowOpenSSL)
+                .put("opendistrosecurity.ssl.http.clientauth_mode", "REQUIRE")
+                .put("opendistrosecurity.ssl.http.keystore_filepath", getAbsoluteFilePathFromClassPath("node-0-keystore.jks"))
+                .put("opendistrosecurity.ssl.http.truststore_filepath", getAbsoluteFilePathFromClassPath("truststore.jks"))
                  //WEAK and insecure cipher, do NOT use this, its here for unittesting only!!!
-                .put("searchguard.ssl.http.enabled_ciphers","SSL_RSA_EXPORT_WITH_RC4_40_MD5")
+                .put("opendistrosecurity.ssl.http.enabled_ciphers","SSL_RSA_EXPORT_WITH_RC4_40_MD5")
                  //WEAK and insecure protocol, do NOT use this, its here for unittesting only!!!
-                .put("searchguard.ssl.http.enabled_protocols","SSLv3")
+                .put("opendistrosecurity.ssl.http.enabled_protocols","SSLv3")
                 .put("client.type","node")
                 .put("path.home",".")
                 .build();
@@ -147,15 +147,15 @@ public class SSLTest extends AbstractUnitTest {
                 Assert.assertEquals("SSL_RSA_EXPORT_WITH_RC4_40_MD5",enabledCiphers[0]);
             }
             
-            settings = Settings.builder().put("searchguard.ssl.transport.enabled", true)
-                    .put(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_ENABLE_OPENSSL_IF_AVAILABLE, allowOpenSSL)
-                    .put(SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_ENABLE_OPENSSL_IF_AVAILABLE, allowOpenSSL)
-                    .put("searchguard.ssl.transport.keystore_filepath", getAbsoluteFilePathFromClassPath("node-0-keystore.jks"))
-                    .put("searchguard.ssl.transport.truststore_filepath", getAbsoluteFilePathFromClassPath("truststore.jks"))
+            settings = Settings.builder().put("opendistrosecurity.ssl.transport.enabled", true)
+                    .put(SSLConfigConstants.OPENDISTROSECURITY_SSL_HTTP_ENABLE_OPENSSL_IF_AVAILABLE, allowOpenSSL)
+                    .put(SSLConfigConstants.OPENDISTROSECURITY_SSL_TRANSPORT_ENABLE_OPENSSL_IF_AVAILABLE, allowOpenSSL)
+                    .put("opendistrosecurity.ssl.transport.keystore_filepath", getAbsoluteFilePathFromClassPath("node-0-keystore.jks"))
+                    .put("opendistrosecurity.ssl.transport.truststore_filepath", getAbsoluteFilePathFromClassPath("truststore.jks"))
                      //WEAK and insecure cipher, do NOT use this, its here for unittesting only!!!
-                    .put("searchguard.ssl.transport.enabled_ciphers","SSL_RSA_EXPORT_WITH_RC4_40_MD5")
+                    .put("opendistrosecurity.ssl.transport.enabled_ciphers","SSL_RSA_EXPORT_WITH_RC4_40_MD5")
                      //WEAK and insecure protocol, do NOT use this, its here for unittesting only!!!
-                    .put("searchguard.ssl.transport.enabled_protocols","SSLv3")
+                    .put("opendistrosecurity.ssl.transport.enabled_protocols","SSLv3")
                     .put("client.type","node")
                     .put("path.home",".")
                     .build();
@@ -207,12 +207,12 @@ public class SSLTest extends AbstractUnitTest {
         trustHTTPServerCertificate = true;
         sendHTTPClientCertificate = true;
 
-        final Settings settings = Settings.builder().put("searchguard.ssl.transport.enabled", false)
-                .put(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_KEYSTORE_ALIAS, "node-0").put("searchguard.ssl.http.enabled", true)
-                .put(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_ENABLE_OPENSSL_IF_AVAILABLE, allowOpenSSL)
-                .put(SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_ENABLE_OPENSSL_IF_AVAILABLE, allowOpenSSL)
-                .put("searchguard.ssl.http.keystore_filepath", getAbsoluteFilePathFromClassPath("node-0-keystore.jks"))
-                .put("searchguard.ssl.http.truststore_filepath", getAbsoluteFilePathFromClassPath("truststore.jks")).build();
+        final Settings settings = Settings.builder().put("opendistrosecurity.ssl.transport.enabled", false)
+                .put(SSLConfigConstants.OPENDISTROSECURITY_SSL_HTTP_KEYSTORE_ALIAS, "node-0").put("opendistrosecurity.ssl.http.enabled", true)
+                .put(SSLConfigConstants.OPENDISTROSECURITY_SSL_HTTP_ENABLE_OPENSSL_IF_AVAILABLE, allowOpenSSL)
+                .put(SSLConfigConstants.OPENDISTROSECURITY_SSL_TRANSPORT_ENABLE_OPENSSL_IF_AVAILABLE, allowOpenSSL)
+                .put("opendistrosecurity.ssl.http.keystore_filepath", getAbsoluteFilePathFromClassPath("node-0-keystore.jks"))
+                .put("opendistrosecurity.ssl.http.truststore_filepath", getAbsoluteFilePathFromClassPath("truststore.jks")).build();
 
         startES(settings);
 
@@ -230,19 +230,19 @@ public class SSLTest extends AbstractUnitTest {
         trustHTTPServerCertificate = true;
         sendHTTPClientCertificate = true;
 
-        final Settings settings = Settings.builder().put("searchguard.ssl.transport.enabled", true)
-                .put(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_ENABLE_OPENSSL_IF_AVAILABLE, allowOpenSSL)
-                .put(SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_ENABLE_OPENSSL_IF_AVAILABLE, allowOpenSSL)
-                .put(SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_KEYSTORE_ALIAS, "node-0")
-                .put(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_KEYSTORE_ALIAS, "node-0")
-                .put("searchguard.ssl.transport.keystore_filepath", getAbsoluteFilePathFromClassPath("node-0-keystore.jks"))
-                .put("searchguard.ssl.transport.truststore_filepath", getAbsoluteFilePathFromClassPath("truststore.jks"))
-                .put("searchguard.ssl.transport.enforce_hostname_verification", false)
-                .put("searchguard.ssl.transport.resolve_hostname", false)
+        final Settings settings = Settings.builder().put("opendistrosecurity.ssl.transport.enabled", true)
+                .put(SSLConfigConstants.OPENDISTROSECURITY_SSL_HTTP_ENABLE_OPENSSL_IF_AVAILABLE, allowOpenSSL)
+                .put(SSLConfigConstants.OPENDISTROSECURITY_SSL_TRANSPORT_ENABLE_OPENSSL_IF_AVAILABLE, allowOpenSSL)
+                .put(SSLConfigConstants.OPENDISTROSECURITY_SSL_TRANSPORT_KEYSTORE_ALIAS, "node-0")
+                .put(SSLConfigConstants.OPENDISTROSECURITY_SSL_HTTP_KEYSTORE_ALIAS, "node-0")
+                .put("opendistrosecurity.ssl.transport.keystore_filepath", getAbsoluteFilePathFromClassPath("node-0-keystore.jks"))
+                .put("opendistrosecurity.ssl.transport.truststore_filepath", getAbsoluteFilePathFromClassPath("truststore.jks"))
+                .put("opendistrosecurity.ssl.transport.enforce_hostname_verification", false)
+                .put("opendistrosecurity.ssl.transport.resolve_hostname", false)
 
-                .put("searchguard.ssl.http.enabled", true).put("searchguard.ssl.http.clientauth_mode", "REQUIRE")
-                .put("searchguard.ssl.http.keystore_filepath", getAbsoluteFilePathFromClassPath("node-0-keystore.jks"))
-                .put("searchguard.ssl.http.truststore_filepath", getAbsoluteFilePathFromClassPath("truststore.jks"))
+                .put("opendistrosecurity.ssl.http.enabled", true).put("opendistrosecurity.ssl.http.clientauth_mode", "REQUIRE")
+                .put("opendistrosecurity.ssl.http.keystore_filepath", getAbsoluteFilePathFromClassPath("node-0-keystore.jks"))
+                .put("opendistrosecurity.ssl.http.truststore_filepath", getAbsoluteFilePathFromClassPath("truststore.jks"))
                 
                 .build();
 
@@ -266,22 +266,22 @@ public class SSLTest extends AbstractUnitTest {
         trustHTTPServerCertificate = true;
         sendHTTPClientCertificate = true;
 
-        final Settings settings = Settings.builder().put("searchguard.ssl.transport.enabled", true)
-                .put(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_ENABLE_OPENSSL_IF_AVAILABLE, allowOpenSSL)
-                .put(SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_ENABLE_OPENSSL_IF_AVAILABLE, allowOpenSSL)
-                .put(SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_PEMCERT_FILEPATH, getAbsoluteFilePathFromClassPath("node-0.crt.pem"))
-                .put(SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_PEMKEY_FILEPATH, getAbsoluteFilePathFromClassPath("node-0.key.pem"))
-                //.put(SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_PEMKEY_PASSWORD, "changeit")
-                .put(SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_PEMTRUSTEDCAS_FILEPATH, getAbsoluteFilePathFromClassPath("root-ca.pem"))
-                .put("searchguard.ssl.transport.enforce_hostname_verification", false)
-                .put("searchguard.ssl.transport.resolve_hostname", false)
+        final Settings settings = Settings.builder().put("opendistrosecurity.ssl.transport.enabled", true)
+                .put(SSLConfigConstants.OPENDISTROSECURITY_SSL_HTTP_ENABLE_OPENSSL_IF_AVAILABLE, allowOpenSSL)
+                .put(SSLConfigConstants.OPENDISTROSECURITY_SSL_TRANSPORT_ENABLE_OPENSSL_IF_AVAILABLE, allowOpenSSL)
+                .put(SSLConfigConstants.OPENDISTROSECURITY_SSL_TRANSPORT_PEMCERT_FILEPATH, getAbsoluteFilePathFromClassPath("node-0.crt.pem"))
+                .put(SSLConfigConstants.OPENDISTROSECURITY_SSL_TRANSPORT_PEMKEY_FILEPATH, getAbsoluteFilePathFromClassPath("node-0.key.pem"))
+                //.put(SSLConfigConstants.OPENDISTROSECURITY_SSL_TRANSPORT_PEMKEY_PASSWORD, "changeit")
+                .put(SSLConfigConstants.OPENDISTROSECURITY_SSL_TRANSPORT_PEMTRUSTEDCAS_FILEPATH, getAbsoluteFilePathFromClassPath("root-ca.pem"))
+                .put("opendistrosecurity.ssl.transport.enforce_hostname_verification", false)
+                .put("opendistrosecurity.ssl.transport.resolve_hostname", false)
 
-                .put("searchguard.ssl.http.enabled", true)
-                .put("searchguard.ssl.http.clientauth_mode", "REQUIRE")
-                .put(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_PEMCERT_FILEPATH, getAbsoluteFilePathFromClassPath("node-0.crt.pem"))
-                .put(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_PEMKEY_FILEPATH, getAbsoluteFilePathFromClassPath("node-0.key.pem"))
-                //.put(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_PEMKEY_PASSWORD, "changeit")
-                .put(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_PEMTRUSTEDCAS_FILEPATH, getAbsoluteFilePathFromClassPath("root-ca.pem"))
+                .put("opendistrosecurity.ssl.http.enabled", true)
+                .put("opendistrosecurity.ssl.http.clientauth_mode", "REQUIRE")
+                .put(SSLConfigConstants.OPENDISTROSECURITY_SSL_HTTP_PEMCERT_FILEPATH, getAbsoluteFilePathFromClassPath("node-0.crt.pem"))
+                .put(SSLConfigConstants.OPENDISTROSECURITY_SSL_HTTP_PEMKEY_FILEPATH, getAbsoluteFilePathFromClassPath("node-0.key.pem"))
+                //.put(SSLConfigConstants.OPENDISTROSECURITY_SSL_HTTP_PEMKEY_PASSWORD, "changeit")
+                .put(SSLConfigConstants.OPENDISTROSECURITY_SSL_HTTP_PEMTRUSTEDCAS_FILEPATH, getAbsoluteFilePathFromClassPath("root-ca.pem"))
                 .build();
 
         startES(settings);
@@ -300,22 +300,22 @@ public class SSLTest extends AbstractUnitTest {
         trustHTTPServerCertificate = true;
         sendHTTPClientCertificate = true;
 
-        final Settings settings = Settings.builder().put("searchguard.ssl.transport.enabled", true)
-                .put(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_ENABLE_OPENSSL_IF_AVAILABLE, allowOpenSSL)
-                .put(SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_ENABLE_OPENSSL_IF_AVAILABLE, allowOpenSSL)
-                .put(SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_PEMCERT_FILEPATH, getAbsoluteFilePathFromClassPath("pem/node-4.crt.pem"))
-                .put(SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_PEMKEY_FILEPATH, getAbsoluteFilePathFromClassPath("pem/node-4.key"))
-                .put(SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_PEMKEY_PASSWORD, "changeit")
-                .put(SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_PEMTRUSTEDCAS_FILEPATH, getAbsoluteFilePathFromClassPath("root-ca.pem"))
-                .put("searchguard.ssl.transport.enforce_hostname_verification", false)
-                .put("searchguard.ssl.transport.resolve_hostname", false)
+        final Settings settings = Settings.builder().put("opendistrosecurity.ssl.transport.enabled", true)
+                .put(SSLConfigConstants.OPENDISTROSECURITY_SSL_HTTP_ENABLE_OPENSSL_IF_AVAILABLE, allowOpenSSL)
+                .put(SSLConfigConstants.OPENDISTROSECURITY_SSL_TRANSPORT_ENABLE_OPENSSL_IF_AVAILABLE, allowOpenSSL)
+                .put(SSLConfigConstants.OPENDISTROSECURITY_SSL_TRANSPORT_PEMCERT_FILEPATH, getAbsoluteFilePathFromClassPath("pem/node-4.crt.pem"))
+                .put(SSLConfigConstants.OPENDISTROSECURITY_SSL_TRANSPORT_PEMKEY_FILEPATH, getAbsoluteFilePathFromClassPath("pem/node-4.key"))
+                .put(SSLConfigConstants.OPENDISTROSECURITY_SSL_TRANSPORT_PEMKEY_PASSWORD, "changeit")
+                .put(SSLConfigConstants.OPENDISTROSECURITY_SSL_TRANSPORT_PEMTRUSTEDCAS_FILEPATH, getAbsoluteFilePathFromClassPath("root-ca.pem"))
+                .put("opendistrosecurity.ssl.transport.enforce_hostname_verification", false)
+                .put("opendistrosecurity.ssl.transport.resolve_hostname", false)
 
-                .put("searchguard.ssl.http.enabled", true)
-                .put("searchguard.ssl.http.clientauth_mode", "REQUIRE")
-                .put(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_PEMCERT_FILEPATH, getAbsoluteFilePathFromClassPath("pem/node-4.crt.pem"))
-                .put(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_PEMKEY_FILEPATH, getAbsoluteFilePathFromClassPath("pem/node-4.key"))
-                .put(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_PEMKEY_PASSWORD, "changeit")
-                .put(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_PEMTRUSTEDCAS_FILEPATH, getAbsoluteFilePathFromClassPath("root-ca.pem"))
+                .put("opendistrosecurity.ssl.http.enabled", true)
+                .put("opendistrosecurity.ssl.http.clientauth_mode", "REQUIRE")
+                .put(SSLConfigConstants.OPENDISTROSECURITY_SSL_HTTP_PEMCERT_FILEPATH, getAbsoluteFilePathFromClassPath("pem/node-4.crt.pem"))
+                .put(SSLConfigConstants.OPENDISTROSECURITY_SSL_HTTP_PEMKEY_FILEPATH, getAbsoluteFilePathFromClassPath("pem/node-4.key"))
+                .put(SSLConfigConstants.OPENDISTROSECURITY_SSL_HTTP_PEMKEY_PASSWORD, "changeit")
+                .put(SSLConfigConstants.OPENDISTROSECURITY_SSL_HTTP_PEMTRUSTEDCAS_FILEPATH, getAbsoluteFilePathFromClassPath("root-ca.pem"))
                 .build();
 
         startES(settings);
@@ -335,21 +335,21 @@ public class SSLTest extends AbstractUnitTest {
         trustHTTPServerCertificate = true;
         sendHTTPClientCertificate = true;
 
-        final Settings settings = Settings.builder().put("searchguard.ssl.transport.enabled", true)
-                .put(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_ENABLE_OPENSSL_IF_AVAILABLE, allowOpenSSL)
-                .put(SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_ENABLE_OPENSSL_IF_AVAILABLE, allowOpenSSL)
-                .put(SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_KEYSTORE_ALIAS, "node-0")
-                .put(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_KEYSTORE_ALIAS, "node-0")
-                .put("searchguard.ssl.transport.keystore_filepath", getAbsoluteFilePathFromClassPath("node-0-keystore.jks"))
-                .put("searchguard.ssl.transport.truststore_filepath", getAbsoluteFilePathFromClassPath("truststore.jks"))
-                .put("searchguard.ssl.transport.enforce_hostname_verification", false)
-                .put("searchguard.ssl.transport.resolve_hostname", false)
+        final Settings settings = Settings.builder().put("opendistrosecurity.ssl.transport.enabled", true)
+                .put(SSLConfigConstants.OPENDISTROSECURITY_SSL_HTTP_ENABLE_OPENSSL_IF_AVAILABLE, allowOpenSSL)
+                .put(SSLConfigConstants.OPENDISTROSECURITY_SSL_TRANSPORT_ENABLE_OPENSSL_IF_AVAILABLE, allowOpenSSL)
+                .put(SSLConfigConstants.OPENDISTROSECURITY_SSL_TRANSPORT_KEYSTORE_ALIAS, "node-0")
+                .put(SSLConfigConstants.OPENDISTROSECURITY_SSL_HTTP_KEYSTORE_ALIAS, "node-0")
+                .put("opendistrosecurity.ssl.transport.keystore_filepath", getAbsoluteFilePathFromClassPath("node-0-keystore.jks"))
+                .put("opendistrosecurity.ssl.transport.truststore_filepath", getAbsoluteFilePathFromClassPath("truststore.jks"))
+                .put("opendistrosecurity.ssl.transport.enforce_hostname_verification", false)
+                .put("opendistrosecurity.ssl.transport.resolve_hostname", false)
 
-                .put("searchguard.ssl.http.enabled", true).put("searchguard.ssl.http.clientauth_mode", "REQUIRE")
-                .put("searchguard.ssl.http.keystore_filepath", getAbsoluteFilePathFromClassPath("node-0-keystore.jks"))
-                .put("searchguard.ssl.http.truststore_filepath", getAbsoluteFilePathFromClassPath("truststore.jks"))
+                .put("opendistrosecurity.ssl.http.enabled", true).put("opendistrosecurity.ssl.http.clientauth_mode", "REQUIRE")
+                .put("opendistrosecurity.ssl.http.keystore_filepath", getAbsoluteFilePathFromClassPath("node-0-keystore.jks"))
+                .put("opendistrosecurity.ssl.http.truststore_filepath", getAbsoluteFilePathFromClassPath("truststore.jks"))
       
-                .put("searchguard.ssl.transport.enabled_ciphers","INVALID_CIPHER")
+                .put("opendistrosecurity.ssl.transport.enabled_ciphers","INVALID_CIPHER")
                 
                 .build();
 
@@ -374,13 +374,13 @@ public class SSLTest extends AbstractUnitTest {
         trustHTTPServerCertificate = true;
         sendHTTPClientCertificate = false;
 
-        final Settings settings = Settings.builder().put("searchguard.ssl.transport.enabled", false)
-                .put(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_ENABLE_OPENSSL_IF_AVAILABLE, allowOpenSSL)
-                .put(SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_ENABLE_OPENSSL_IF_AVAILABLE, allowOpenSSL)
-                .put(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_KEYSTORE_ALIAS, "node-0").put("searchguard.ssl.http.enabled", true)
-                .put("searchguard.ssl.http.clientauth_mode", "OPTIONAL")
-                .put("searchguard.ssl.http.keystore_filepath", getAbsoluteFilePathFromClassPath("node-0-keystore.jks"))
-                .put("searchguard.ssl.http.truststore_filepath", getAbsoluteFilePathFromClassPath("truststore.jks")).build();
+        final Settings settings = Settings.builder().put("opendistrosecurity.ssl.transport.enabled", false)
+                .put(SSLConfigConstants.OPENDISTROSECURITY_SSL_HTTP_ENABLE_OPENSSL_IF_AVAILABLE, allowOpenSSL)
+                .put(SSLConfigConstants.OPENDISTROSECURITY_SSL_TRANSPORT_ENABLE_OPENSSL_IF_AVAILABLE, allowOpenSSL)
+                .put(SSLConfigConstants.OPENDISTROSECURITY_SSL_HTTP_KEYSTORE_ALIAS, "node-0").put("opendistrosecurity.ssl.http.enabled", true)
+                .put("opendistrosecurity.ssl.http.clientauth_mode", "OPTIONAL")
+                .put("opendistrosecurity.ssl.http.keystore_filepath", getAbsoluteFilePathFromClassPath("node-0-keystore.jks"))
+                .put("opendistrosecurity.ssl.http.truststore_filepath", getAbsoluteFilePathFromClassPath("truststore.jks")).build();
 
         startES(settings);
         Assert.assertTrue(executeSimpleRequest("_searchguard/sslinfo?pretty").length() > 0);
@@ -395,13 +395,13 @@ public class SSLTest extends AbstractUnitTest {
         trustHTTPServerCertificate = true;
         sendHTTPClientCertificate = false;
 
-        final Settings settings = Settings.builder().put("searchguard.ssl.transport.enabled", false)
-                .put(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_ENABLE_OPENSSL_IF_AVAILABLE, allowOpenSSL)
-                .put(SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_ENABLE_OPENSSL_IF_AVAILABLE, allowOpenSSL)
-                .put(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_KEYSTORE_ALIAS, "node-0").put("searchguard.ssl.http.enabled", true)
-                .put("searchguard.ssl.http.clientauth_mode", "NONE")
-                .put("searchguard.ssl.http.keystore_filepath", getAbsoluteFilePathFromClassPath("node-0-keystore.jks"))
-                .put("searchguard.ssl.http.truststore_filepath", getAbsoluteFilePathFromClassPath("truststore.jks")).build();
+        final Settings settings = Settings.builder().put("opendistrosecurity.ssl.transport.enabled", false)
+                .put(SSLConfigConstants.OPENDISTROSECURITY_SSL_HTTP_ENABLE_OPENSSL_IF_AVAILABLE, allowOpenSSL)
+                .put(SSLConfigConstants.OPENDISTROSECURITY_SSL_TRANSPORT_ENABLE_OPENSSL_IF_AVAILABLE, allowOpenSSL)
+                .put(SSLConfigConstants.OPENDISTROSECURITY_SSL_HTTP_KEYSTORE_ALIAS, "node-0").put("opendistrosecurity.ssl.http.enabled", true)
+                .put("opendistrosecurity.ssl.http.clientauth_mode", "NONE")
+                .put("opendistrosecurity.ssl.http.keystore_filepath", getAbsoluteFilePathFromClassPath("node-0-keystore.jks"))
+                .put("opendistrosecurity.ssl.http.truststore_filepath", getAbsoluteFilePathFromClassPath("truststore.jks")).build();
 
         startES(settings);
         Assert.assertTrue(executeSimpleRequest("_searchguard/sslinfo?pretty").length() > 0);
@@ -416,13 +416,13 @@ public class SSLTest extends AbstractUnitTest {
         trustHTTPServerCertificate = true;
         sendHTTPClientCertificate = false;
 
-        final Settings settings = Settings.builder().put("searchguard.ssl.transport.enabled", false)
-                .put(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_ENABLE_OPENSSL_IF_AVAILABLE, allowOpenSSL)
-                .put(SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_ENABLE_OPENSSL_IF_AVAILABLE, allowOpenSSL)
-                .put(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_KEYSTORE_ALIAS, "node-0").put("searchguard.ssl.http.enabled", true)
-                .put("searchguard.ssl.http.clientauth_mode", "REQUIRE")
-                .put("searchguard.ssl.http.keystore_filepath", getAbsoluteFilePathFromClassPath("node-0-keystore.jks"))
-                .put("searchguard.ssl.http.truststore_filepath", getAbsoluteFilePathFromClassPath("truststore.jks")).build();
+        final Settings settings = Settings.builder().put("opendistrosecurity.ssl.transport.enabled", false)
+                .put(SSLConfigConstants.OPENDISTROSECURITY_SSL_HTTP_ENABLE_OPENSSL_IF_AVAILABLE, allowOpenSSL)
+                .put(SSLConfigConstants.OPENDISTROSECURITY_SSL_TRANSPORT_ENABLE_OPENSSL_IF_AVAILABLE, allowOpenSSL)
+                .put(SSLConfigConstants.OPENDISTROSECURITY_SSL_HTTP_KEYSTORE_ALIAS, "node-0").put("opendistrosecurity.ssl.http.enabled", true)
+                .put("opendistrosecurity.ssl.http.clientauth_mode", "REQUIRE")
+                .put("opendistrosecurity.ssl.http.keystore_filepath", getAbsoluteFilePathFromClassPath("node-0-keystore.jks"))
+                .put("opendistrosecurity.ssl.http.truststore_filepath", getAbsoluteFilePathFromClassPath("truststore.jks")).build();
 
         startES(settings);
         try {
@@ -446,13 +446,13 @@ public class SSLTest extends AbstractUnitTest {
         sendHTTPClientCertificate = false;
         enableHTTPClientSSLv3Only = true;
 
-        final Settings settings = Settings.builder().put("searchguard.ssl.transport.enabled", false)
-                .put(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_ENABLE_OPENSSL_IF_AVAILABLE, allowOpenSSL)
-                .put(SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_ENABLE_OPENSSL_IF_AVAILABLE, allowOpenSSL)
-                .put(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_KEYSTORE_ALIAS, "node-0").put("searchguard.ssl.http.enabled", true)
-                .put("searchguard.ssl.http.clientauth_mode", "NONE")
-                .put("searchguard.ssl.http.keystore_filepath", getAbsoluteFilePathFromClassPath("node-0-keystore.jks"))
-                .put("searchguard.ssl.http.truststore_filepath", getAbsoluteFilePathFromClassPath("truststore.jks")).build();
+        final Settings settings = Settings.builder().put("opendistrosecurity.ssl.transport.enabled", false)
+                .put(SSLConfigConstants.OPENDISTROSECURITY_SSL_HTTP_ENABLE_OPENSSL_IF_AVAILABLE, allowOpenSSL)
+                .put(SSLConfigConstants.OPENDISTROSECURITY_SSL_TRANSPORT_ENABLE_OPENSSL_IF_AVAILABLE, allowOpenSSL)
+                .put(SSLConfigConstants.OPENDISTROSECURITY_SSL_HTTP_KEYSTORE_ALIAS, "node-0").put("opendistrosecurity.ssl.http.enabled", true)
+                .put("opendistrosecurity.ssl.http.clientauth_mode", "NONE")
+                .put("opendistrosecurity.ssl.http.keystore_filepath", getAbsoluteFilePathFromClassPath("node-0-keystore.jks"))
+                .put("opendistrosecurity.ssl.http.truststore_filepath", getAbsoluteFilePathFromClassPath("truststore.jks")).build();
 
         startES(settings);
         Assert.assertTrue(executeSimpleRequest("_searchguard/sslinfo?pretty").length() > 0);
@@ -463,14 +463,14 @@ public class SSLTest extends AbstractUnitTest {
     @Test
     public void testTransportClientSSL() throws Exception {
 
-        final Settings settings = Settings.builder().put("searchguard.ssl.transport.enabled", true)
-                .put(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_ENABLE_OPENSSL_IF_AVAILABLE, allowOpenSSL)
-                .put(SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_ENABLE_OPENSSL_IF_AVAILABLE, allowOpenSSL)
-                .put(SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_KEYSTORE_ALIAS, "node-0")
-                .put("searchguard.ssl.transport.keystore_filepath", getAbsoluteFilePathFromClassPath("node-0-keystore.jks"))
-                .put("searchguard.ssl.transport.truststore_filepath", getAbsoluteFilePathFromClassPath("truststore.jks"))
-                .put("searchguard.ssl.transport.enforce_hostname_verification", false)
-                .put("searchguard.ssl.transport.resolve_hostname", false).build();
+        final Settings settings = Settings.builder().put("opendistrosecurity.ssl.transport.enabled", true)
+                .put(SSLConfigConstants.OPENDISTROSECURITY_SSL_HTTP_ENABLE_OPENSSL_IF_AVAILABLE, allowOpenSSL)
+                .put(SSLConfigConstants.OPENDISTROSECURITY_SSL_TRANSPORT_ENABLE_OPENSSL_IF_AVAILABLE, allowOpenSSL)
+                .put(SSLConfigConstants.OPENDISTROSECURITY_SSL_TRANSPORT_KEYSTORE_ALIAS, "node-0")
+                .put("opendistrosecurity.ssl.transport.keystore_filepath", getAbsoluteFilePathFromClassPath("node-0-keystore.jks"))
+                .put("opendistrosecurity.ssl.transport.truststore_filepath", getAbsoluteFilePathFromClassPath("truststore.jks"))
+                .put("opendistrosecurity.ssl.transport.enforce_hostname_verification", false)
+                .put("opendistrosecurity.ssl.transport.resolve_hostname", false).build();
 
         startES(settings);
         
@@ -499,14 +499,14 @@ public class SSLTest extends AbstractUnitTest {
     @Test
     public void testTransportClientSSLExternalContext() throws Exception {
 
-        final Settings settings = Settings.builder().put("searchguard.ssl.transport.enabled", true)
-                .put(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_ENABLE_OPENSSL_IF_AVAILABLE, allowOpenSSL)
-                .put(SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_ENABLE_OPENSSL_IF_AVAILABLE, allowOpenSSL)
-                .put(SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_KEYSTORE_ALIAS, "node-0")
-                .put("searchguard.ssl.transport.keystore_filepath", getAbsoluteFilePathFromClassPath("node-0-keystore.jks"))
-                .put("searchguard.ssl.transport.truststore_filepath", getAbsoluteFilePathFromClassPath("truststore.jks"))
-                .put("searchguard.ssl.transport.enforce_hostname_verification", false)
-                .put("searchguard.ssl.transport.resolve_hostname", false).build();
+        final Settings settings = Settings.builder().put("opendistrosecurity.ssl.transport.enabled", true)
+                .put(SSLConfigConstants.OPENDISTROSECURITY_SSL_HTTP_ENABLE_OPENSSL_IF_AVAILABLE, allowOpenSSL)
+                .put(SSLConfigConstants.OPENDISTROSECURITY_SSL_TRANSPORT_ENABLE_OPENSSL_IF_AVAILABLE, allowOpenSSL)
+                .put(SSLConfigConstants.OPENDISTROSECURITY_SSL_TRANSPORT_KEYSTORE_ALIAS, "node-0")
+                .put("opendistrosecurity.ssl.transport.keystore_filepath", getAbsoluteFilePathFromClassPath("node-0-keystore.jks"))
+                .put("opendistrosecurity.ssl.transport.truststore_filepath", getAbsoluteFilePathFromClassPath("truststore.jks"))
+                .put("opendistrosecurity.ssl.transport.enforce_hostname_verification", false)
+                .put("opendistrosecurity.ssl.transport.resolve_hostname", false).build();
 
         startES(settings);
         
@@ -515,7 +515,7 @@ public class SSLTest extends AbstractUnitTest {
         final Settings tcSettings = Settings.builder()
                 .put("cluster.name", clustername)
                 .put("path.home", ".")
-                .put("searchguard.ssl.client.external_context_id", "abcx")
+                .put("opendistrosecurity.ssl.client.external_context_id", "abcx")
                 .build();
 
         final TrustManagerFactory tmf = TrustManagerFactory.getInstance(TrustManagerFactory
@@ -565,14 +565,14 @@ public class SSLTest extends AbstractUnitTest {
     @Test
     public void testNodeClientSSL() throws Exception {
 
-        final Settings settings = Settings.builder().put("searchguard.ssl.transport.enabled", true)
-                .put(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_ENABLE_OPENSSL_IF_AVAILABLE, allowOpenSSL)
-                .put(SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_ENABLE_OPENSSL_IF_AVAILABLE, allowOpenSSL)
-                .put(SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_KEYSTORE_ALIAS, "node-0")
-                .put("searchguard.ssl.transport.keystore_filepath", getAbsoluteFilePathFromClassPath("node-0-keystore.jks"))
-                .put("searchguard.ssl.transport.truststore_filepath", getAbsoluteFilePathFromClassPath("truststore.jks"))
-                .put("searchguard.ssl.transport.enforce_hostname_verification", false)
-                .put("searchguard.ssl.transport.resolve_hostname", false)
+        final Settings settings = Settings.builder().put("opendistrosecurity.ssl.transport.enabled", true)
+                .put(SSLConfigConstants.OPENDISTROSECURITY_SSL_HTTP_ENABLE_OPENSSL_IF_AVAILABLE, allowOpenSSL)
+                .put(SSLConfigConstants.OPENDISTROSECURITY_SSL_TRANSPORT_ENABLE_OPENSSL_IF_AVAILABLE, allowOpenSSL)
+                .put(SSLConfigConstants.OPENDISTROSECURITY_SSL_TRANSPORT_KEYSTORE_ALIAS, "node-0")
+                .put("opendistrosecurity.ssl.transport.keystore_filepath", getAbsoluteFilePathFromClassPath("node-0-keystore.jks"))
+                .put("opendistrosecurity.ssl.transport.truststore_filepath", getAbsoluteFilePathFromClassPath("truststore.jks"))
+                .put("opendistrosecurity.ssl.transport.enforce_hostname_verification", false)
+                .put("opendistrosecurity.ssl.transport.resolve_hostname", false)
                 .build();
 
         startES(settings);      
@@ -599,23 +599,23 @@ public class SSLTest extends AbstractUnitTest {
     public void testTransportClientSSLFail() throws Exception {
         thrown.expect(NoNodeAvailableException.class);
 
-        final Settings settings = Settings.builder().put("searchguard.ssl.transport.enabled", true)
-                .put(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_ENABLE_OPENSSL_IF_AVAILABLE, allowOpenSSL)
-                .put(SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_ENABLE_OPENSSL_IF_AVAILABLE, allowOpenSSL)
-                .put(SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_KEYSTORE_ALIAS, "node-0")
-                .put("searchguard.ssl.transport.keystore_filepath", getAbsoluteFilePathFromClassPath("node-0-keystore.jks"))
-                .put("searchguard.ssl.transport.truststore_filepath", getAbsoluteFilePathFromClassPath("truststore.jks"))
-                .put("searchguard.ssl.transport.enforce_hostname_verification", false)
-                .put("searchguard.ssl.transport.resolve_hostname", false).build();
+        final Settings settings = Settings.builder().put("opendistrosecurity.ssl.transport.enabled", true)
+                .put(SSLConfigConstants.OPENDISTROSECURITY_SSL_HTTP_ENABLE_OPENSSL_IF_AVAILABLE, allowOpenSSL)
+                .put(SSLConfigConstants.OPENDISTROSECURITY_SSL_TRANSPORT_ENABLE_OPENSSL_IF_AVAILABLE, allowOpenSSL)
+                .put(SSLConfigConstants.OPENDISTROSECURITY_SSL_TRANSPORT_KEYSTORE_ALIAS, "node-0")
+                .put("opendistrosecurity.ssl.transport.keystore_filepath", getAbsoluteFilePathFromClassPath("node-0-keystore.jks"))
+                .put("opendistrosecurity.ssl.transport.truststore_filepath", getAbsoluteFilePathFromClassPath("truststore.jks"))
+                .put("opendistrosecurity.ssl.transport.enforce_hostname_verification", false)
+                .put("opendistrosecurity.ssl.transport.resolve_hostname", false).build();
 
         startES(settings);
 
         final Settings tcSettings = Settings.builder().put("cluster.name", clustername)
                 .put("path.home", getAbsoluteFilePathFromClassPath("node-0-keystore.jks").getParent())
-                .put("searchguard.ssl.transport.keystore_filepath", getAbsoluteFilePathFromClassPath("node-0-keystore.jks"))
-                .put("searchguard.ssl.transport.truststore_filepath", getAbsoluteFilePathFromClassPath("truststore_fail.jks"))
-                .put("searchguard.ssl.transport.enforce_hostname_verification", false)
-                .put("searchguard.ssl.transport.resolve_hostname", false).build();
+                .put("opendistrosecurity.ssl.transport.keystore_filepath", getAbsoluteFilePathFromClassPath("node-0-keystore.jks"))
+                .put("opendistrosecurity.ssl.transport.truststore_filepath", getAbsoluteFilePathFromClassPath("truststore_fail.jks"))
+                .put("opendistrosecurity.ssl.transport.enforce_hostname_verification", false)
+                .put("opendistrosecurity.ssl.transport.resolve_hostname", false).build();
 
         try (TransportClient tc = new TransportClientImpl(tcSettings, asCollection(OpenDistroSecuritySSLPlugin.class))) {
             tc.addTransportAddress(new TransportAddress(new InetSocketAddress(nodeHost, nodePort)));
@@ -660,19 +660,19 @@ public class SSLTest extends AbstractUnitTest {
         trustHTTPServerCertificate = true;
         sendHTTPClientCertificate = true;
         
-        final Settings settings = Settings.builder().put("searchguard.ssl.transport.enabled", true)
-                .put(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_ENABLE_OPENSSL_IF_AVAILABLE, allowOpenSSL)
-                .put(SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_ENABLE_OPENSSL_IF_AVAILABLE, allowOpenSSL)
-                .put(SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_KEYSTORE_ALIAS, "node-0")
-                .put("searchguard.ssl.transport.keystore_filepath", getAbsoluteFilePathFromClassPath("node-0-keystore.jks"))
-                .put("searchguard.ssl.transport.truststore_filepath", getAbsoluteFilePathFromClassPath("truststore.jks"))
-                .put("searchguard.ssl.transport.enforce_hostname_verification", false)
-                .put("searchguard.ssl.transport.resolve_hostname", false)
-                .put("searchguard.ssl.transport.principal_extractor_class", "com.amazon.opendistrosecurity.ssl.TestPrincipalExtractor")
-                .put(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_KEYSTORE_ALIAS, "node-0")
-                .put("searchguard.ssl.http.enabled", true)
-                .put("searchguard.ssl.http.keystore_filepath", getAbsoluteFilePathFromClassPath("node-0-keystore.jks"))
-                .put("searchguard.ssl.http.truststore_filepath", getAbsoluteFilePathFromClassPath("truststore.jks")).build();
+        final Settings settings = Settings.builder().put("opendistrosecurity.ssl.transport.enabled", true)
+                .put(SSLConfigConstants.OPENDISTROSECURITY_SSL_HTTP_ENABLE_OPENSSL_IF_AVAILABLE, allowOpenSSL)
+                .put(SSLConfigConstants.OPENDISTROSECURITY_SSL_TRANSPORT_ENABLE_OPENSSL_IF_AVAILABLE, allowOpenSSL)
+                .put(SSLConfigConstants.OPENDISTROSECURITY_SSL_TRANSPORT_KEYSTORE_ALIAS, "node-0")
+                .put("opendistrosecurity.ssl.transport.keystore_filepath", getAbsoluteFilePathFromClassPath("node-0-keystore.jks"))
+                .put("opendistrosecurity.ssl.transport.truststore_filepath", getAbsoluteFilePathFromClassPath("truststore.jks"))
+                .put("opendistrosecurity.ssl.transport.enforce_hostname_verification", false)
+                .put("opendistrosecurity.ssl.transport.resolve_hostname", false)
+                .put("opendistrosecurity.ssl.transport.principal_extractor_class", "com.amazon.opendistrosecurity.ssl.TestPrincipalExtractor")
+                .put(SSLConfigConstants.OPENDISTROSECURITY_SSL_HTTP_KEYSTORE_ALIAS, "node-0")
+                .put("opendistrosecurity.ssl.http.enabled", true)
+                .put("opendistrosecurity.ssl.http.keystore_filepath", getAbsoluteFilePathFromClassPath("node-0-keystore.jks"))
+                .put("opendistrosecurity.ssl.http.truststore_filepath", getAbsoluteFilePathFromClassPath("truststore.jks")).build();
 
         startES(settings);
         
@@ -712,24 +712,24 @@ public class SSLTest extends AbstractUnitTest {
         trustHTTPServerCertificate = true;
         sendHTTPClientCertificate = true;
 
-        final Settings settings = Settings.builder().put("searchguard.ssl.transport.enabled", true)
-                .put(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_ENABLE_OPENSSL_IF_AVAILABLE, allowOpenSSL)
-                .put(SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_ENABLE_OPENSSL_IF_AVAILABLE, allowOpenSSL)
-                .put(SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_PEMCERT_FILEPATH, getAbsoluteFilePathFromClassPath("node-0.crt.pem"))
-                .put(SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_PEMKEY_FILEPATH, getAbsoluteFilePathFromClassPath("node-0.key.pem"))
-                //.put(SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_PEMKEY_PASSWORD, "changeit")
-                .put(SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_PEMTRUSTEDCAS_FILEPATH, getAbsoluteFilePathFromClassPath("root-ca.pem"))
-                .put("searchguard.ssl.transport.enforce_hostname_verification", false)
-                .put("searchguard.ssl.transport.resolve_hostname", false)
+        final Settings settings = Settings.builder().put("opendistrosecurity.ssl.transport.enabled", true)
+                .put(SSLConfigConstants.OPENDISTROSECURITY_SSL_HTTP_ENABLE_OPENSSL_IF_AVAILABLE, allowOpenSSL)
+                .put(SSLConfigConstants.OPENDISTROSECURITY_SSL_TRANSPORT_ENABLE_OPENSSL_IF_AVAILABLE, allowOpenSSL)
+                .put(SSLConfigConstants.OPENDISTROSECURITY_SSL_TRANSPORT_PEMCERT_FILEPATH, getAbsoluteFilePathFromClassPath("node-0.crt.pem"))
+                .put(SSLConfigConstants.OPENDISTROSECURITY_SSL_TRANSPORT_PEMKEY_FILEPATH, getAbsoluteFilePathFromClassPath("node-0.key.pem"))
+                //.put(SSLConfigConstants.OPENDISTROSECURITY_SSL_TRANSPORT_PEMKEY_PASSWORD, "changeit")
+                .put(SSLConfigConstants.OPENDISTROSECURITY_SSL_TRANSPORT_PEMTRUSTEDCAS_FILEPATH, getAbsoluteFilePathFromClassPath("root-ca.pem"))
+                .put("opendistrosecurity.ssl.transport.enforce_hostname_verification", false)
+                .put("opendistrosecurity.ssl.transport.resolve_hostname", false)
 
-                .put("searchguard.ssl.http.enabled", true)
-                .put("searchguard.ssl.http.clientauth_mode", "REQUIRE")
-                .put(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_PEMCERT_FILEPATH, getAbsoluteFilePathFromClassPath("node-0.crt.pem"))
-                .put(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_PEMKEY_FILEPATH, getAbsoluteFilePathFromClassPath("node-0.key.pem"))
-                //.put(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_PEMKEY_PASSWORD, "changeit")
-                .put(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_PEMTRUSTEDCAS_FILEPATH, getAbsoluteFilePathFromClassPath("chain-ca.pem"))
-                .put(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_CRL_VALIDATE, true)
-                .put(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_CRL_VALIDATION_DATE, CertificateValidatorTest.CRL_DATE.getTime())
+                .put("opendistrosecurity.ssl.http.enabled", true)
+                .put("opendistrosecurity.ssl.http.clientauth_mode", "REQUIRE")
+                .put(SSLConfigConstants.OPENDISTROSECURITY_SSL_HTTP_PEMCERT_FILEPATH, getAbsoluteFilePathFromClassPath("node-0.crt.pem"))
+                .put(SSLConfigConstants.OPENDISTROSECURITY_SSL_HTTP_PEMKEY_FILEPATH, getAbsoluteFilePathFromClassPath("node-0.key.pem"))
+                //.put(SSLConfigConstants.OPENDISTROSECURITY_SSL_HTTP_PEMKEY_PASSWORD, "changeit")
+                .put(SSLConfigConstants.OPENDISTROSECURITY_SSL_HTTP_PEMTRUSTEDCAS_FILEPATH, getAbsoluteFilePathFromClassPath("chain-ca.pem"))
+                .put(SSLConfigConstants.OPENDISTROSECURITY_SSL_HTTP_CRL_VALIDATE, true)
+                .put(SSLConfigConstants.OPENDISTROSECURITY_SSL_HTTP_CRL_VALIDATION_DATE, CertificateValidatorTest.CRL_DATE.getTime())
                 .build();
 
         startES(settings);
@@ -743,16 +743,16 @@ public class SSLTest extends AbstractUnitTest {
         trustHTTPServerCertificate = true;
         sendHTTPClientCertificate = true;
 
-        final Settings settings = Settings.builder().put("searchguard.ssl.transport.enabled", false)
-                .put(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_KEYSTORE_ALIAS, "node-0").put("searchguard.ssl.http.enabled", true)
-                .put(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_ENABLE_OPENSSL_IF_AVAILABLE, allowOpenSSL)
-                .put(SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_ENABLE_OPENSSL_IF_AVAILABLE, allowOpenSSL)
-                .put("searchguard.ssl.http.clientauth_mode", "REQUIRE")
-                .put("searchguard.ssl.http.keystore_filepath", getAbsoluteFilePathFromClassPath("node-0-keystore.jks"))
-                .put("searchguard.ssl.http.truststore_filepath", getAbsoluteFilePathFromClassPath("truststore.jks"))
-                .put(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_CRL_VALIDATE, true)
-                .put(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_CRL_FILE, getAbsoluteFilePathFromClassPath("crl/revoked.crl"))
-                .put(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_CRL_VALIDATION_DATE, CertificateValidatorTest.CRL_DATE.getTime())
+        final Settings settings = Settings.builder().put("opendistrosecurity.ssl.transport.enabled", false)
+                .put(SSLConfigConstants.OPENDISTROSECURITY_SSL_HTTP_KEYSTORE_ALIAS, "node-0").put("opendistrosecurity.ssl.http.enabled", true)
+                .put(SSLConfigConstants.OPENDISTROSECURITY_SSL_HTTP_ENABLE_OPENSSL_IF_AVAILABLE, allowOpenSSL)
+                .put(SSLConfigConstants.OPENDISTROSECURITY_SSL_TRANSPORT_ENABLE_OPENSSL_IF_AVAILABLE, allowOpenSSL)
+                .put("opendistrosecurity.ssl.http.clientauth_mode", "REQUIRE")
+                .put("opendistrosecurity.ssl.http.keystore_filepath", getAbsoluteFilePathFromClassPath("node-0-keystore.jks"))
+                .put("opendistrosecurity.ssl.http.truststore_filepath", getAbsoluteFilePathFromClassPath("truststore.jks"))
+                .put(SSLConfigConstants.OPENDISTROSECURITY_SSL_HTTP_CRL_VALIDATE, true)
+                .put(SSLConfigConstants.OPENDISTROSECURITY_SSL_HTTP_CRL_FILE, getAbsoluteFilePathFromClassPath("crl/revoked.crl"))
+                .put(SSLConfigConstants.OPENDISTROSECURITY_SSL_HTTP_CRL_VALIDATION_DATE, CertificateValidatorTest.CRL_DATE.getTime())
                 .build();
 
         startES(settings);
@@ -767,16 +767,16 @@ public class SSLTest extends AbstractUnitTest {
         //Java TLS 1.3 is available since Java 11
         Assume.assumeTrue(!allowOpenSSL && PlatformDependent.javaVersion() >= 11);
 
-        final Settings settings = Settings.builder().put("searchguard.ssl.transport.enabled", true)
-                .put(SSLConfigConstants.SEARCHGUARD_SSL_HTTP_ENABLE_OPENSSL_IF_AVAILABLE, allowOpenSSL)
-                .put(SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_ENABLE_OPENSSL_IF_AVAILABLE, allowOpenSSL)
-                .put(SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_KEYSTORE_ALIAS, "node-0")
-                .put("searchguard.ssl.transport.keystore_filepath", getAbsoluteFilePathFromClassPath("node-0-keystore.jks"))
-                .put("searchguard.ssl.transport.truststore_filepath", getAbsoluteFilePathFromClassPath("truststore.jks"))
-                .put("searchguard.ssl.transport.enforce_hostname_verification", false)
-                .put("searchguard.ssl.transport.resolve_hostname", false)
-                .putList(SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_ENABLED_PROTOCOLS, "TLSv1.3")
-                .putList(SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_ENABLED_CIPHERS, "TLS_AES_128_GCM_SHA256")
+        final Settings settings = Settings.builder().put("opendistrosecurity.ssl.transport.enabled", true)
+                .put(SSLConfigConstants.OPENDISTROSECURITY_SSL_HTTP_ENABLE_OPENSSL_IF_AVAILABLE, allowOpenSSL)
+                .put(SSLConfigConstants.OPENDISTROSECURITY_SSL_TRANSPORT_ENABLE_OPENSSL_IF_AVAILABLE, allowOpenSSL)
+                .put(SSLConfigConstants.OPENDISTROSECURITY_SSL_TRANSPORT_KEYSTORE_ALIAS, "node-0")
+                .put("opendistrosecurity.ssl.transport.keystore_filepath", getAbsoluteFilePathFromClassPath("node-0-keystore.jks"))
+                .put("opendistrosecurity.ssl.transport.truststore_filepath", getAbsoluteFilePathFromClassPath("truststore.jks"))
+                .put("opendistrosecurity.ssl.transport.enforce_hostname_verification", false)
+                .put("opendistrosecurity.ssl.transport.resolve_hostname", false)
+                .putList(SSLConfigConstants.OPENDISTROSECURITY_SSL_TRANSPORT_ENABLED_PROTOCOLS, "TLSv1.3")
+                .putList(SSLConfigConstants.OPENDISTROSECURITY_SSL_TRANSPORT_ENABLED_CIPHERS, "TLS_AES_128_GCM_SHA256")
                 .build();
 
         startES(settings);      

@@ -28,14 +28,14 @@ else
 fi
 
 
-echo "searchguard.ssl.transport.enabled: true" > elasticsearch-$ES_VERSION/config/elasticsearch.yml
-echo "searchguard.ssl.transport.keystore_filepath: node-0-keystore.jks" >> elasticsearch-$ES_VERSION/config/elasticsearch.yml
-echo "searchguard.ssl.transport.truststore_filepath: truststore.jks" >> elasticsearch-$ES_VERSION/config/elasticsearch.yml
-echo "searchguard.ssl.transport.enforce_hostname_verification: false" >> elasticsearch-$ES_VERSION/config/elasticsearch.yml
+echo "opendistrosecurity.ssl.transport.enabled: true" > elasticsearch-$ES_VERSION/config/elasticsearch.yml
+echo "opendistrosecurity.ssl.transport.keystore_filepath: node-0-keystore.jks" >> elasticsearch-$ES_VERSION/config/elasticsearch.yml
+echo "opendistrosecurity.ssl.transport.truststore_filepath: truststore.jks" >> elasticsearch-$ES_VERSION/config/elasticsearch.yml
+echo "opendistrosecurity.ssl.transport.enforce_hostname_verification: false" >> elasticsearch-$ES_VERSION/config/elasticsearch.yml
 
-echo "searchguard.ssl.http.enabled: true" >> elasticsearch-$ES_VERSION/config/elasticsearch.yml
-echo "searchguard.ssl.http.keystore_filepath: node-0-keystore.jks" >> elasticsearch-$ES_VERSION/config/elasticsearch.yml
-echo "searchguard.ssl.http.truststore_filepath: truststore.jks" >> elasticsearch-$ES_VERSION/config/elasticsearch.yml
+echo "opendistrosecurity.ssl.http.enabled: true" >> elasticsearch-$ES_VERSION/config/elasticsearch.yml
+echo "opendistrosecurity.ssl.http.keystore_filepath: node-0-keystore.jks" >> elasticsearch-$ES_VERSION/config/elasticsearch.yml
+echo "opendistrosecurity.ssl.http.truststore_filepath: truststore.jks" >> elasticsearch-$ES_VERSION/config/elasticsearch.yml
 echo "xpack.security.enabled: false" >> elasticsearch-$ES_VERSION/config/elasticsearch.yml
 
 
