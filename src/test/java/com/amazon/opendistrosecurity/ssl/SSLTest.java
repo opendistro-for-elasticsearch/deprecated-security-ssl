@@ -97,15 +97,15 @@ public class SSLTest extends AbstractUnitTest {
 
         startES(settings);
 
-        System.out.println(executeSimpleRequest("_searchguard/sslinfo?pretty&show_dn=true"));
-        Assert.assertTrue(executeSimpleRequest("_searchguard/sslinfo?pretty&show_dn=true").contains("EMAILADDRESS=unt@tst.com"));
-        Assert.assertTrue(executeSimpleRequest("_searchguard/sslinfo?pretty&show_dn=true").contains("local_certificates_list"));
-        Assert.assertFalse(executeSimpleRequest("_searchguard/sslinfo?pretty&show_dn=false").contains("local_certificates_list"));
-        Assert.assertFalse(executeSimpleRequest("_searchguard/sslinfo?pretty").contains("local_certificates_list"));
+        System.out.println(executeSimpleRequest("_opendistrosecurity/sslinfo?pretty&show_dn=true"));
+        Assert.assertTrue(executeSimpleRequest("_opendistrosecurity/sslinfo?pretty&show_dn=true").contains("EMAILADDRESS=unt@tst.com"));
+        Assert.assertTrue(executeSimpleRequest("_opendistrosecurity/sslinfo?pretty&show_dn=true").contains("local_certificates_list"));
+        Assert.assertFalse(executeSimpleRequest("_opendistrosecurity/sslinfo?pretty&show_dn=false").contains("local_certificates_list"));
+        Assert.assertFalse(executeSimpleRequest("_opendistrosecurity/sslinfo?pretty").contains("local_certificates_list"));
         Assert.assertTrue(executeSimpleRequest("_nodes/settings?pretty").contains(clustername));
         Assert.assertFalse(executeSimpleRequest("_nodes/settings?pretty").contains("\"searchguard\""));
         Assert.assertFalse(executeSimpleRequest("_nodes/settings?pretty").contains("keystore_filepath"));
-        //Assert.assertTrue(executeSimpleRequest("_searchguard/sslinfo?pretty").contains("CN=node-0.example.com,OU=SSL,O=Test,L=Test,C=DE"));
+        //Assert.assertTrue(executeSimpleRequest("_opendistrosecurity/sslinfo?pretty").contains("CN=node-0.example.com,OU=SSL,O=Test,L=Test,C=DE"));
 
     }
     
@@ -216,11 +216,11 @@ public class SSLTest extends AbstractUnitTest {
 
         startES(settings);
 
-        System.out.println(executeSimpleRequest("_searchguard/sslinfo?pretty"));
-        Assert.assertTrue(executeSimpleRequest("_searchguard/sslinfo?pretty").contains("TLS"));
+        System.out.println(executeSimpleRequest("_opendistrosecurity/sslinfo?pretty"));
+        Assert.assertTrue(executeSimpleRequest("_opendistrosecurity/sslinfo?pretty").contains("TLS"));
         Assert.assertTrue(executeSimpleRequest("_nodes/settings?pretty").contains(clustername));
         Assert.assertFalse(executeSimpleRequest("_nodes/settings?pretty").contains("\"searchguard\""));
-        Assert.assertTrue(executeSimpleRequest("_searchguard/sslinfo?pretty").contains("CN=node-0.example.com,OU=SSL,O=Test,L=Test,C=DE"));
+        Assert.assertTrue(executeSimpleRequest("_opendistrosecurity/sslinfo?pretty").contains("CN=node-0.example.com,OU=SSL,O=Test,L=Test,C=DE"));
     }
     
     @Test
@@ -247,11 +247,11 @@ public class SSLTest extends AbstractUnitTest {
                 .build();
 
         startES(settings);
-        System.out.println(executeSimpleRequest("_searchguard/sslinfo?pretty"));
-        Assert.assertTrue(executeSimpleRequest("_searchguard/sslinfo?pretty").contains("TLS"));
-        Assert.assertTrue(executeSimpleRequest("_searchguard/sslinfo?pretty").length() > 0);
+        System.out.println(executeSimpleRequest("_opendistrosecurity/sslinfo?pretty"));
+        Assert.assertTrue(executeSimpleRequest("_opendistrosecurity/sslinfo?pretty").contains("TLS"));
+        Assert.assertTrue(executeSimpleRequest("_opendistrosecurity/sslinfo?pretty").length() > 0);
         Assert.assertTrue(executeSimpleRequest("_nodes/settings?pretty").contains(clustername));
-        Assert.assertTrue(executeSimpleRequest("_searchguard/sslinfo?pretty").contains("CN=node-0.example.com,OU=SSL,O=Test,L=Test,C=DE"));
+        Assert.assertTrue(executeSimpleRequest("_opendistrosecurity/sslinfo?pretty").contains("CN=node-0.example.com,OU=SSL,O=Test,L=Test,C=DE"));
         Assert.assertFalse(executeSimpleRequest("_nodes/stats?pretty").contains("\"tx_size_in_bytes\" : 0"));
         Assert.assertFalse(executeSimpleRequest("_nodes/stats?pretty").contains("\"rx_count\" : 0"));
         Assert.assertFalse(executeSimpleRequest("_nodes/stats?pretty").contains("\"rx_size_in_bytes\" : 0"));
@@ -285,12 +285,12 @@ public class SSLTest extends AbstractUnitTest {
                 .build();
 
         startES(settings);
-        System.out.println(executeSimpleRequest("_searchguard/sslinfo?pretty"));
-        Assert.assertTrue(executeSimpleRequest("_searchguard/sslinfo?pretty").contains("TLS"));
-        Assert.assertTrue(executeSimpleRequest("_searchguard/sslinfo?pretty").length() > 0);
+        System.out.println(executeSimpleRequest("_opendistrosecurity/sslinfo?pretty"));
+        Assert.assertTrue(executeSimpleRequest("_opendistrosecurity/sslinfo?pretty").contains("TLS"));
+        Assert.assertTrue(executeSimpleRequest("_opendistrosecurity/sslinfo?pretty").length() > 0);
         Assert.assertTrue(executeSimpleRequest("_nodes/settings?pretty").contains(clustername));
-        //Assert.assertTrue(!executeSimpleRequest("_searchguard/sslinfo?pretty").contains("null"));
-        Assert.assertTrue(executeSimpleRequest("_searchguard/sslinfo?pretty").contains("CN=node-0.example.com,OU=SSL,O=Test,L=Test,C=DE"));
+        //Assert.assertTrue(!executeSimpleRequest("_opendistrosecurity/sslinfo?pretty").contains("null"));
+        Assert.assertTrue(executeSimpleRequest("_opendistrosecurity/sslinfo?pretty").contains("CN=node-0.example.com,OU=SSL,O=Test,L=Test,C=DE"));
     }
 
     @Test
@@ -319,12 +319,12 @@ public class SSLTest extends AbstractUnitTest {
                 .build();
 
         startES(settings);
-        System.out.println(executeSimpleRequest("_searchguard/sslinfo?pretty"));
-        Assert.assertTrue(executeSimpleRequest("_searchguard/sslinfo?pretty").contains("TLS"));
-        Assert.assertTrue(executeSimpleRequest("_searchguard/sslinfo?pretty").length() > 0);
+        System.out.println(executeSimpleRequest("_opendistrosecurity/sslinfo?pretty"));
+        Assert.assertTrue(executeSimpleRequest("_opendistrosecurity/sslinfo?pretty").contains("TLS"));
+        Assert.assertTrue(executeSimpleRequest("_opendistrosecurity/sslinfo?pretty").length() > 0);
         Assert.assertTrue(executeSimpleRequest("_nodes/settings?pretty").contains(clustername));
-        //Assert.assertTrue(!executeSimpleRequest("_searchguard/sslinfo?pretty").contains("null"));
-        Assert.assertTrue(executeSimpleRequest("_searchguard/sslinfo?pretty").contains("CN=node-0.example.com,OU=SSL,O=Test,L=Test,C=DE"));
+        //Assert.assertTrue(!executeSimpleRequest("_opendistrosecurity/sslinfo?pretty").contains("null"));
+        Assert.assertTrue(executeSimpleRequest("_opendistrosecurity/sslinfo?pretty").contains("CN=node-0.example.com,OU=SSL,O=Test,L=Test,C=DE"));
     }
 
     
@@ -383,9 +383,9 @@ public class SSLTest extends AbstractUnitTest {
                 .put("opendistrosecurity.ssl.http.truststore_filepath", getAbsoluteFilePathFromClassPath("truststore.jks")).build();
 
         startES(settings);
-        Assert.assertTrue(executeSimpleRequest("_searchguard/sslinfo?pretty").length() > 0);
+        Assert.assertTrue(executeSimpleRequest("_opendistrosecurity/sslinfo?pretty").length() > 0);
         Assert.assertTrue(executeSimpleRequest("_nodes/settings?pretty").contains(clustername));
-        Assert.assertTrue(executeSimpleRequest("_searchguard/sslinfo?pretty").contains("CN=node-0.example.com,OU=SSL,O=Test,L=Test,C=DE"));
+        Assert.assertTrue(executeSimpleRequest("_opendistrosecurity/sslinfo?pretty").contains("CN=node-0.example.com,OU=SSL,O=Test,L=Test,C=DE"));
     }
 
     @Test
@@ -404,9 +404,9 @@ public class SSLTest extends AbstractUnitTest {
                 .put("opendistrosecurity.ssl.http.truststore_filepath", getAbsoluteFilePathFromClassPath("truststore.jks")).build();
 
         startES(settings);
-        Assert.assertTrue(executeSimpleRequest("_searchguard/sslinfo?pretty").length() > 0);
+        Assert.assertTrue(executeSimpleRequest("_opendistrosecurity/sslinfo?pretty").length() > 0);
         Assert.assertTrue(executeSimpleRequest("_nodes/settings?pretty").contains(clustername));
-        Assert.assertFalse(executeSimpleRequest("_searchguard/sslinfo?pretty").contains("CN=node-0.example.com,OU=SSL,O=Test,L=Test,C=DE"));
+        Assert.assertFalse(executeSimpleRequest("_opendistrosecurity/sslinfo?pretty").contains("CN=node-0.example.com,OU=SSL,O=Test,L=Test,C=DE"));
     }
     
     @Test
@@ -455,7 +455,7 @@ public class SSLTest extends AbstractUnitTest {
                 .put("opendistrosecurity.ssl.http.truststore_filepath", getAbsoluteFilePathFromClassPath("truststore.jks")).build();
 
         startES(settings);
-        Assert.assertTrue(executeSimpleRequest("_searchguard/sslinfo?pretty").length() > 0);
+        Assert.assertTrue(executeSimpleRequest("_opendistrosecurity/sslinfo?pretty").length() > 0);
         Assert.assertTrue(executeSimpleRequest("_nodes/settings?pretty").contains(clustername));
     }
 
@@ -698,7 +698,7 @@ public class SSLTest extends AbstractUnitTest {
             log.debug("NodesInfoRequest asserted");
         }
         
-        executeSimpleRequest("_searchguard/sslinfo?pretty");
+        executeSimpleRequest("_opendistrosecurity/sslinfo?pretty");
         
         //we need to test this in SG itself because in the SSL only plugin the info is not longer propagated
         //Assert.assertTrue(TestPrincipalExtractor.getTransportCount() > 0);
@@ -733,7 +733,7 @@ public class SSLTest extends AbstractUnitTest {
                 .build();
 
         startES(settings);
-        Assert.assertTrue(executeSimpleRequest("_searchguard/sslinfo?pretty").contains("TLS"));
+        Assert.assertTrue(executeSimpleRequest("_opendistrosecurity/sslinfo?pretty").contains("TLS"));
     }
     
     @Test

@@ -366,7 +366,7 @@ public class OpenDistroSecuritySSLPlugin extends Plugin implements ActionPlugin,
     @Override
     public List<String> getSettingsFilter() {
         List<String> settingsFilter = new ArrayList<>();
-        settingsFilter.add("searchguard.*");
+        settingsFilter.add("opendistrosecurity.*");
         return settingsFilter;
     }
 }
