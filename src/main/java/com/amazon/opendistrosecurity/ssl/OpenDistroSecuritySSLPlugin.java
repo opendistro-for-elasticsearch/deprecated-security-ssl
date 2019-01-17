@@ -248,7 +248,7 @@ public class OpenDistroSecuritySSLPlugin extends Plugin implements ActionPlugin,
         
         Map<String, Supplier<Transport>> transports = new HashMap<String, Supplier<Transport>>();
         if (transportSSLEnabled) {
-            transports.put("com.amazon.opendistrosecurity.ssl.http.netty.SearchGuardSSLNettyTransport", 
+            transports.put("com.amazon.opendistrosecurity.ssl.http.netty.OpenDistroSecuritySSLNettyTransport", 
                     () -> new OpenDistroSecuritySSLNettyTransport(settings, threadPool, networkService, bigArrays, namedWriteableRegistry, circuitBreakerService, sgks, NOOP_SSL_EXCEPTION_HANDLER));
         }
         return transports;
@@ -357,7 +357,7 @@ public class OpenDistroSecuritySSLPlugin extends Plugin implements ActionPlugin,
        }
         
        if (transportSSLEnabled) {
-           builder.put(NetworkModule.TRANSPORT_TYPE_KEY, "com.amazon.opendistrosecurity.ssl.http.netty.SearchGuardSSLNettyTransport");
+           builder.put(NetworkModule.TRANSPORT_TYPE_KEY, "com.amazon.opendistrosecurity.ssl.http.netty.OpenDistroSecuritySSLNettyTransport");
        }
         
         return builder.build();
