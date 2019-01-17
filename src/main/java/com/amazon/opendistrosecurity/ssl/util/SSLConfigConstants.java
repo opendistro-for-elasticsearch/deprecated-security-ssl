@@ -25,55 +25,55 @@ import org.elasticsearch.common.settings.Settings;
 
 public final class SSLConfigConstants {
 
-    public static final String SEARCHGUARD_SSL_HTTP_ENABLE_OPENSSL_IF_AVAILABLE = "searchguard.ssl.http.enable_openssl_if_available";
-    public static final String SEARCHGUARD_SSL_HTTP_ENABLED = "searchguard.ssl.http.enabled";
-    public static final boolean SEARCHGUARD_SSL_HTTP_ENABLED_DEFAULT = false;
-    public static final String SEARCHGUARD_SSL_HTTP_CLIENTAUTH_MODE = "searchguard.ssl.http.clientauth_mode";
-    public static final String SEARCHGUARD_SSL_HTTP_KEYSTORE_ALIAS = "searchguard.ssl.http.keystore_alias";
-    public static final String SEARCHGUARD_SSL_HTTP_KEYSTORE_FILEPATH = "searchguard.ssl.http.keystore_filepath";
-    public static final String SEARCHGUARD_SSL_HTTP_PEMKEY_FILEPATH = "searchguard.ssl.http.pemkey_filepath";
-    public static final String SEARCHGUARD_SSL_HTTP_PEMKEY_PASSWORD = "searchguard.ssl.http.pemkey_password";
-    public static final String SEARCHGUARD_SSL_HTTP_PEMCERT_FILEPATH = "searchguard.ssl.http.pemcert_filepath";
-    public static final String SEARCHGUARD_SSL_HTTP_PEMTRUSTEDCAS_FILEPATH = "searchguard.ssl.http.pemtrustedcas_filepath";
-    public static final String SEARCHGUARD_SSL_HTTP_KEYSTORE_PASSWORD = "searchguard.ssl.http.keystore_password";
-    public static final String SEARCHGUARD_SSL_HTTP_KEYSTORE_TYPE = "searchguard.ssl.http.keystore_type";
-    public static final String SEARCHGUARD_SSL_HTTP_TRUSTSTORE_ALIAS = "searchguard.ssl.http.truststore_alias";
-    public static final String SEARCHGUARD_SSL_HTTP_TRUSTSTORE_FILEPATH = "searchguard.ssl.http.truststore_filepath";
-    public static final String SEARCHGUARD_SSL_HTTP_TRUSTSTORE_PASSWORD = "searchguard.ssl.http.truststore_password";
-    public static final String SEARCHGUARD_SSL_HTTP_TRUSTSTORE_TYPE = "searchguard.ssl.http.truststore_type";
-    public static final String SEARCHGUARD_SSL_TRANSPORT_ENABLE_OPENSSL_IF_AVAILABLE = "searchguard.ssl.transport.enable_openssl_if_available";
-    public static final String SEARCHGUARD_SSL_TRANSPORT_ENABLED = "searchguard.ssl.transport.enabled";
-    public static final boolean SEARCHGUARD_SSL_TRANSPORT_ENABLED_DEFAULT = true;
-    public static final String SEARCHGUARD_SSL_TRANSPORT_ENFORCE_HOSTNAME_VERIFICATION = "searchguard.ssl.transport.enforce_hostname_verification";
-    public static final String SEARCHGUARD_SSL_TRANSPORT_ENFORCE_HOSTNAME_VERIFICATION_RESOLVE_HOST_NAME = "searchguard.ssl.transport.resolve_hostname";
-    public static final String SEARCHGUARD_SSL_TRANSPORT_KEYSTORE_ALIAS = "searchguard.ssl.transport.keystore_alias";
-    public static final String SEARCHGUARD_SSL_TRANSPORT_KEYSTORE_FILEPATH = "searchguard.ssl.transport.keystore_filepath";
-    public static final String SEARCHGUARD_SSL_TRANSPORT_PEMKEY_FILEPATH = "searchguard.ssl.transport.pemkey_filepath";
-    public static final String SEARCHGUARD_SSL_TRANSPORT_PEMKEY_PASSWORD = "searchguard.ssl.transport.pemkey_password";
-    public static final String SEARCHGUARD_SSL_TRANSPORT_PEMCERT_FILEPATH = "searchguard.ssl.transport.pemcert_filepath";
-    public static final String SEARCHGUARD_SSL_TRANSPORT_PEMTRUSTEDCAS_FILEPATH = "searchguard.ssl.transport.pemtrustedcas_filepath";
-    public static final String SEARCHGUARD_SSL_TRANSPORT_KEYSTORE_PASSWORD = "searchguard.ssl.transport.keystore_password";
-    public static final String SEARCHGUARD_SSL_TRANSPORT_KEYSTORE_TYPE = "searchguard.ssl.transport.keystore_type";
-    public static final String SEARCHGUARD_SSL_TRANSPORT_TRUSTSTORE_ALIAS = "searchguard.ssl.transport.truststore_alias";
-    public static final String SEARCHGUARD_SSL_TRANSPORT_TRUSTSTORE_FILEPATH = "searchguard.ssl.transport.truststore_filepath";
-    public static final String SEARCHGUARD_SSL_TRANSPORT_TRUSTSTORE_PASSWORD = "searchguard.ssl.transport.truststore_password";
-    public static final String SEARCHGUARD_SSL_TRANSPORT_TRUSTSTORE_TYPE = "searchguard.ssl.transport.truststore_type";
-    public static final String SEARCHGUARD_SSL_TRANSPORT_ENABLED_CIPHERS = "searchguard.ssl.transport.enabled_ciphers";
-    public static final String SEARCHGUARD_SSL_TRANSPORT_ENABLED_PROTOCOLS = "searchguard.ssl.transport.enabled_protocols";
-    public static final String SEARCHGUARD_SSL_HTTP_ENABLED_CIPHERS = "searchguard.ssl.http.enabled_ciphers";
-    public static final String SEARCHGUARD_SSL_HTTP_ENABLED_PROTOCOLS = "searchguard.ssl.http.enabled_protocols";
-    public static final String SEARCHGUARD_SSL_CLIENT_EXTERNAL_CONTEXT_ID = "searchguard.ssl.client.external_context_id";
-    public static final String SEARCHGUARD_SSL_TRANSPORT_PRINCIPAL_EXTRACTOR_CLASS = "searchguard.ssl.transport.principal_extractor_class";
+    public static final String OPENDISTROSECURITY_SSL_HTTP_ENABLE_OPENSSL_IF_AVAILABLE = "opendistrosecurity.ssl.http.enable_openssl_if_available";
+    public static final String OPENDISTROSECURITY_SSL_HTTP_ENABLED = "opendistrosecurity.ssl.http.enabled";
+    public static final boolean OPENDISTROSECURITY_SSL_HTTP_ENABLED_DEFAULT = false;
+    public static final String OPENDISTROSECURITY_SSL_HTTP_CLIENTAUTH_MODE = "opendistrosecurity.ssl.http.clientauth_mode";
+    public static final String OPENDISTROSECURITY_SSL_HTTP_KEYSTORE_ALIAS = "opendistrosecurity.ssl.http.keystore_alias";
+    public static final String OPENDISTROSECURITY_SSL_HTTP_KEYSTORE_FILEPATH = "opendistrosecurity.ssl.http.keystore_filepath";
+    public static final String OPENDISTROSECURITY_SSL_HTTP_PEMKEY_FILEPATH = "opendistrosecurity.ssl.http.pemkey_filepath";
+    public static final String OPENDISTROSECURITY_SSL_HTTP_PEMKEY_PASSWORD = "opendistrosecurity.ssl.http.pemkey_password";
+    public static final String OPENDISTROSECURITY_SSL_HTTP_PEMCERT_FILEPATH = "opendistrosecurity.ssl.http.pemcert_filepath";
+    public static final String OPENDISTROSECURITY_SSL_HTTP_PEMTRUSTEDCAS_FILEPATH = "opendistrosecurity.ssl.http.pemtrustedcas_filepath";
+    public static final String OPENDISTROSECURITY_SSL_HTTP_KEYSTORE_PASSWORD = "opendistrosecurity.ssl.http.keystore_password";
+    public static final String OPENDISTROSECURITY_SSL_HTTP_KEYSTORE_TYPE = "opendistrosecurity.ssl.http.keystore_type";
+    public static final String OPENDISTROSECURITY_SSL_HTTP_TRUSTSTORE_ALIAS = "opendistrosecurity.ssl.http.truststore_alias";
+    public static final String OPENDISTROSECURITY_SSL_HTTP_TRUSTSTORE_FILEPATH = "opendistrosecurity.ssl.http.truststore_filepath";
+    public static final String OPENDISTROSECURITY_SSL_HTTP_TRUSTSTORE_PASSWORD = "opendistrosecurity.ssl.http.truststore_password";
+    public static final String OPENDISTROSECURITY_SSL_HTTP_TRUSTSTORE_TYPE = "opendistrosecurity.ssl.http.truststore_type";
+    public static final String OPENDISTROSECURITY_SSL_TRANSPORT_ENABLE_OPENSSL_IF_AVAILABLE = "opendistrosecurity.ssl.transport.enable_openssl_if_available";
+    public static final String OPENDISTROSECURITY_SSL_TRANSPORT_ENABLED = "opendistrosecurity.ssl.transport.enabled";
+    public static final boolean OPENDISTROSECURITY_SSL_TRANSPORT_ENABLED_DEFAULT = true;
+    public static final String OPENDISTROSECURITY_SSL_TRANSPORT_ENFORCE_HOSTNAME_VERIFICATION = "opendistrosecurity.ssl.transport.enforce_hostname_verification";
+    public static final String OPENDISTROSECURITY_SSL_TRANSPORT_ENFORCE_HOSTNAME_VERIFICATION_RESOLVE_HOST_NAME = "opendistrosecurity.ssl.transport.resolve_hostname";
+    public static final String OPENDISTROSECURITY_SSL_TRANSPORT_KEYSTORE_ALIAS = "opendistrosecurity.ssl.transport.keystore_alias";
+    public static final String OPENDISTROSECURITY_SSL_TRANSPORT_KEYSTORE_FILEPATH = "opendistrosecurity.ssl.transport.keystore_filepath";
+    public static final String OPENDISTROSECURITY_SSL_TRANSPORT_PEMKEY_FILEPATH = "opendistrosecurity.ssl.transport.pemkey_filepath";
+    public static final String OPENDISTROSECURITY_SSL_TRANSPORT_PEMKEY_PASSWORD = "opendistrosecurity.ssl.transport.pemkey_password";
+    public static final String OPENDISTROSECURITY_SSL_TRANSPORT_PEMCERT_FILEPATH = "opendistrosecurity.ssl.transport.pemcert_filepath";
+    public static final String OPENDISTROSECURITY_SSL_TRANSPORT_PEMTRUSTEDCAS_FILEPATH = "opendistrosecurity.ssl.transport.pemtrustedcas_filepath";
+    public static final String OPENDISTROSECURITY_SSL_TRANSPORT_KEYSTORE_PASSWORD = "opendistrosecurity.ssl.transport.keystore_password";
+    public static final String OPENDISTROSECURITY_SSL_TRANSPORT_KEYSTORE_TYPE = "opendistrosecurity.ssl.transport.keystore_type";
+    public static final String OPENDISTROSECURITY_SSL_TRANSPORT_TRUSTSTORE_ALIAS = "opendistrosecurity.ssl.transport.truststore_alias";
+    public static final String OPENDISTROSECURITY_SSL_TRANSPORT_TRUSTSTORE_FILEPATH = "opendistrosecurity.ssl.transport.truststore_filepath";
+    public static final String OPENDISTROSECURITY_SSL_TRANSPORT_TRUSTSTORE_PASSWORD = "opendistrosecurity.ssl.transport.truststore_password";
+    public static final String OPENDISTROSECURITY_SSL_TRANSPORT_TRUSTSTORE_TYPE = "opendistrosecurity.ssl.transport.truststore_type";
+    public static final String OPENDISTROSECURITY_SSL_TRANSPORT_ENABLED_CIPHERS = "opendistrosecurity.ssl.transport.enabled_ciphers";
+    public static final String OPENDISTROSECURITY_SSL_TRANSPORT_ENABLED_PROTOCOLS = "opendistrosecurity.ssl.transport.enabled_protocols";
+    public static final String OPENDISTROSECURITY_SSL_HTTP_ENABLED_CIPHERS = "opendistrosecurity.ssl.http.enabled_ciphers";
+    public static final String OPENDISTROSECURITY_SSL_HTTP_ENABLED_PROTOCOLS = "opendistrosecurity.ssl.http.enabled_protocols";
+    public static final String OPENDISTROSECURITY_SSL_CLIENT_EXTERNAL_CONTEXT_ID = "opendistrosecurity.ssl.client.external_context_id";
+    public static final String OPENDISTROSECURITY_SSL_TRANSPORT_PRINCIPAL_EXTRACTOR_CLASS = "opendistrosecurity.ssl.transport.principal_extractor_class";
 
-    public static final String SEARCHGUARD_SSL_HTTP_CRL_FILE = "searchguard.ssl.http.crl.file_path";
-    public static final String SEARCHGUARD_SSL_HTTP_CRL_VALIDATE = "searchguard.ssl.http.crl.validate";
-    public static final String SEARCHGUARD_SSL_HTTP_CRL_PREFER_CRLFILE_OVER_OCSP = "searchguard.ssl.http.crl.prefer_crlfile_over_ocsp";
-    public static final String SEARCHGUARD_SSL_HTTP_CRL_CHECK_ONLY_END_ENTITIES = "searchguard.ssl.http.crl.check_only_end_entities";    
-    public static final String SEARCHGUARD_SSL_HTTP_CRL_DISABLE_OCSP = "searchguard.ssl.http.crl.disable_ocsp";    
-    public static final String SEARCHGUARD_SSL_HTTP_CRL_DISABLE_CRLDP = "searchguard.ssl.http.crl.disable_crldp";   
-    public static final String SEARCHGUARD_SSL_HTTP_CRL_VALIDATION_DATE = "searchguard.ssl.http.crl.validation_date";
+    public static final String OPENDISTROSECURITY_SSL_HTTP_CRL_FILE = "opendistrosecurity.ssl.http.crl.file_path";
+    public static final String OPENDISTROSECURITY_SSL_HTTP_CRL_VALIDATE = "opendistrosecurity.ssl.http.crl.validate";
+    public static final String OPENDISTROSECURITY_SSL_HTTP_CRL_PREFER_CRLFILE_OVER_OCSP = "opendistrosecurity.ssl.http.crl.prefer_crlfile_over_ocsp";
+    public static final String OPENDISTROSECURITY_SSL_HTTP_CRL_CHECK_ONLY_END_ENTITIES = "opendistrosecurity.ssl.http.crl.check_only_end_entities";
+    public static final String OPENDISTROSECURITY_SSL_HTTP_CRL_DISABLE_OCSP = "opendistrosecurity.ssl.http.crl.disable_ocsp";
+    public static final String OPENDISTROSECURITY_SSL_HTTP_CRL_DISABLE_CRLDP = "opendistrosecurity.ssl.http.crl.disable_crldp";
+    public static final String OPENDISTROSECURITY_SSL_HTTP_CRL_VALIDATION_DATE = "opendistrosecurity.ssl.http.crl.validation_date";
 
-    public static final String SEARCHGUARD_SSL_ALLOW_CLIENT_INITIATED_RENEGOTIATION = "searchguard.ssl.allow_client_initiated_renegotiation";
+    public static final String OPENDISTROSECURITY_SSL_ALLOW_CLIENT_INITIATED_RENEGOTIATION = "opendistrosecurity.ssl.allow_client_initiated_renegotiation";
 
     public static final String DEFAULT_STORE_PASSWORD = "changeit"; //#16
     
@@ -87,9 +87,9 @@ public final class SSLConfigConstants {
         
         if(settings != null) {
             if(http) {
-                configuredProtocols = settings.getAsList(SEARCHGUARD_SSL_HTTP_ENABLED_PROTOCOLS, Collections.emptyList());
+                configuredProtocols = settings.getAsList(OPENDISTROSECURITY_SSL_HTTP_ENABLED_PROTOCOLS, Collections.emptyList());
             } else {
-                configuredProtocols = settings.getAsList(SEARCHGUARD_SSL_TRANSPORT_ENABLED_PROTOCOLS, Collections.emptyList());
+                configuredProtocols = settings.getAsList(OPENDISTROSECURITY_SSL_TRANSPORT_ENABLED_PROTOCOLS, Collections.emptyList());
             }
         }
         
@@ -221,9 +221,9 @@ public final class SSLConfigConstants {
         
         if(settings != null) {
             if(http) {
-                configuredCiphers = settings.getAsList(SEARCHGUARD_SSL_HTTP_ENABLED_CIPHERS, Collections.emptyList());
+                configuredCiphers = settings.getAsList(OPENDISTROSECURITY_SSL_HTTP_ENABLED_CIPHERS, Collections.emptyList());
             } else {
-                configuredCiphers = settings.getAsList(SEARCHGUARD_SSL_TRANSPORT_ENABLED_CIPHERS, Collections.emptyList());
+                configuredCiphers = settings.getAsList(OPENDISTROSECURITY_SSL_TRANSPORT_ENABLED_CIPHERS, Collections.emptyList());
             }
         }
         

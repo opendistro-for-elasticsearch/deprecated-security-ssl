@@ -28,14 +28,14 @@ else
 fi
 
 
-echo "searchguard.ssl.transport.enabled: true" > elasticsearch-$ES_VERSION/config/elasticsearch.yml
-echo "searchguard.ssl.transport.keystore_filepath: node-0-keystore.jks" >> elasticsearch-$ES_VERSION/config/elasticsearch.yml
-echo "searchguard.ssl.transport.truststore_filepath: truststore.jks" >> elasticsearch-$ES_VERSION/config/elasticsearch.yml
-echo "searchguard.ssl.transport.enforce_hostname_verification: false" >> elasticsearch-$ES_VERSION/config/elasticsearch.yml
+echo "opendistrosecurity.ssl.transport.enabled: true" > elasticsearch-$ES_VERSION/config/elasticsearch.yml
+echo "opendistrosecurity.ssl.transport.keystore_filepath: node-0-keystore.jks" >> elasticsearch-$ES_VERSION/config/elasticsearch.yml
+echo "opendistrosecurity.ssl.transport.truststore_filepath: truststore.jks" >> elasticsearch-$ES_VERSION/config/elasticsearch.yml
+echo "opendistrosecurity.ssl.transport.enforce_hostname_verification: false" >> elasticsearch-$ES_VERSION/config/elasticsearch.yml
 
-echo "searchguard.ssl.http.enabled: true" >> elasticsearch-$ES_VERSION/config/elasticsearch.yml
-echo "searchguard.ssl.http.keystore_filepath: node-0-keystore.jks" >> elasticsearch-$ES_VERSION/config/elasticsearch.yml
-echo "searchguard.ssl.http.truststore_filepath: truststore.jks" >> elasticsearch-$ES_VERSION/config/elasticsearch.yml
+echo "opendistrosecurity.ssl.http.enabled: true" >> elasticsearch-$ES_VERSION/config/elasticsearch.yml
+echo "opendistrosecurity.ssl.http.keystore_filepath: node-0-keystore.jks" >> elasticsearch-$ES_VERSION/config/elasticsearch.yml
+echo "opendistrosecurity.ssl.http.truststore_filepath: truststore.jks" >> elasticsearch-$ES_VERSION/config/elasticsearch.yml
 echo "xpack.security.enabled: false" >> elasticsearch-$ES_VERSION/config/elasticsearch.yml
 
 
@@ -49,7 +49,7 @@ while ! nc -z 127.0.0.1 9200; do
   sleep 0.1 # wait for 1/10 of the second before check again
 done
 
-RES="$(curl -Ss --insecure -XGET 'https://127.0.0.1:9200/_searchguard/sslinfo' -H'Content-Type: application/json' | grep ssl_openssl_available)"
+RES="$(curl -Ss --insecure -XGET 'https://127.0.0.1:9200/_opendistrosecurity/sslinfo' -H'Content-Type: application/json' | grep ssl_openssl_available)"
 
 if [ -z "$RES" ]; then
   echo "failed"

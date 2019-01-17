@@ -89,7 +89,7 @@ public abstract class AbstractUnitTest {
 
     @Rule
     public TestName name = new TestName();
-    protected final String clustername = "searchguard_ssl_testcluster";
+    protected final String clustername = "opendistrosecurity_ssl_testcluster";
 
     private Node esNode1;
     private Node esNode2;
@@ -137,7 +137,7 @@ public abstract class AbstractUnitTest {
     private Settings.Builder getDefaultSettingsBuilder(final int nodenum, final boolean dataNode, final boolean masterNode) {
 
         return Settings.builder()
-                .put("node.name", "searchguard_testnode_" + nodenum)
+                .put("node.name", "opendistrosecurity_testnode_" + nodenum)
                 .put("node.data", dataNode)
                 .put("node.master", masterNode)
                 .put("cluster.name", clustername)
