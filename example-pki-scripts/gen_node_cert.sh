@@ -48,7 +48,7 @@ fi
         -dname "$DN" \
         -ext san=dns:$NODE_NAME.example.com,dns:localhost,ip:127.0.0.1,oid:1.2.3.4.5.5 
         
-#oid:1.2.3.4.5.5 denote this a server node certificate for search guard
+#oid:1.2.3.4.5.5 denote this a server node certificate for open distro security
 
 echo Generating certificate signing request for node $NODE_NAME
 
@@ -62,7 +62,7 @@ echo Generating certificate signing request for node $NODE_NAME
         -dname "$DN" \
         -ext san=dns:$NODE_NAME.example.com,dns:localhost,ip:127.0.0.1,oid:1.2.3.4.5.5
         
-#oid:1.2.3.4.5.5 denote this a server node certificate for search guard
+#oid:1.2.3.4.5.5 denote this a server node certificate for open distro security
 
 echo Sign certificate request with CA
 openssl ca \
