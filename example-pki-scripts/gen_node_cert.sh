@@ -1,9 +1,6 @@
 #!/bin/bash
 #########################
 # 'dname' and 'ext san' have to specified on two location in this file  
-# For the meaning of oid:1.2.3.4.5.5 see:
-#    https://github.com/floragunncom/search-guard-docs/blob/master/architecture.md
-#    https://github.com/floragunncom/search-guard-docs/blob/master/installation.md
 #########################
 
 set -e
