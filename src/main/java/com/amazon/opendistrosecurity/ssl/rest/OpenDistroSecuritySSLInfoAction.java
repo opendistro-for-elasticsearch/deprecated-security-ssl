@@ -66,7 +66,7 @@ public class OpenDistroSecuritySSLInfoAction extends BaseRestHandler {
         this.sgks = sgks;
         this.principalExtractor = principalExtractor;
         this.configPath = configPath;
-        controller.registerHandler(GET, "/_opendistrosecurity/sslinfo", this);
+        controller.registerHandler(GET, "/_opendistro/_security/sslinfo", this);
     }
     
     @Override
