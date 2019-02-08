@@ -49,7 +49,7 @@ while ! nc -z 127.0.0.1 9200; do
   sleep 0.1 # wait for 1/10 of the second before check again
 done
 
-RES="$(curl -Ss --insecure -XGET 'https://127.0.0.1:9200/_opendistrosecurity/sslinfo' -H'Content-Type: application/json' | grep ssl_openssl_available)"
+RES="$(curl -Ss --insecure -XGET 'https://127.0.0.1:9200/_opendistro/_security/sslinfo' -H'Content-Type: application/json' | grep ssl_openssl_available)"
 
 if [ -z "$RES" ]; then
   echo "failed"
