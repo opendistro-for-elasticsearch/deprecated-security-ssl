@@ -124,7 +124,7 @@ implements TransportRequestHandler<T> {
             final SslHandler sslhandler = (SslHandler) nettyChannel.getLowLevelChannel().pipeline().get("ssl_server");
 
             if (sslhandler == null) {
-                final String msg = "No ssl handler found (SG 11)";
+                final String msg = "No ssl handler found (Security 11)";
                 //log.error(msg);
                 final Exception exception = new ElasticsearchException(msg);
                 channel.sendResponse(exception);
@@ -154,7 +154,7 @@ implements TransportRequestHandler<T> {
                 }
                 messageReceivedDecorate(request, actualHandler, channel, task);
             } else {
-                final String msg = "No X509 transport client certificates found (SG 12)";
+                final String msg = "No X509 transport client certificates found (Security 12)";
                 //log.error(msg);
                 final Exception exception = new ElasticsearchException(msg);
                 errorHandler.logError(exception, request, action, task, 0);

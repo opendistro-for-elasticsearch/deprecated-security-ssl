@@ -90,7 +90,7 @@ public class DefaultOpenDistroSecurityKeyStore implements OpenDistroSecurityKeyS
                         + " (This is not an issue, it just limits possible encryption strength. To enable AES 256, install 'Java Cryptography Extension (JCE) Unlimited Strength Jurisdiction Policy Files')");
             }
         } catch (final NoSuchAlgorithmException e) {
-            log.error("AES encryption not supported (SG 1). " + e);
+            log.error("AES encryption not supported (Security 1). " + e);
         }
     }
 

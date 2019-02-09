@@ -96,7 +96,7 @@ public class ValidatingDispatcher implements Dispatcher {
                 throw new ElasticsearchSecurityException("Not an SSL request", RestStatus.INTERNAL_SERVER_ERROR);
             }
         } catch (SSLPeerUnverifiedException e) {
-            logger.error("No client certificates found but such are needed (SG 8).");
+            logger.error("No client certificates found but such are needed (Security 8).");
             errorHandler.logError(e, request, 0);
             throw ExceptionsHelper.convertToElastic(e);
         }

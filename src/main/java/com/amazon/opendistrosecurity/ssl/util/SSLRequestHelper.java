@@ -166,7 +166,7 @@ public class SSLRequestHelper {
                     }
                     principal = principalExtractor == null?null: principalExtractor.extractPrincipal(x509Certs[0], Type.HTTP);
                 } else if (engine.getNeedClientAuth()) {
-                    final ElasticsearchException ex = new ElasticsearchException("No client certificates found but such are needed (SG 9).");
+                    final ElasticsearchException ex = new ElasticsearchException("No client certificates found but such are needed (Security 9).");
                     throw ex;
                 }
 

@@ -713,7 +713,7 @@ public class SSLTest extends AbstractUnitTest {
         
         executeSimpleRequest("_opendistro/_security/sslinfo?pretty");
         
-        //we need to test this in SG itself because in the SSL only plugin the info is not longer propagated
+        //we need to test this in Security itself because in the SSL only plugin the info is not longer propagated
         //Assert.assertTrue(TestPrincipalExtractor.getTransportCount() > 0);
         Assert.assertTrue(TestPrincipalExtractor.getHttpCount() > 0);
     }
