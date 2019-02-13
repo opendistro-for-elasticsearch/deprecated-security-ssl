@@ -1,6 +1,6 @@
 # Security for Open Distro Elasticsearch
 
-Search Guard SSL is a free and Open Source plugin for Elasticsearch which provides SSL/TLS for Elasticsearch. It supports OpenSSL for maximum performance and security. 
+Open Distro Elasticsearch Security SSL is a free and Open Source plugin for Elasticsearch which provides SSL/TLS for Elasticsearch. It supports OpenSSL for maximum performance and security. 
 
 
 ## Features

@@ -33,18 +33,18 @@
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
-    <groupId>com.floragunn</groupId>
-    <artifactId>search-guard-parent</artifactId>
+    <groupId>com.amazon.opendistroforelasticsearch</groupId>
+    <artifactId>elasticsearch-security-parent</artifactId>
     <version>6.22.1</version>
   </parent>
 
-  <artifactId>search-guard-ssl</artifactId>
+  <artifactId>elasticsearch-security-ssl</artifactId>
   <version>6.5.4-25.5</version>
   <packaging>jar</packaging>
 
-  <name>Search Guard SSL</name>
-  <description>Provides SSL for Elasticsearch 6</description>
-  <url>https://github.com/floragunncom/search-guard-ssl</url>
+  <name>Elasticsearch Security SSL</name>
+  <description>Provides SSL Security for Elasticsearch 6</description>
+  <url>https://github.com/mauve-hedgehog/opendistro-elasticsearch-security-ssl</url>
   <inceptionYear>2015</inceptionYear>
 
   <licenses>
@@ -64,15 +64,15 @@
   </properties>
 
   <scm>
-    <url>https://github.com/floragunncom/search-guard-ssl</url>
-    <connection>scm:git:git@github.com:floragunncom/search-guard-ssl.git</connection>
-    <developerConnection>scm:git:git@github.com:floragunncom/search-guard-ssl.git</developerConnection>
+    <url>https://github.com/mauve-hedgehog/opendistro-elasticsearch-security-ssl</url>
+    <connection>scm:git:git@github.com:mauve-hedgehog/opendistro-elasticsearch-security-ssl.git</connection>
+    <developerConnection>scm:git:git@github.com:mauve-hedgehog/opendistro-elasticsearch-security-ssl.git</developerConnection>
     <tag>v6.5.4-25.5</tag>
   </scm>
 
   <issueManagement>
     <system>GitHub</system>
-    <url>https://github.com/floragunncom/search-guard-ssl/issues</url>
+    <url>https://github.com/mauve-hedgehog/opendistro-elasticsearch-security-ssl/issues</url>
   </issueManagement>
 
   <contributors />
