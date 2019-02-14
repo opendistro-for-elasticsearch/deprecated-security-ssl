@@ -79,7 +79,7 @@
 
   <dependencies>
     <dependency>
-      <groupId>org.elasticsearch</groupId>
+      <groupId>com.amazonaws.opendistro.elasticsearch</groupId>
       <artifactId>elasticsearch</artifactId>
       <version>${elasticsearch.version}</version>
       <scope>provided</scope>
@@ -93,7 +93,7 @@
     </dependency>
 
     <dependency>
-      <groupId>org.elasticsearch.plugin</groupId>
+      <groupId>com.amazonaws.opendistro.elasticsearch.plugin</groupId>
       <artifactId>transport-netty4-client</artifactId>
       <version>${elasticsearch.version}</version>
       <exclusions>
@@ -141,6 +141,13 @@
       <scope>test</scope>
     </dependency>
   </dependencies>
+ <repositories>
+     <repository>
+         <id>opendistro_elasticsearch</id>
+         <name>internal-releases</name>
+         <url>s3://artifacts.opendistro.amazonaws.com/maven</url>
+     </repository>
+ </repositories>
 
   <build>
     <plugins>
@@ -157,6 +164,13 @@
         <artifactId>maven-surefire-plugin</artifactId>
       </plugin>
     </plugins>
+    <extensions>
+          <extension>
+              <groupId>com.gkatzioura.maven.cloud</groupId>
+            <artifactId>s3-storage-wagon</artifactId>
+            <version>1.8</version>
+        </extension>
+    </extensions>
   </build>
 
   <profiles>
