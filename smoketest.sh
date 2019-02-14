@@ -4,17 +4,17 @@ set -e
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 cd $DIR
 
-ES_VERSION=6.4.0
+ES_VERSION=6.5.4
 NETTY_NATIVE_VERSION=2.0.7.Final
 NETTY_NATIVE_CLASSIFIER=non-fedora-linux-x86_64
 
-rm -rf elasticsearch-$ES_VERSION
-wget https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-$ES_VERSION.tar.gz
-tar -xzf elasticsearch-$ES_VERSION.tar.gz
-rm -rf elasticsearch-$ES_VERSION.tar.gz
+rm -rf elasticsearch-oss-$ES_VERSION
+wget http://artifacts.opendistro.amazonaws.com.s3.amazonaws.com/downloads/elasticsearch/elasticsearch-oss-$ES_VERSION.zip
+unzip elasticsearch-oss-$ES_VERSION.tar.gz
+rm -rf elasticsearch-oss-$ES_VERSION.zip
 #wget -O netty-tcnative-$NETTY_NATIVE_VERSION-$NETTY_NATIVE_CLASSIFIER.jar https://search.maven.org/remotecontent?filepath=io/netty/netty-tcnative/$NETTY_NATIVE_VERSION/netty-tcnative-$NETTY_NATIVE_VERSION-$NETTY_NATIVE_CLASSIFIER.jar
 mvn clean package -DskipTests
-PLUGIN_FILE=($DIR/target/releases/search-guard-ssl*)
+PLUGIN_FILE=($DIR/target/releases/elasticsearch-security-ssl*)
 URL=file://$PLUGIN_FILE
 echo $URL
 elasticsearch-$ES_VERSION/bin/elasticsearch-plugin install -b $URL
@@ -41,7 +41,7 @@ echo "xpack.security.enabled: false" >> elasticsearch-$ES_VERSION/config/elastic
 
 cp src/test/resources/*.jks elasticsearch-$ES_VERSION/config/
 
-#cp netty-tcnative-$NETTY_NATIVE_VERSION-$NETTY_NATIVE_CLASSIFIER.jar elasticsearch-$ES_VERSION/plugins/search-guard-ssl/
+#cp netty-tcnative-$NETTY_NATIVE_VERSION-$NETTY_NATIVE_CLASSIFIER.jar elasticsearch-$ES_VERSION/plugins/elasticsearch-security-ssl/
 rm -f netty-tcnative-$NETTY_NATIVE_VERSION-$NETTY_NATIVE_CLASSIFIER.jar
 elasticsearch-$ES_VERSION/bin/elasticsearch &
 
