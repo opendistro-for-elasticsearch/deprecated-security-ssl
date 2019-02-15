@@ -54,8 +54,8 @@ public class OpenSSLTest extends SSLTest {
     public void testEnsureOpenSSLAvailability() {
         //Assert.assertTrue("OpenSSL not available: "+String.valueOf(OpenSsl.unavailabilityCause()), OpenSsl.isAvailable());
                 
-        final String openSSLOptional = System.getenv("OPENDISTROSECURITY_TEST_OPENSSL_OPT");
-        System.out.println("OPENDISTROSECURITY_TEST_OPENSSL_OPT "+openSSLOptional);
+        final String openSSLOptional = System.getenv("OPENDISTRO_SECURITY_TEST_OPENSSL_OPT");
+        System.out.println("OPENDISTRO_SECURITY_TEST_OPENSSL_OPT "+openSSLOptional);
         if(!Boolean.parseBoolean(openSSLOptional)) {
             System.out.println("OpenSSL must be available");
             Assert.assertTrue("OpenSSL not available: "+String.valueOf(OpenSsl.unavailabilityCause()), OpenSsl.isAvailable());

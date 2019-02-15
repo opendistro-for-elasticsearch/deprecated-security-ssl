@@ -84,7 +84,7 @@ public class ValidatingDispatcher implements Dispatcher {
     
     protected void checkRequest(final RestRequest request, final RestChannel channel) {
         
-        if(SSLRequestHelper.containsBadHeader(threadContext, "_opendistrosecurity_ssl_")) {
+        if(SSLRequestHelper.containsBadHeader(threadContext, "_opendistro_security_ssl_")) {
             final ElasticsearchException exception = ExceptionUtils.createBadHeaderException();
             errorHandler.logError(exception, request, 1);
             throw exception;
