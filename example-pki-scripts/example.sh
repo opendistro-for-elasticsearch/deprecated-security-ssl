@@ -21,5 +21,5 @@ set -e
 ./gen_client_node_cert.sh logstash changeit capass
 ./gen_client_node_cert.sh filebeat changeit capass
 ./gen_client_node_cert.sh kibana changeit capass
-#./gen_client_node_cert.sh sgadmin changeit capass
+#./gen_client_node_cert.sh securityadmin changeit capass
 rm -f ./*tmp*
