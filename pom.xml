@@ -35,11 +35,11 @@
   <parent>
     <groupId>com.amazon.opendistroforelasticsearch</groupId>
     <artifactId>elasticsearch-security-parent</artifactId>
-    <version>0.0.7.0</version>
+    <version>0.7.0</version>
   </parent>
 
   <artifactId>elasticsearch-security-ssl</artifactId>
-  <version>0.0.7.0</version>
+  <version>0.7.0</version>
   <packaging>jar</packaging>
 
   <name>Elasticsearch Security SSL</name>
@@ -67,7 +67,7 @@
     <url>https://github.com/mauve-hedgehog/opendistro-elasticsearch-security-ssl</url>
     <connection>scm:git:git@github.com:mauve-hedgehog/opendistro-elasticsearch-security-ssl.git</connection>
     <developerConnection>scm:git:git@github.com:mauve-hedgehog/opendistro-elasticsearch-security-ssl.git</developerConnection>
-    <tag>v0.0.7.0</tag>
+    <tag>v0.7.0</tag>
   </scm>
 
   <issueManagement>
