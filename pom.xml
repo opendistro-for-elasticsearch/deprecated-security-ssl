@@ -79,7 +79,7 @@
 
   <dependencies>
     <dependency>
-      <groupId>com.amazonaws.opendistro.elasticsearch</groupId>
+      <groupId>com.amazon.opendistroforelasticsearch</groupId>
       <artifactId>elasticsearch</artifactId>
       <version>${elasticsearch.version}</version>
       <scope>provided</scope>
@@ -93,7 +93,7 @@
     </dependency>
 
     <dependency>
-      <groupId>com.amazonaws.opendistro.elasticsearch.plugin</groupId>
+      <groupId>com.amazon.opendistroforelasticsearch.plugin</groupId>
       <artifactId>transport-netty4-client</artifactId>
       <version>${elasticsearch.version}</version>
       <exclusions>
@@ -145,7 +145,7 @@
      <repository>
          <id>opendistro_elasticsearch</id>
          <name>internal-releases</name>
-         <url>s3://artifacts.opendistro.amazonaws.com/maven</url>
+         <url>s3://artifacts.opendistroforelasticsearch.amazon.com/maven</url>
      </repository>
  </repositories>
 
