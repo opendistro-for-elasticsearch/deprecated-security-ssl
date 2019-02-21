@@ -33,6 +33,7 @@ package com.amazon.opendistroforelasticsearch.security.ssl.transport;
 import io.netty.channel.Channel;
 import io.netty.handler.ssl.SslHandler;
 
+import java.lang.reflect.Method;
 import java.security.cert.Certificate;
 import java.security.cert.X509Certificate;
 import java.util.Arrays;
@@ -100,6 +101,13 @@ implements TransportRequestHandler<T> {
             channel.sendResponse(exception);
             throw exception;
         }
+
+        TransportChannel innerChannel = channel;
+        if("PerformanceAnalyzerTransportChannelType".equals(channel.getChannelType())) {
+            Class patc = channel.getClass();
+            Method getInnerChannel = patc.getMethod("getInnerChannel", null);
+            innerChannel = (TransportChannel) getInnerChannel.invoke(channel);
+        }
  
         if (!"netty".equals(channel.getChannelType())) { //netty4
             messageReceivedDecorate(request, actualHandler, channel, task);
@@ -110,15 +118,15 @@ implements TransportRequestHandler<T> {
 
             NettyTcpChannel nettyChannel = null;
 
-            if (channel instanceof TaskTransportChannel) {
-                final TransportChannel inner = ((TaskTransportChannel) channel).getChannel();
+            if (innerChannel instanceof TaskTransportChannel) {
+                final TransportChannel inner = ((TaskTransportChannel) innerChannel).getChannel();
                 nettyChannel = (NettyTcpChannel) ((TcpTransportChannel) inner).getChannel();
             } else
-            if (channel instanceof TcpTransportChannel) {
-                final TcpChannel inner = ((TcpTransportChannel) channel).getChannel();
+            if (innerChannel instanceof TcpTransportChannel) {
+                final TcpChannel inner = ((TcpTransportChannel) innerChannel).getChannel();
                 nettyChannel = (NettyTcpChannel) inner;
             } else {
-                throw new Exception("Invalid channel of type "+channel.getClass()+ " ("+channel.getChannelType()+")");
+                throw new Exception("Invalid channel of type "+innerChannel.getClass()+ " ("+innerChannel.getChannelType()+")");
             }
             
             final SslHandler sslhandler = (SslHandler) nettyChannel.getLowLevelChannel().pipeline().get("ssl_server");
