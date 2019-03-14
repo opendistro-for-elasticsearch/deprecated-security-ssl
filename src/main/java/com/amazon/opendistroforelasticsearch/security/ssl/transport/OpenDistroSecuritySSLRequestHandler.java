@@ -103,10 +103,14 @@ implements TransportRequestHandler<T> {
         }
 
         TransportChannel innerChannel = channel;
-        if("PerformanceAnalyzerTransportChannelType".equals(channel.getChannelType())) {
-            Class patc = channel.getClass();
-            Method getInnerChannel = patc.getMethod("getInnerChannel", null);
-            innerChannel = (TransportChannel) getInnerChannel.invoke(channel);
+        if (!"netty".equals(channel.getChannelType()) && !"direct".equals(channel.getChannelType())) { //netty4
+            try {
+                Class wrappedChannelCls = channel.getClass();
+                Method getInnerChannel = wrappedChannelCls.getMethod("getInnerChannel", null);
+                innerChannel = (TransportChannel) getInnerChannel.invoke(channel);
+            } catch (NoSuchMethodException ex) {
+                throw new RuntimeException("Unknown channel type " + channel.getChannelType() + "does not implement getInnerChannel method".);
+            }
         }
  
         if (!"netty".equals(channel.getChannelType())) { //netty4
