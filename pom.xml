@@ -44,7 +44,7 @@
 
   <name>Open Distro Security SSL</name>
   <description>Provides SSL Security for Elasticsearch 6</description>
-  <url>https://github.com/mauve-hedgehog/opendistro-elasticsearch-security-ssl</url>
+  <url>https://github.com/opendistro-for-elasticsearch/security-ssl</url>
   <inceptionYear>2015</inceptionYear>
 
   <licenses>
@@ -64,15 +64,15 @@
   </properties>
 
   <scm>
-    <url>https://github.com/mauve-hedgehog/opendistro-elasticsearch-security-ssl</url>
-    <connection>scm:git:git@github.com:mauve-hedgehog/opendistro-elasticsearch-security-ssl.git</connection>
-    <developerConnection>scm:git:git@github.com:mauve-hedgehog/opendistro-elasticsearch-security-ssl.git</developerConnection>
+    <url>https://github.com/opendistro-for-elasticsearch/security-ssl</url>
+    <connection>scm:git:git@github.com:opendistro-for-elasticsearch/security-ssl.git</connection>
+    <developerConnection>scm:git:git@github.com:opendistro-for-elasticsearch/security-ssl.git</developerConnection>
     <tag>v0.7.0.0</tag>
   </scm>
 
   <issueManagement>
     <system>GitHub</system>
-    <url>https://github.com/mauve-hedgehog/opendistro-elasticsearch-security-ssl/issues</url>
+    <url>https://github.com/opendistro-for-elasticsearch/security-ssl/issues</url>
   </issueManagement>
 
   <contributors />
