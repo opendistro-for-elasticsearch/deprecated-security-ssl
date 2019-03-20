@@ -30,8 +30,6 @@
  * permissions and limitations under the License.
  */
  
- 
-//grant codeBase "${codebase.opendistro_security_ssl-0.7.0.0.jar}" {
 grant { 
   //below permissions are needed for netty native open ssl support
   permission java.lang.RuntimePermission "loadLibrary.*";
