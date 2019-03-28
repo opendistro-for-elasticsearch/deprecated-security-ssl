@@ -50,6 +50,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.SpecialPermission;
+import org.elasticsearch.Version;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.cluster.metadata.IndexNameExpressionResolver;
 import org.elasticsearch.cluster.node.DiscoveryNodes;
@@ -255,14 +256,13 @@ public class OpenDistroSecuritySSLPlugin extends Plugin implements ActionPlugin,
 
     
     @Override
-    public Map<String, Supplier<Transport>> getTransports(Settings settings, ThreadPool threadPool, BigArrays bigArrays,
-            PageCacheRecycler pageCacheRecycler, CircuitBreakerService circuitBreakerService,
-            NamedWriteableRegistry namedWriteableRegistry, NetworkService networkService) {
-        
+       public Map<String, Supplier<Transport>> getTransports(Settings settings, ThreadPool threadPool, PageCacheRecycler pageCacheRecycler,
+            CircuitBreakerService circuitBreakerService, NamedWriteableRegistry namedWriteableRegistry, NetworkService networkService) { 
         Map<String, Supplier<Transport>> transports = new HashMap<String, Supplier<Transport>>();
         if (transportSSLEnabled) {
             transports.put("com.amazon.opendistroforelasticsearch.security.ssl.http.netty.OpenDistroSecuritySSLNettyTransport", 
-                    () -> new OpenDistroSecuritySSLNettyTransport(settings, threadPool, networkService, bigArrays, namedWriteableRegistry, circuitBreakerService, odsks, NOOP_SSL_EXCEPTION_HANDLER));
+                    () -> new OpenDistroSecuritySSLNettyTransport(settings, Version.CURRENT, threadPool, networkService, pageCacheRecycler, namedWriteableRegistry, circuitBreakerService, odsks, NOOP_SSL_EXCEPTION_HANDLER));
+
         }
         return transports;
 

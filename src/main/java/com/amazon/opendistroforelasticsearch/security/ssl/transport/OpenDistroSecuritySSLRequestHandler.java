@@ -30,9 +30,6 @@
 
 package com.amazon.opendistroforelasticsearch.security.ssl.transport;
 
-import io.netty.channel.Channel;
-import io.netty.handler.ssl.SslHandler;
-
 import java.lang.reflect.Method;
 import java.security.cert.Certificate;
 import java.security.cert.X509Certificate;
@@ -53,11 +50,13 @@ import org.elasticsearch.transport.TcpTransportChannel;
 import org.elasticsearch.transport.TransportChannel;
 import org.elasticsearch.transport.TransportRequest;
 import org.elasticsearch.transport.TransportRequestHandler;
-import org.elasticsearch.transport.netty4.NettyTcpChannel;
+import org.elasticsearch.transport.netty4.Netty4TcpChannel;
 
 import com.amazon.opendistroforelasticsearch.security.ssl.SslExceptionHandler;
 import com.amazon.opendistroforelasticsearch.security.ssl.util.ExceptionUtils;
 import com.amazon.opendistroforelasticsearch.security.ssl.util.SSLRequestHelper;
+
+import io.netty.handler.ssl.SslHandler;
 
 public class OpenDistroSecuritySSLRequestHandler<T extends TransportRequest>
 implements TransportRequestHandler<T> {
@@ -120,15 +119,15 @@ implements TransportRequestHandler<T> {
         
         try {
 
-            NettyTcpChannel nettyChannel = null;
+            Netty4TcpChannel nettyChannel = null;
 
             if (innerChannel instanceof TaskTransportChannel) {
                 final TransportChannel inner = ((TaskTransportChannel) innerChannel).getChannel();
-                nettyChannel = (NettyTcpChannel) ((TcpTransportChannel) inner).getChannel();
+                nettyChannel = (Netty4TcpChannel) ((TcpTransportChannel) inner).getChannel();
             } else
             if (innerChannel instanceof TcpTransportChannel) {
                 final TcpChannel inner = ((TcpTransportChannel) innerChannel).getChannel();
-                nettyChannel = (NettyTcpChannel) inner;
+                nettyChannel = (Netty4TcpChannel) inner;
             } else {
                 throw new Exception("Invalid channel of type "+innerChannel.getClass()+ " ("+innerChannel.getChannelType()+")");
             }

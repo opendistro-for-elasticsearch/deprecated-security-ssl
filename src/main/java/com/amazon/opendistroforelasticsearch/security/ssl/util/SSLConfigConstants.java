@@ -186,7 +186,8 @@ public final class SSLConfigConstants {
         "TLS_AES_256_GCM_SHA384",
         
         //TLS 1.3 OpenSSL
-        "TLS_CHACHA20_POLY1305_SHA256",
+        "TLS_AES_128_CCM_8_SHA256",
+        "TLS_AES_128_CCM_SHA256",
         
         //IBM
         "SSL_ECDHE_RSA_WITH_AES_128_GCM_SHA256",
