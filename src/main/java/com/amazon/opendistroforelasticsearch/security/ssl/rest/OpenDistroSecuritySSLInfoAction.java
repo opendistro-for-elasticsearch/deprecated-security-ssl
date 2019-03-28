@@ -59,6 +59,7 @@ public class OpenDistroSecuritySSLInfoAction extends BaseRestHandler {
     private final OpenDistroSecurityKeyStore sgks;
     final PrincipalExtractor principalExtractor;
     private final Path configPath;
+    private final Settings settings;
 
     public OpenDistroSecuritySSLInfoAction(final Settings settings, final Path configPath, final RestController controller,
             final OpenDistroSecurityKeyStore sgks, final PrincipalExtractor principalExtractor) {
@@ -66,6 +67,7 @@ public class OpenDistroSecuritySSLInfoAction extends BaseRestHandler {
         this.sgks = sgks;
         this.principalExtractor = principalExtractor;
         this.configPath = configPath;
+        this.settings = settings;
         controller.registerHandler(GET, "/_opendistro/_security/sslinfo", this);
     }
     

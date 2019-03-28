@@ -40,6 +40,8 @@ import io.netty.handler.ssl.SslHandler;
 import javax.net.ssl.SSLException;
 import javax.net.ssl.SSLHandshakeException;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.elasticsearch.common.network.NetworkService;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.util.BigArrays;
@@ -53,6 +55,7 @@ import com.amazon.opendistroforelasticsearch.security.ssl.SslExceptionHandler;
 
 public class OpenDistroSecuritySSLNettyHttpServerTransport extends Netty4HttpServerTransport {
 
+    private static final Logger logger = LogManager.getLogger(OpenDistroSecuritySSLNettyHttpServerTransport.class);
     private final OpenDistroSecurityKeyStore sgks;
     private final ThreadContext threadContext;
     private final SslExceptionHandler errorHandler;
