@@ -172,7 +172,7 @@
         <dependency>
           <groupId>com.floragunn</groupId>
           <artifactId>search-guard-static-tcnative-beta</artifactId>
-          <version>1.1.0a-${netty-native.version}-non-fedora-linux-x86_64</version>
+          <version>1.1.1a-${netty-native.version}-non-fedora-linux-x86_64</version>
           <scope>provided</scope>
         </dependency>
       </dependencies>
@@ -183,7 +183,7 @@
         <dependency>
           <groupId>com.floragunn</groupId>
           <artifactId>search-guard-static-tcnative-beta</artifactId>
-          <version>1.1.0a-${netty-native.version}-fedora-linux-x86_64</version>
+          <version>1.1.1a-${netty-native.version}-fedora-linux-x86_64</version>
           <scope>provided</scope>
         </dependency>
       </dependencies>
