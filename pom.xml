@@ -42,8 +42,8 @@
   <version>0.8.0.0</version>
   <packaging>jar</packaging>
 
-  <name>Open Distro Security SSL</name>
-  <description>Provides SSL Security for Elasticsearch 6</description>
+  <name>Open Distro For Elasticsearch Security SSL</name>
+  <description>SSL Security Component of Open Distro For Elasticsearch</description>
   <url>https://github.com/opendistro-for-elasticsearch/security-ssl</url>
   <inceptionYear>2015</inceptionYear>
 
