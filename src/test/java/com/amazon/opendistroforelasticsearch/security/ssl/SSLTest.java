@@ -807,4 +807,101 @@ public class SSLTest extends AbstractUnitTest {
         Assert.assertFalse(executeSimpleRequest("_nodes/stats?pretty").contains("\"rx_size_in_bytes\" : 0"));
         Assert.assertFalse(executeSimpleRequest("_nodes/stats?pretty").contains("\"tx_count\" : 0"));
     }
+
+
+    @Test
+    public void testTLSv1() throws Exception {
+
+        enableHTTPClientSSL = true;
+        trustHTTPServerCertificate = true;
+
+        final Settings settings = Settings.builder().put("opendistro_security.ssl.transport.enabled", true)
+                .put(SSLConfigConstants.OPENDISTRO_SECURITY_SSL_HTTP_ENABLE_OPENSSL_IF_AVAILABLE, allowOpenSSL)
+                .put(SSLConfigConstants.OPENDISTRO_SECURITY_SSL_TRANSPORT_ENABLE_OPENSSL_IF_AVAILABLE, allowOpenSSL)
+                .put(SSLConfigConstants.OPENDISTRO_SECURITY_SSL_TRANSPORT_KEYSTORE_ALIAS, "node-0")
+                .put("opendistro_security.ssl.transport.keystore_filepath", getAbsoluteFilePathFromClassPath("node-0-keystore.jks"))
+                .put("opendistro_security.ssl.transport.truststore_filepath", getAbsoluteFilePathFromClassPath("truststore.jks"))
+                .put("opendistro_security.ssl.http.keystore_filepath", getAbsoluteFilePathFromClassPath("node-0-keystore.jks"))
+                .put("opendistro_security.ssl.http.truststore_filepath", getAbsoluteFilePathFromClassPath("truststore.jks"))
+                .put("opendistro_security.ssl.transport.enforce_hostname_verification", false)
+                .put("opendistro_security.ssl.transport.resolve_hostname", false)
+                .put(SSLConfigConstants.OPENDISTRO_SECURITY_SSL_HTTP_ENABLED_PROTOCOLS, "TLSv1")
+                .put(SSLConfigConstants.OPENDISTRO_SECURITY_SSL_HTTP_ENABLED, true)
+                .build();
+
+        startES(settings);
+
+        Assert.assertTrue(executeSimpleRequest("_nodes/stats?pretty").contains("\"tx_size_in_bytes\""));
+    }
+
+
+    @Test
+    public void testHttpsAndNodeSSLKeyPass() throws Exception {
+
+        enableHTTPClientSSL = true;
+        trustHTTPServerCertificate = true;
+        sendHTTPClientCertificate = true;
+
+        final Settings settings = Settings.builder().put("opendistro_security.ssl.transport.enabled", true)
+                .put(SSLConfigConstants.OPENDISTRO_SECURITY_SSL_HTTP_ENABLE_OPENSSL_IF_AVAILABLE, allowOpenSSL)
+                .put(SSLConfigConstants.OPENDISTRO_SECURITY_SSL_TRANSPORT_ENABLE_OPENSSL_IF_AVAILABLE, allowOpenSSL)
+                .put(SSLConfigConstants.OPENDISTRO_SECURITY_SSL_TRANSPORT_KEYSTORE_ALIAS, "node-0")
+                .put(SSLConfigConstants.OPENDISTRO_SECURITY_SSL_HTTP_KEYSTORE_ALIAS, "node-0")
+                .put("opendistro_security.ssl.transport.keystore_filepath", getAbsoluteFilePathFromClassPath("node-0-keystore.jks"))
+                .put("opendistro_security.ssl.transport.truststore_filepath", getAbsoluteFilePathFromClassPath("truststore.jks"))
+                .put(SSLConfigConstants.OPENDISTRO_SECURITY_SSL_TRANSPORT_KEYSTORE_KEYPASSWORD, "changeit")
+                .put("opendistro_security.ssl.transport.enforce_hostname_verification", false)
+                .put("opendistro_security.ssl.transport.resolve_hostname", false)
+
+                .put("opendistro_security.ssl.http.enabled", true).put("opendistro_security.ssl.http.clientauth_mode", "REQUIRE")
+                .put("opendistro_security.ssl.http.keystore_filepath", getAbsoluteFilePathFromClassPath("node-0-keystore.jks"))
+                .put("opendistro_security.ssl.http.truststore_filepath", getAbsoluteFilePathFromClassPath("truststore.jks"))
+                .put(SSLConfigConstants.OPENDISTRO_SECURITY_SSL_HTTP_KEYSTORE_KEYPASSWORD, "changeit")
+
+
+                .build();
+
+        startES(settings);
+        System.out.println(executeSimpleRequest("_opendistro/_security/sslinfo?pretty"));
+        Assert.assertTrue(executeSimpleRequest("_opendistro/_security/sslinfo?pretty").contains("TLS"));
+        Assert.assertTrue(executeSimpleRequest("_opendistro/_security/sslinfo?pretty").length() > 0);
+        Assert.assertTrue(executeSimpleRequest("_nodes/settings?pretty").contains(clustername));
+        Assert.assertTrue(executeSimpleRequest("_opendistro/_security/sslinfo?pretty").contains("CN=node-0.example.com,OU=SSL,O=Test,L=Test,C=DE"));
+        Assert.assertFalse(executeSimpleRequest("_nodes/stats?pretty").contains("\"tx_size_in_bytes\" : 0"));
+        Assert.assertFalse(executeSimpleRequest("_nodes/stats?pretty").contains("\"rx_count\" : 0"));
+        Assert.assertFalse(executeSimpleRequest("_nodes/stats?pretty").contains("\"rx_size_in_bytes\" : 0"));
+        Assert.assertFalse(executeSimpleRequest("_nodes/stats?pretty").contains("\"tx_count\" : 0"));
+
+    }
+
+    @Test(expected=IllegalStateException.class)
+    public void testHttpsAndNodeSSLKeyPassFail() throws Exception {
+
+        enableHTTPClientSSL = true;
+        trustHTTPServerCertificate = true;
+        sendHTTPClientCertificate = true;
+
+        final Settings settings = Settings.builder().put("opendistro_security.ssl.transport.enabled", true)
+                .put(SSLConfigConstants.OPENDISTRO_SECURITY_SSL_HTTP_ENABLE_OPENSSL_IF_AVAILABLE, allowOpenSSL)
+                .put(SSLConfigConstants.OPENDISTRO_SECURITY_SSL_TRANSPORT_ENABLE_OPENSSL_IF_AVAILABLE, allowOpenSSL)
+                .put(SSLConfigConstants.OPENDISTRO_SECURITY_SSL_TRANSPORT_KEYSTORE_ALIAS, "node-0")
+                .put(SSLConfigConstants.OPENDISTRO_SECURITY_SSL_HTTP_KEYSTORE_ALIAS, "node-0")
+                .put("opendistro_security.ssl.transport.keystore_filepath", getAbsoluteFilePathFromClassPath("node-0-keystore.jks"))
+                .put("opendistro_security.ssl.transport.truststore_filepath", getAbsoluteFilePathFromClassPath("truststore.jks"))
+                .put(SSLConfigConstants.OPENDISTRO_SECURITY_SSL_TRANSPORT_KEYSTORE_KEYPASSWORD, "wrongpass")
+                .put("opendistro_security.ssl.transport.enforce_hostname_verification", false)
+                .put("opendistro_security.ssl.transport.resolve_hostname", false)
+
+                .put("opendistro_security.ssl.http.enabled", true).put("opendistro_security.ssl.http.clientauth_mode", "REQUIRE")
+                .put("opendistro_security.ssl.http.keystore_filepath", getAbsoluteFilePathFromClassPath("node-0-keystore.jks"))
+                .put("opendistro_security.ssl.http.truststore_filepath", getAbsoluteFilePathFromClassPath("truststore.jks"))
+                .put(SSLConfigConstants.OPENDISTRO_SECURITY_SSL_HTTP_KEYSTORE_KEYPASSWORD, "wrongpass")
+
+
+                .build();
+
+        startES(settings);
+        Assert.assertTrue(executeSimpleRequest("_opendistro/_security/sslinfo?pretty").contains("TLS"));
+
+    }
 }
