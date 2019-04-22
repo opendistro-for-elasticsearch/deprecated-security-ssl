@@ -49,7 +49,6 @@ public final class SSLConfigConstants {
     public static final String OPENDISTRO_SECURITY_SSL_HTTP_PEMCERT_FILEPATH = "opendistro_security.ssl.http.pemcert_filepath";
     public static final String OPENDISTRO_SECURITY_SSL_HTTP_PEMTRUSTEDCAS_FILEPATH = "opendistro_security.ssl.http.pemtrustedcas_filepath";
     public static final String OPENDISTRO_SECURITY_SSL_HTTP_KEYSTORE_PASSWORD = "opendistro_security.ssl.http.keystore_password";
-    public static final String OPENDISTRO_SECURITY_SSL_HTTP_KEYSTORE_KEYPASSWORD = "opendistro_security.ssl.http.keystore_keypassword";
     public static final String OPENDISTRO_SECURITY_SSL_HTTP_KEYSTORE_TYPE = "opendistro_security.ssl.http.keystore_type";
     public static final String OPENDISTRO_SECURITY_SSL_HTTP_TRUSTSTORE_ALIAS = "opendistro_security.ssl.http.truststore_alias";
     public static final String OPENDISTRO_SECURITY_SSL_HTTP_TRUSTSTORE_FILEPATH = "opendistro_security.ssl.http.truststore_filepath";
@@ -67,7 +66,6 @@ public final class SSLConfigConstants {
     public static final String OPENDISTRO_SECURITY_SSL_TRANSPORT_PEMCERT_FILEPATH = "opendistro_security.ssl.transport.pemcert_filepath";
     public static final String OPENDISTRO_SECURITY_SSL_TRANSPORT_PEMTRUSTEDCAS_FILEPATH = "opendistro_security.ssl.transport.pemtrustedcas_filepath";
     public static final String OPENDISTRO_SECURITY_SSL_TRANSPORT_KEYSTORE_PASSWORD = "opendistro_security.ssl.transport.keystore_password";
-    public static final String OPENDISTRO_SECURITY_SSL_TRANSPORT_KEYSTORE_KEYPASSWORD = "opendistro_security.ssl.transport.keystore_keypassword";
     public static final String OPENDISTRO_SECURITY_SSL_TRANSPORT_KEYSTORE_TYPE = "opendistro_security.ssl.transport.keystore_type";
     public static final String OPENDISTRO_SECURITY_SSL_TRANSPORT_TRUSTSTORE_ALIAS = "opendistro_security.ssl.transport.truststore_alias";
     public static final String OPENDISTRO_SECURITY_SSL_TRANSPORT_TRUSTSTORE_FILEPATH = "opendistro_security.ssl.transport.truststore_filepath";
@@ -188,7 +186,6 @@ public final class SSLConfigConstants {
         "TLS_AES_256_GCM_SHA384",
         
         //TLS 1.3 OpenSSL
-        "TLS_CHACHA20_POLY1305_SHA256",
         "TLS_AES_128_CCM_8_SHA256",
         "TLS_AES_128_CCM_SHA256",
         
