@@ -56,22 +56,22 @@ import com.amazon.opendistroforelasticsearch.security.ssl.SslExceptionHandler;
 public class OpenDistroSecuritySSLNettyHttpServerTransport extends Netty4HttpServerTransport {
 
     private static final Logger logger = LogManager.getLogger(OpenDistroSecuritySSLNettyHttpServerTransport.class);
-    private final OpenDistroSecurityKeyStore sgks;
+    private final OpenDistroSecurityKeyStore odks;
     private final ThreadContext threadContext;
     private final SslExceptionHandler errorHandler;
     
     public OpenDistroSecuritySSLNettyHttpServerTransport(final Settings settings, final NetworkService networkService, final BigArrays bigArrays,
-            final ThreadPool threadPool, final OpenDistroSecurityKeyStore sgks, final NamedXContentRegistry namedXContentRegistry, final ValidatingDispatcher dispatcher,
+            final ThreadPool threadPool, final OpenDistroSecurityKeyStore odks, final NamedXContentRegistry namedXContentRegistry, final ValidatingDispatcher dispatcher,
             final SslExceptionHandler errorHandler) {
         super(settings, networkService, bigArrays, threadPool, namedXContentRegistry, dispatcher);
-        this.sgks = sgks;
+        this.odks = odks;
         this.threadContext = threadPool.getThreadContext();
         this.errorHandler = errorHandler;
     }
 
     @Override
     public ChannelHandler configureServerChannelHandler() {
-        return new SSLHttpChannelHandler(this, sgks);
+        return new SSLHttpChannelHandler(this, odks);
     }
 
     @Override
@@ -105,14 +105,14 @@ public class OpenDistroSecuritySSLNettyHttpServerTransport extends Netty4HttpSer
 
     protected class SSLHttpChannelHandler extends Netty4HttpServerTransport.HttpChannelHandler {
         
-        protected SSLHttpChannelHandler(Netty4HttpServerTransport transport, final OpenDistroSecurityKeyStore sgks) {
+        protected SSLHttpChannelHandler(Netty4HttpServerTransport transport, final OpenDistroSecurityKeyStore odks) {
             super(transport, OpenDistroSecuritySSLNettyHttpServerTransport.this.detailedErrorsEnabled, OpenDistroSecuritySSLNettyHttpServerTransport.this.threadContext);
         }
 
         @Override
         protected void initChannel(Channel ch) throws Exception {
             super.initChannel(ch);
-            final SslHandler sslHandler = new SslHandler(OpenDistroSecuritySSLNettyHttpServerTransport.this.sgks.createHTTPSSLEngine());
+            final SslHandler sslHandler = new SslHandler(OpenDistroSecuritySSLNettyHttpServerTransport.this.odks.createHTTPSSLEngine());
             ch.pipeline().addFirst("ssl_http", sslHandler);
         }
     }

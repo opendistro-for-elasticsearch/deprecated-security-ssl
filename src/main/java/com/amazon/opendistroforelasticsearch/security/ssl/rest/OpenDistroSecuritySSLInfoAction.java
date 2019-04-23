@@ -56,15 +56,15 @@ import com.amazon.opendistroforelasticsearch.security.ssl.util.SSLRequestHelper.
 
 public class OpenDistroSecuritySSLInfoAction extends BaseRestHandler {
 
-    private final OpenDistroSecurityKeyStore sgks;
+    private final OpenDistroSecurityKeyStore odks;
     final PrincipalExtractor principalExtractor;
     private final Path configPath;
     private final Settings settings;
 
     public OpenDistroSecuritySSLInfoAction(final Settings settings, final Path configPath, final RestController controller,
-            final OpenDistroSecurityKeyStore sgks, final PrincipalExtractor principalExtractor) {
+            final OpenDistroSecurityKeyStore odks, final PrincipalExtractor principalExtractor) {
         super(settings);
-        this.sgks = sgks;
+        this.odks = odks;
         this.principalExtractor = principalExtractor;
         this.configPath = configPath;
         this.settings = settings;
@@ -107,9 +107,9 @@ public class OpenDistroSecuritySSLInfoAction extends BaseRestHandler {
                     builder.field("ssl_openssl_non_available_cause", openSslUnavailCause==null?"":openSslUnavailCause.toString());
                     builder.field("ssl_openssl_supports_key_manager_factory", OpenSsl.supportsKeyManagerFactory());
                     builder.field("ssl_openssl_supports_hostname_validation", OpenSsl.supportsHostnameValidation());
-                    builder.field("ssl_provider_http", sgks.getHTTPProviderName());
-                    builder.field("ssl_provider_transport_server", sgks.getTransportServerProviderName());
-                    builder.field("ssl_provider_transport_client", sgks.getTransportClientProviderName());
+                    builder.field("ssl_provider_http", odks.getHTTPProviderName());
+                    builder.field("ssl_provider_transport_server", odks.getTransportServerProviderName());
+                    builder.field("ssl_provider_transport_client", odks.getTransportClientProviderName());
                     builder.endObject();
 
                     response = new BytesRestResponse(RestStatus.OK, builder);
