@@ -255,11 +255,6 @@ public class DefaultOpenDistroSecurityKeyStore implements OpenDistroSecurityKeyS
                 final String keystorePassword = settings.get(
                         SSLConfigConstants.OPENDISTRO_SECURITY_SSL_TRANSPORT_KEYSTORE_PASSWORD,
                         SSLConfigConstants.DEFAULT_STORE_PASSWORD);
-
-                final String keyPassword = settings.get(
-                        SSLConfigConstants.OPENDISTRO_SECURITY_SSL_TRANSPORT_KEYSTORE_PASSWORD,
-                        keystorePassword);
-
                 final String keystoreAlias = settings.get(SSLConfigConstants.OPENDISTRO_SECURITY_SSL_TRANSPORT_KEYSTORE_ALIAS,
                         null);
 
@@ -283,14 +278,14 @@ public class DefaultOpenDistroSecurityKeyStore implements OpenDistroSecurityKeyS
 
                     final KeyStore ks = KeyStore.getInstance(keystoreType);
                     ks.load(new FileInputStream(new File(keystoreFilePath)),
-                            (keyPassword == null || keystorePassword.length() == 0) ? null
+                            (keystorePassword == null || keystorePassword.length() == 0) ? null
                                     : keystorePassword.toCharArray());
 
                     final X509Certificate[] transportKeystoreCert = SSLCertificateHelper.exportServerCertChain(ks,
                             keystoreAlias);
                     final PrivateKey transportKeystoreKey = SSLCertificateHelper.exportDecryptedKey(ks, keystoreAlias,
-                            (keyPassword == null || keyPassword.length() == 0) ? null
-                                    : keyPassword.toCharArray());
+                            (keystorePassword == null || keystorePassword.length() == 0) ? null
+                                    : keystorePassword.toCharArray());
 
                     if (transportKeystoreKey == null) {
                         throw new ElasticsearchException(
@@ -390,9 +385,6 @@ public class DefaultOpenDistroSecurityKeyStore implements OpenDistroSecurityKeyS
                         DEFAULT_STORE_TYPE);
                 final String keystorePassword = settings.get(SSLConfigConstants.OPENDISTRO_SECURITY_SSL_HTTP_KEYSTORE_PASSWORD,
                         SSLConfigConstants.DEFAULT_STORE_PASSWORD);
-                final String keyPassword = settings.get(
-                        SSLConfigConstants.OPENDISTRO_SECURITY_SSL_HTTP_KEYSTORE_KEYPASSWORD,
-                        keystorePassword);
                 final String keystoreAlias = settings.get(SSLConfigConstants.OPENDISTRO_SECURITY_SSL_HTTP_KEYSTORE_ALIAS, null);
 
                 log.info("HTTPS client auth mode {}", httpClientAuthMode);
@@ -422,8 +414,8 @@ public class DefaultOpenDistroSecurityKeyStore implements OpenDistroSecurityKeyS
                     final X509Certificate[] httpKeystoreCert = SSLCertificateHelper.exportServerCertChain(ks,
                             keystoreAlias);
                     final PrivateKey httpKeystoreKey = SSLCertificateHelper.exportDecryptedKey(ks, keystoreAlias,
-                            (keyPassword == null || keyPassword.length() == 0) ? null
-                                    : keyPassword.toCharArray());
+                            (keystorePassword == null || keystorePassword.length() == 0) ? null
+                                    : keystorePassword.toCharArray());
 
                     if (httpKeystoreKey == null) {
                         throw new ElasticsearchException(
@@ -667,7 +659,7 @@ public class DefaultOpenDistroSecurityKeyStore implements OpenDistroSecurityKeyS
             log.info("OpenSSL supports TLSv1.3");
             
         } else if(OpenSsl.isAvailable()){
-            enabledHttpProtocolsOpenSSLProvider = new ArrayList(Arrays.asList("TLSv1.3","TLSv1.2","TLSv1.1"));
+            enabledHttpProtocolsOpenSSLProvider = new ArrayList(Arrays.asList("TLSv1.2","TLSv1.1"));
             enabledHttpProtocolsOpenSSLProvider.retainAll(secureHttpSSLProtocols);
             enabledTransportProtocolsOpenSSLProvider = new ArrayList(Arrays.asList("TLSv1.2","TLSv1.1"));
             enabledTransportProtocolsOpenSSLProvider.retainAll(secureTransportSSLProtocols);

@@ -68,14 +68,14 @@ import io.netty.handler.ssl.SslHandler;
 public class OpenDistroSecuritySSLNettyTransport extends Netty4Transport {
 
     private static final Logger logger = LogManager.getLogger(OpenDistroSecuritySSLNettyTransport.class);
-    private final OpenDistroSecurityKeyStore odks;
+    private final OpenDistroSecurityKeyStore sgks;
     private final SslExceptionHandler errorHandler;
 
     public OpenDistroSecuritySSLNettyTransport(final Settings settings, final Version version, final ThreadPool threadPool, final NetworkService networkService,
         final PageCacheRecycler pageCacheRecycler, final NamedWriteableRegistry namedWriteableRegistry,
-        final CircuitBreakerService circuitBreakerService, final OpenDistroSecurityKeyStore odks, final SslExceptionHandler errorHandler) {
+        final CircuitBreakerService circuitBreakerService, final OpenDistroSecurityKeyStore sgks, final SslExceptionHandler errorHandler) {
         super(settings, version, threadPool, networkService, pageCacheRecycler, namedWriteableRegistry, circuitBreakerService);
-        this.odks = odks;
+        this.sgks = sgks;
         this.errorHandler = errorHandler;
     }
 
@@ -129,7 +129,7 @@ public class OpenDistroSecuritySSLNettyTransport extends Netty4Transport {
         @Override
         protected void initChannel(Channel ch) throws Exception {
             super.initChannel(ch);
-            final SslHandler sslHandler = new SslHandler(odks.createServerTransportSSLEngine());
+            final SslHandler sslHandler = new SslHandler(sgks.createServerTransportSSLEngine());
             ch.pipeline().addFirst("ssl_server", sslHandler);
         }
         
@@ -164,15 +164,15 @@ public class OpenDistroSecuritySSLNettyTransport extends Netty4Transport {
 
     protected static class ClientSSLHandler extends ChannelOutboundHandlerAdapter {
         private final Logger log = LogManager.getLogger(this.getClass());
-        private final OpenDistroSecurityKeyStore odks;
+        private final OpenDistroSecurityKeyStore sgks;
         private final boolean hostnameVerificationEnabled;
         private final boolean hostnameVerificationResovleHostName;
         private final SslExceptionHandler errorHandler;
         
 
-        private ClientSSLHandler(final OpenDistroSecurityKeyStore odks, final boolean hostnameVerificationEnabled,
+        private ClientSSLHandler(final OpenDistroSecurityKeyStore sgks, final boolean hostnameVerificationEnabled,
                 final boolean hostnameVerificationResovleHostName, final SslExceptionHandler errorHandler) {
-            this.odks = odks;
+            this.sgks = sgks;
             this.hostnameVerificationEnabled = hostnameVerificationEnabled;
             this.hostnameVerificationResovleHostName = hostnameVerificationResovleHostName;
             this.errorHandler = errorHandler;
@@ -223,9 +223,9 @@ public class OpenDistroSecuritySSLNettyTransport extends Netty4Transport {
                         log.debug("Hostname of peer is {} ({}/{}) with hostnameVerificationResovleHostName: {}", hostname, inetSocketAddress.getHostName(), inetSocketAddress.getHostString(), hostnameVerificationResovleHostName);
                     }
                     
-                    engine = odks.createClientTransportSSLEngine(hostname, inetSocketAddress.getPort());
+                    engine = sgks.createClientTransportSSLEngine(hostname, inetSocketAddress.getPort());
                 } else {
-                    engine = odks.createClientTransportSSLEngine(null, -1);
+                    engine = sgks.createClientTransportSSLEngine(null, -1);
                 }
             } catch (final SSLException e) {
                 throw ExceptionsHelper.convertToElastic(e);
@@ -250,7 +250,7 @@ public class OpenDistroSecuritySSLNettyTransport extends Netty4Transport {
         @Override
         protected void initChannel(Channel ch) throws Exception {
             super.initChannel(ch);
-            ch.pipeline().addFirst("client_ssl_handler", new ClientSSLHandler(odks, hostnameVerificationEnabled,
+            ch.pipeline().addFirst("client_ssl_handler", new ClientSSLHandler(sgks, hostnameVerificationEnabled,
                     hostnameVerificationResovleHostName, errorHandler));
         }
         
