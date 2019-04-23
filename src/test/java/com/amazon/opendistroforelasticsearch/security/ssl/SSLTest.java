@@ -810,32 +810,6 @@ public class SSLTest extends AbstractUnitTest {
 
 
     @Test
-    public void testTLSv1() throws Exception {
-
-        enableHTTPClientSSL = true;
-        trustHTTPServerCertificate = true;
-
-        final Settings settings = Settings.builder().put("opendistro_security.ssl.transport.enabled", true)
-                .put(SSLConfigConstants.OPENDISTRO_SECURITY_SSL_HTTP_ENABLE_OPENSSL_IF_AVAILABLE, allowOpenSSL)
-                .put(SSLConfigConstants.OPENDISTRO_SECURITY_SSL_TRANSPORT_ENABLE_OPENSSL_IF_AVAILABLE, allowOpenSSL)
-                .put(SSLConfigConstants.OPENDISTRO_SECURITY_SSL_TRANSPORT_KEYSTORE_ALIAS, "node-0")
-                .put("opendistro_security.ssl.transport.keystore_filepath", getAbsoluteFilePathFromClassPath("node-0-keystore.jks"))
-                .put("opendistro_security.ssl.transport.truststore_filepath", getAbsoluteFilePathFromClassPath("truststore.jks"))
-                .put("opendistro_security.ssl.http.keystore_filepath", getAbsoluteFilePathFromClassPath("node-0-keystore.jks"))
-                .put("opendistro_security.ssl.http.truststore_filepath", getAbsoluteFilePathFromClassPath("truststore.jks"))
-                .put("opendistro_security.ssl.transport.enforce_hostname_verification", false)
-                .put("opendistro_security.ssl.transport.resolve_hostname", false)
-                .put(SSLConfigConstants.OPENDISTRO_SECURITY_SSL_HTTP_ENABLED_PROTOCOLS, "TLSv1")
-                .put(SSLConfigConstants.OPENDISTRO_SECURITY_SSL_HTTP_ENABLED, true)
-                .build();
-
-        startES(settings);
-
-        Assert.assertTrue(executeSimpleRequest("_nodes/stats?pretty").contains("\"tx_size_in_bytes\""));
-    }
-
-
-    @Test
     public void testHttpsAndNodeSSLKeyPass() throws Exception {
 
         enableHTTPClientSSL = true;
