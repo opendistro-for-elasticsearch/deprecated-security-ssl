@@ -25,24 +25,9 @@ Please see our [technical documentation](https://opendistro.github.io/for-elasti
 
 ## Build
 
-This package is organized into subprojects, most of which contribute JARs to the top-level plugin in the security subproject. All subprojects in this package use the Maven build system. [Maven](https://maven.apache.org/guides/index.html) comes with excellent documentation that should be your first stop when trying to figure out how to operate or modify the build.
+* Source build instructions can be found here : 
 
-### Building from the command line
-This project has a dependency on [security-parent] project.You will have to build that project first via maven (`mvn clean install`) before attempting to build this package.
-
-To try out the build, issue the following at the command line:
-
-1.` mvn compile`
-
-This will run Maven, telling it to execute the compile goal. When it’s finished, you should find the compiled .class files in the target/classes directory.
-
-The `package` goal will compile your Java code, run any tests, and finish by packaging the code up in a JAR file within the target directory.
-
-2. `mvn package`
-
-The `test` goal runs all the unit tests in the package
-
-3. `mvn test`
+https://github.com/opendistro-for-elasticsearch/security-parent/blob/master/README.md
 
 ## Debugging
 
