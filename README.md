@@ -2,6 +2,10 @@
 
 Open Distro For Elasticsearch Security SSL is a free and open source plugin for Elasticsearch which provides SSL/TLS support for Elasticsearch. 
 
+## Note:
+
+* Deprecated since Opendistro version 1.0
+
 ## Highlights
 
 * Node-to-node encryption through SSL/TLS (Transport layer)
