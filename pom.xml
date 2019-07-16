@@ -35,11 +35,11 @@
   <parent>
     <groupId>com.amazon.opendistroforelasticsearch</groupId>
     <artifactId>opendistro_security_parent</artifactId>
-    <version>0.9.0.0</version>
+    <version>0.9.0.1</version>
   </parent>
 
   <artifactId>opendistro_security_ssl</artifactId>
-  <version>0.9.0.0</version>
+  <version>0.9.0.1</version>
   <packaging>jar</packaging>
   <name>Open Distro For Elasticsearch Security SSL</name>
   <description>Open Distro For Elasticsearch Security SSL</description>
@@ -65,7 +65,7 @@
     <url>https://github.com/opendistro-for-elasticsearch/security-ssl</url>
     <connection>scm:git:git@github.com:opendistro-for-elasticsearch/security-ssl.git</connection>
     <developerConnection>scm:git:git@github.com:opendistro-for-elasticsearch/security-ssl.git</developerConnection>
-    <tag>v0.9.0.0</tag>
+    <tag>v0.9.0.1</tag>
   </scm>
 
   <issueManagement>
