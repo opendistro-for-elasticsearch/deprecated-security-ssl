@@ -55,7 +55,7 @@
   </licenses>
 
   <properties>
-    <elasticsearch.version>6.7.1</elasticsearch.version>
+    <elasticsearch.version>6.8.1</elasticsearch.version>
     <!-- deps -->
     <netty-native.version>2.0.20.Final</netty-native.version>
     <log4j.version>2.11.1</log4j.version>
