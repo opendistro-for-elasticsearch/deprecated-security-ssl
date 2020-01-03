@@ -39,7 +39,7 @@
   </parent>
 
   <artifactId>opendistro_security_ssl</artifactId>
-  <version>0.10.0.4</version>
+  <version>0.10.1.0</version>
   <packaging>jar</packaging>
   <name>Open Distro For Elasticsearch Security SSL</name>
   <description>Open Distro For Elasticsearch Security SSL</description>
@@ -55,7 +55,7 @@
   </licenses>
 
   <properties>
-    <elasticsearch.version>6.8.1</elasticsearch.version>
+    <elasticsearch.version>6.8.6</elasticsearch.version>
     <!-- deps -->
     <netty-native.version>2.0.20.Final</netty-native.version>
     <log4j.version>2.11.1</log4j.version>
@@ -65,7 +65,7 @@
     <url>https://github.com/opendistro-for-elasticsearch/security-ssl</url>
     <connection>scm:git:git@github.com:opendistro-for-elasticsearch/security-ssl.git</connection>
     <developerConnection>scm:git:git@github.com:opendistro-for-elasticsearch/security-ssl.git</developerConnection>
-    <tag>v0.10.0.4</tag>
+    <tag>v0.10.1.0</tag>
   </scm>
 
   <issueManagement>
