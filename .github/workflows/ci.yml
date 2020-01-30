@@ -1,0 +1,33 @@
+name: CI
+
+on:
+  pull_request:
+    branches:
+      - '*'
+  push:
+    branches:
+      - master
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container: opendistroforelasticsearch/security-maven:v1
+
+    steps:
+
+      - name: Checkout security-parent
+        uses: actions/checkout@v1
+        with:
+          repository: opendistro-for-elasticsearch/security-parent
+          ref: opendistro-0.9
+      - name: Install security-parent
+        run: mvn clean install -DskipTests --file ../security-parent/pom.xml
+
+      - name: Checkout security-ssl
+        uses: actions/checkout@v1
+
+      - name: Test
+        run: mvn test
+
+      - name: Install
+        run: mvn clean install -DskipTests
