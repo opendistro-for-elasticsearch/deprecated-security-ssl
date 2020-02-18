@@ -101,12 +101,12 @@ implements TransportRequestHandler<T> {
             throw exception;
         }
 
-        TransportChannel innerChannel = channel;
         if (!"netty".equals(channel.getChannelType()) && !"direct".equals(channel.getChannelType())) { //netty4
             try {
                 Class wrappedChannelCls = channel.getClass();
                 Method getInnerChannel = wrappedChannelCls.getMethod("getInnerChannel", null);
-                innerChannel = (TransportChannel) getInnerChannel.invoke(channel);
+                channel = (TransportChannel) getInnerChannel.invoke(channel);
+                log.info("Using inner channel : " + channel.getChannelType());
             } catch (NoSuchMethodException ex) {
                 throw new RuntimeException("Unknown channel type " + channel.getChannelType() + " does not implement getInnerChannel method.");
             }
@@ -121,15 +121,15 @@ implements TransportRequestHandler<T> {
 
             Netty4TcpChannel nettyChannel = null;
 
-            if (innerChannel instanceof TaskTransportChannel) {
-                final TransportChannel inner = ((TaskTransportChannel) innerChannel).getChannel();
+            if (channel instanceof TaskTransportChannel) {
+                final TransportChannel inner = ((TaskTransportChannel) channel).getChannel();
                 nettyChannel = (Netty4TcpChannel) ((TcpTransportChannel) inner).getChannel();
             } else
-            if (innerChannel instanceof TcpTransportChannel) {
-                final TcpChannel inner = ((TcpTransportChannel) innerChannel).getChannel();
+            if (channel instanceof TcpTransportChannel) {
+                final TcpChannel inner = ((TcpTransportChannel) channel).getChannel();
                 nettyChannel = (Netty4TcpChannel) inner;
             } else {
-                throw new Exception("Invalid channel of type "+innerChannel.getClass()+ " ("+innerChannel.getChannelType()+")");
+                throw new Exception("Invalid channel of type " + channel.getClass() + " (" + channel.getChannelType() + ")");
             }
             
             final SslHandler sslhandler = (SslHandler) nettyChannel.getLowLevelChannel().pipeline().get("ssl_server");
