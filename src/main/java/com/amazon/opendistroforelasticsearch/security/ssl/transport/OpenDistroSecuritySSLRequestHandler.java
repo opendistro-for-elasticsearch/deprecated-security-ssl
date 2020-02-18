@@ -106,7 +106,7 @@ implements TransportRequestHandler<T> {
                 Class wrappedChannelCls = channel.getClass();
                 Method getInnerChannel = wrappedChannelCls.getMethod("getInnerChannel", null);
                 channel = (TransportChannel) getInnerChannel.invoke(channel);
-                log.info("Using inner channel : " + channel.getChannelType());
+                log.debug("Using inner channel : " + channel.getChannelType());
             } catch (NoSuchMethodException ex) {
                 throw new RuntimeException("Unknown channel type " + channel.getChannelType() + " does not implement getInnerChannel method.");
             }
