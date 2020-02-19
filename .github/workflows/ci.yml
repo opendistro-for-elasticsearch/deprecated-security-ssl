@@ -29,5 +29,36 @@ jobs:
       - name: Test
         run: mvn test
 
-      - name: Install
+      - name: Install security-ssl
         run: mvn clean install -DskipTests
+
+      - name: Checkout security
+        uses: actions/checkout@v1
+        with:
+          repository: opendistro-for-elasticsearch/security
+          ref: opendistro-0.10
+      - name: Test security
+        run: mvn test --file ../security/pom.xml
+      - name: Install security
+        run: mvn clean install -DskipTests --file ../security/pom.xml
+
+      - name: Checkout security-advanced-modules
+        uses: actions/checkout@v1
+        with:
+          repository: opendistro-for-elasticsearch/security-advanced-modules
+          ref: opendistro-0.10
+      - name: Test security-advanced-modules
+        run: mvn test --file ../security-advanced-modules/pom.xml
+      - name: Install security-advanced-modules
+        run: mvn clean install -DskipTests --file ../security-advanced-modules/pom.xml
+
+      - name: Build artifacts
+        run: mvn clean package -Padvanced -DskipTests --file ../security/pom.xml
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v1
+        with:
+          name: artifacts
+          path: ../security/target/releases/
+
+
