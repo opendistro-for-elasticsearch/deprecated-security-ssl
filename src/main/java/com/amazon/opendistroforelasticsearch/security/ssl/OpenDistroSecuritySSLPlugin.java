@@ -30,6 +30,8 @@
 
 package com.amazon.opendistroforelasticsearch.security.ssl;
 
+import com.amazon.opendistroforelasticsearch.security.ssl.rest.OpenDistroSecuritySSLCertsInfoAction;
+import com.amazon.opendistroforelasticsearch.security.ssl.rest.OpenDistroSecuritySSLReloadCertsAction;
 import io.netty.handler.ssl.OpenSsl;
 import io.netty.util.internal.PlatformDependent;
 
@@ -100,6 +102,7 @@ public class OpenDistroSecuritySSLPlugin extends Plugin implements ActionPlugin,
     protected final boolean client;
     protected final boolean httpSSLEnabled;
     protected final boolean transportSSLEnabled;
+    private boolean sslCertReloadEnabled;
     protected final Settings settings;
     protected final OpenDistroSecurityKeyStore odsks;
     protected PrincipalExtractor principalExtractor;
@@ -111,12 +114,14 @@ public class OpenDistroSecuritySSLPlugin extends Plugin implements ActionPlugin,
     }
 
     protected OpenDistroSecuritySSLPlugin(final Settings settings, final Path configPath, boolean disabled) {
-     
+
+        sslCertReloadEnabled = isSslCertReloadEnabled(settings);
         if(disabled) {
             this.settings = null;
             this.client = false;
             this.httpSSLEnabled = false;
             this.transportSSLEnabled = false;
+            this.sslCertReloadEnabled = false;
             this.odsks = null;
             this.configPath = null;
             
@@ -236,6 +241,10 @@ public class OpenDistroSecuritySSLPlugin extends Plugin implements ActionPlugin,
         
         if (!client) {
             handlers.add(new OpenDistroSecuritySSLInfoAction(settings, configPath, restController, odsks, Objects.requireNonNull(principalExtractor)));
+            handlers.add(new OpenDistroSecuritySSLCertsInfoAction(settings, restController, odsks));
+            if (sslCertReloadEnabled) {
+                handlers.add(new OpenDistroSecuritySSLReloadCertsAction(settings, restController, odsks));
+            }
         }
         
         return handlers;
@@ -351,6 +360,7 @@ public class OpenDistroSecuritySSLPlugin extends Plugin implements ActionPlugin,
         settings.add(Setting.boolSetting(SSLConfigConstants.OPENDISTRO_SECURITY_SSL_HTTP_CRL_DISABLE_CRLDP, false, Property.NodeScope, Property.Filtered));
         settings.add(Setting.boolSetting(SSLConfigConstants.OPENDISTRO_SECURITY_SSL_HTTP_CRL_DISABLE_OCSP, false, Property.NodeScope, Property.Filtered));
         settings.add(Setting.longSetting(SSLConfigConstants.OPENDISTRO_SECURITY_SSL_HTTP_CRL_VALIDATION_DATE, -1, -1, Property.NodeScope, Property.Filtered));
+        settings.add(Setting.boolSetting(SSLConfigConstants.OPENDISTRO_SECURITY_SSL_CERT_RELOAD_ENABLED, false, Property.NodeScope, Property.Filtered));
         return settings;
     }
 
@@ -381,5 +391,14 @@ public class OpenDistroSecuritySSLPlugin extends Plugin implements ActionPlugin,
         List<String> settingsFilter = new ArrayList<>();
         settingsFilter.add("opendistro_security.*");
         return settingsFilter;
+    }
+
+    /**
+     * SSL Cert Reload will be enabled only if security is not disabled and not in we are not using sslOnly mode.
+     * @param settings Elastic configuration settings
+     * @return true if ssl cert reload is enabled else false
+     */
+    private static boolean isSslCertReloadEnabled(final Settings settings) {
+        return settings.getAsBoolean(SSLConfigConstants.OPENDISTRO_SECURITY_SSL_CERT_RELOAD_ENABLED, false);
     }
 }

@@ -46,6 +46,7 @@ public final class SSLConfigConstants {
     public static final String OPENDISTRO_SECURITY_SSL_HTTP_KEYSTORE_FILEPATH = "opendistro_security.ssl.http.keystore_filepath";
     public static final String OPENDISTRO_SECURITY_SSL_HTTP_PEMKEY_FILEPATH = "opendistro_security.ssl.http.pemkey_filepath";
     public static final String OPENDISTRO_SECURITY_SSL_HTTP_PEMKEY_PASSWORD = "opendistro_security.ssl.http.pemkey_password";
+    public static final String OPENDISTRO_SECURITY_SSL_HTTP_KEYSTORE_KEYPASSWORD = "opendistro_security.ssl.http.keystore_keypassword";
     public static final String OPENDISTRO_SECURITY_SSL_HTTP_PEMCERT_FILEPATH = "opendistro_security.ssl.http.pemcert_filepath";
     public static final String OPENDISTRO_SECURITY_SSL_HTTP_PEMTRUSTEDCAS_FILEPATH = "opendistro_security.ssl.http.pemtrustedcas_filepath";
     public static final String OPENDISTRO_SECURITY_SSL_HTTP_KEYSTORE_PASSWORD = "opendistro_security.ssl.http.keystore_password";
@@ -56,6 +57,7 @@ public final class SSLConfigConstants {
     public static final String OPENDISTRO_SECURITY_SSL_HTTP_TRUSTSTORE_TYPE = "opendistro_security.ssl.http.truststore_type";
     public static final String OPENDISTRO_SECURITY_SSL_TRANSPORT_ENABLE_OPENSSL_IF_AVAILABLE = "opendistro_security.ssl.transport.enable_openssl_if_available";
     public static final String OPENDISTRO_SECURITY_SSL_TRANSPORT_ENABLED = "opendistro_security.ssl.transport.enabled";
+    public static final String OPENDISTRO_SECURITY_SSL_CERT_RELOAD_ENABLED = "opendistro_security.ssl_cert_reload_enabled";
     public static final boolean OPENDISTRO_SECURITY_SSL_TRANSPORT_ENABLED_DEFAULT = true;
     public static final String OPENDISTRO_SECURITY_SSL_TRANSPORT_ENFORCE_HOSTNAME_VERIFICATION = "opendistro_security.ssl.transport.enforce_hostname_verification";
     public static final String OPENDISTRO_SECURITY_SSL_TRANSPORT_ENFORCE_HOSTNAME_VERIFICATION_RESOLVE_HOST_NAME = "opendistro_security.ssl.transport.resolve_hostname";
@@ -77,6 +79,7 @@ public final class SSLConfigConstants {
     public static final String OPENDISTRO_SECURITY_SSL_HTTP_ENABLED_PROTOCOLS = "opendistro_security.ssl.http.enabled_protocols";
     public static final String OPENDISTRO_SECURITY_SSL_CLIENT_EXTERNAL_CONTEXT_ID = "opendistro_security.ssl.client.external_context_id";
     public static final String OPENDISTRO_SECURITY_SSL_TRANSPORT_PRINCIPAL_EXTRACTOR_CLASS = "opendistro_security.ssl.transport.principal_extractor_class";
+    public static final String OPENDISTRO_SECURITY_SSL_TRANSPORT_KEYSTORE_KEYPASSWORD = "opendistro_security.ssl.transport.keystore_keypassword";
 
     public static final String OPENDISTRO_SECURITY_SSL_HTTP_CRL_FILE = "opendistro_security.ssl.http.crl.file_path";
     public static final String OPENDISTRO_SECURITY_SSL_HTTP_CRL_VALIDATE = "opendistro_security.ssl.http.crl.validate";

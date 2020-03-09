@@ -31,6 +31,10 @@
 package com.amazon.opendistroforelasticsearch.security.ssl.util;
 
 
+import java.io.FileInputStream;
+import java.security.cert.CertificateFactory;
+import java.security.cert.X509Certificate;
+
 public class Utils {
     public static <T> T coalesce(T first, T... more) {
         if (first != null) {
@@ -50,4 +54,15 @@ public class Utils {
         
         return null;
       }
+
+    public static X509Certificate loadCertificateFromFile(String file) throws Exception {
+        if(file == null) {
+            return null;
+        }
+
+        CertificateFactory fact = CertificateFactory.getInstance("X.509");
+        try(FileInputStream is = new FileInputStream(file)) {
+            return (X509Certificate) fact.generateCertificate(is);
+        }
+    }
 }
